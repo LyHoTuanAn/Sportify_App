@@ -43,7 +43,7 @@ dependencies:
   percent_indicator: ^4.2.3
   velocity_x:
     git:
-      url: https://github.com/chihuy105/VelocityX.git
+      url: https://github.com/LyHoTuanAn/VelocityX.git
       ref: stable
 
 
