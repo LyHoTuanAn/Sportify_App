@@ -1,147 +1,319 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/styles/style.dart';
-import '../../../core/styles/text_style.dart';
-import '../../../core/utilities/utilities.dart';
-import '../../../core/widgets/background_widget.dart';
+import '../../../core/utilities/screen.dart';
+import '../../../routes/app_pages.dart';
 import '../../../widgets/app_button.dart';
-import '../../../widgets/container_button.dart';
-import '../../../widgets/input_custom.dart';
 import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
-  LoginView({super.key});
-  final keyform = GlobalKey<FormState>();
+  const LoginView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    if (!Get.isRegistered<LoginController>()) {
-      Get.lazyPut(() => LoginController());
-    }
-    final bool showKeyboard = MediaQuery.of(context).viewInsets.bottom != 0;
-    return Scaffold(
-      body: BackgroundWidget(
-        child: Column(
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: showKeyboard ? 100 : context.screenHeight * .25,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(30),
-                  child: Image.asset(AppImage.logo),
-                ),
-              ),
-            ),
-            Container(
-              child: 'Welcome Back'.text.style(TGTextStyle.header).make(),
-            ),
-            Container(
-              child: 'Login to access your account'
-                  .text
-                  .style(TGTextStyle.body2)
-                  .make(),
-            ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 40,
-                ),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Form(
-                    key: keyform,
-                    child: Column(
-                      children: [
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          child: 'Enter Your Email'
-                              .text
-                              .style(TGTextStyle.body3)
-                              .make(),
-                        ),
-                        Dimes.height10,
-                        InputCustom(
-                            fillColor: AppTheme.inputBoxColor,
-                            contentPadding: const EdgeInsets.all(Dimes.size15),
-                            onChanged: (String email) {
-                              controller.email = email;
-                            },
-                            validator: (email) =>
-                                controller.emailValidation(email)),
-                        Dimes.height30,
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          child: 'Enter Your Password'
-                              .text
-                              .style(TGTextStyle.body3)
-                              .make(),
-                        ),
-                        Dimes.height10,
-                        InputCustom(
-                            fillColor: AppTheme.inputBoxColor,
-                            contentPadding: const EdgeInsets.all(Dimes.size15),
-                            isPassword: true,
-                            isShowSuffixIcon: true,
-                            onChanged: (String password) {
-                              controller.password = password;
-                            },
-                            validator: (password) =>
-                                controller.passwordValidation(password)),
-                        Container(
-                          alignment: Alignment.topRight,
-                          child: Obx(() => AppButton(
-                                'Forgot Password?',
-                                type: ButtonType.text,
-                                axisSize: MainAxisSize.min,
-                                fontSize: 12,
-                                textColor: AppTheme.primary,
-                                loading: controller.isLoading,
-                                onPressed: controller.goToRecoveryAccountView,
-                              )),
-                        ),
-                        Dimes.height15,
-                        ContainerButton(
-                          child: Obx(() => AppButton(
-                                'Login',
-                                color: Colors.transparent,
-                                loading: controller.isLoading,
-                                onPressed: () {
-                                  keyform.currentState!.validate();
-                                  controller.onPressLoginButton();
-                                },
-                              )),
-                        ),
-                        Dimes.height15,
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
+    // Create a local form key to avoid duplicate GlobalKey issues
+    final localFormKey = GlobalKey<FormState>();
+    
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Color(0xFF2B7A78),
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: const Color(0xFF2B7A78),
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Top spacing
+              const SizedBox(height: 10),
+              
+              // Main content card
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Form(
+                        key: localFormKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            'Don\'t have an account?'
-                                .text
-                                .color(AppTheme.appBarTintColor)
-                                .size(12)
-                                .medium
-                                .make(),
-                            Obx(() => AppButton(
-                                  'Sign up',
-                                  type: ButtonType.text,
-                                  fontSize: 12,
-                                  axisSize: MainAxisSize.min,
-                                  textColor: AppTheme.primary,
-                                  loading: controller.isLoading,
-                                  onPressed: controller.goToRegisterView,
-                                )),
+                            // Logo and app name
+                            Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/logo.png', 
+                                    height: 40,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Sportify',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF2B7A78),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 30),
+                            
+                            // Title
+                            const Center(
+                              child: Text(
+                                'Đăng nhập',
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2B7A78),
+                                ),
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 10),
+                            
+                            // Subtitle
+                            const Center(
+                              child: Text(
+                                'Đặt lịch sân thể thao dễ dàng',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 30),
+                            
+                            // Phone field
+                            const Text(
+                              'Số điện thoại',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Obx(() => TextFormField(
+                              controller: controller.phoneController,
+                              keyboardType: TextInputType.phone,
+                              decoration: InputDecoration(
+                                hintText: 'Nhập số điện thoại',
+                                prefixIcon: const Icon(Icons.phone, color: Color(0xFF2B7A78)),
+                                suffixIcon: controller.isPhoneValid.value 
+                                    ? null 
+                                    : const Icon(Icons.error, color: Colors.red),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(color: Color(0xFF2B7A78)),
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              onChanged: (_) => controller.validatePhone(),
+                            )),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Password field
+                            const Text(
+                              'Mật khẩu',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Obx(() => TextFormField(
+                              controller: controller.passwordController,
+                              obscureText: !controller.isPasswordVisible.value,
+                              decoration: InputDecoration(
+                                hintText: 'Nhập mật khẩu',
+                                prefixIcon: const Icon(Icons.lock, color: Color(0xFF2B7A78)),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    controller.isPasswordVisible.value 
+                                        ? Icons.visibility_off 
+                                        : Icons.visibility,
+                                    color: Colors.grey,
+                                  ),
+                                  onPressed: controller.togglePasswordVisibility,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.grey[300]!),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(color: Color(0xFF2B7A78)),
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              onChanged: (_) => controller.validatePassword(),
+                            )),
+                            
+                            // Forgot password link
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: () => controller.goToForgotPassword(),
+                                child: const Text(
+                                  'Quên mật khẩu?',
+                                  style: TextStyle(
+                                    color: Color(0xFF2B7A78),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            
+                            // Login button
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF2B7A78), Color(0xFF17252A)],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x332B7A78),
+                                    blurRadius: 12,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              width: double.infinity,
+                              height: 50,
+                              child: Obx(() => ElevatedButton(
+                                onPressed: controller.isFormValid.value 
+                                    ? () => controller.login(formKey: localFormKey)
+                                    : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: controller.isLoading.value
+                                    ? const CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      )
+                                    : const Text(
+                                        'ĐĂNG NHẬP',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                              )),
+                            ),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Or sign in with text
+                            const Row(
+                              children: [
+                                Expanded(child: Divider()),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  child: Text('Hoặc đăng nhập với', style: TextStyle(color: Colors.grey)),
+                                ),
+                                Expanded(child: Divider()),
+                              ],
+                            ),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Google sign in button
+                            Container(
+                              width: double.infinity,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: TextButton.icon(
+                                onPressed: controller.signInWithGoogle,
+                                icon: Image.asset(
+                                  'assets/images/google.png',
+                                  height: 24,
+                                ),
+                                label: const Text(
+                                  'Google',
+                                  style: TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Register link
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Chưa có tài khoản?',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                                TextButton(
+                                  onPressed: () => controller.goToRegister(),
+                                  child: const Text(
+                                    'Đăng ký',
+                                    style: TextStyle(
+                                      color: Color(0xFF2B7A78),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );

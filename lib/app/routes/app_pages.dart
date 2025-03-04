@@ -20,6 +20,10 @@ import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 import '../modules/welcome/bindings/welcome_binding.dart';
 import '../modules/welcome/views/welcome_view.dart';
+import '../modules/forgot-password/bindings/forgot_password_binding.dart';
+import '../modules/forgot-password/views/forgot_password_view.dart';
+import '../modules/otp-code/bindings/otp_code_binding.dart';
+import '../modules/otp-code/views/otp_code_view.dart';
 
 part 'app_routes.dart';
 
@@ -54,11 +58,12 @@ class AppPages {
       page: () => const SplashView(),
       binding: SplashBinding(),
     ),
-    GetPage(
-      name: _Paths.welcome,
-      page: () => const WelcomeView(),
-      binding: WelcomeBinding(),
-    ),
+    // Commented out welcome route to skip it
+    // GetPage(
+    //   name: _Paths.welcome,
+    //   page: () => const WelcomeView(),
+    //   binding: WelcomeBinding(),
+    // ),
     GetPage(
       name: _Paths.changePassword,
       page: () => const ChangePasswordView(),
@@ -81,6 +86,16 @@ class AppPages {
       name: _Paths.outstanding,
       page: () => const OutstandingView(),
       binding: OutstandingBinding(),
+    ),
+    GetPage(
+      name: _Paths.forgotPassword,
+      page: () => const ForgotPasswordView(),
+      binding: ForgotPasswordBinding(),
+    ),
+    GetPage(
+      name: _Paths.otpCode,
+      page: () => const OtpCodeView(),
+      binding: OtpCodeBinding(),
     ),
   ];
 }

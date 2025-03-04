@@ -5,10 +5,10 @@ import '../../../core/styles/style.dart';
 import '../../../core/utilities/screen.dart';
 import '../../../routes/app_pages.dart';
 import '../../../widgets/app_button.dart';
-import '../controllers/change_password_controller.dart';
+import '../controllers/forgot_password_controller.dart';
 
-class ChangePasswordView extends GetView<ChangePasswordController> {
-  const ChangePasswordView({super.key});
+class ForgotPasswordView extends GetView<ForgotPasswordController> {
+  const ForgotPasswordView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +84,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                             // Title
                             const Center(
                               child: Text(
-                                'Đặt Lại Mật Khẩu',
+                                'Quên mật khẩu',
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
@@ -96,21 +96,21 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                             const SizedBox(height: 10),
                             
                             // Subtitle
-                            Center(
+                            const Center(
                               child: Text(
                                 'Đặt lịch sân thể thao dễ dàng',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.grey[600],
+                                  color: Colors.grey,
                                 ),
                               ),
                             ),
                             
                             const SizedBox(height: 30),
                             
-                            // New password field
+                            // Phone number field
                             const Text(
-                              'Mật khẩu mới',
+                              'Số điện thoại',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -118,20 +118,14 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                             ),
                             const SizedBox(height: 8),
                             Obx(() => TextFormField(
-                              controller: controller.newPasswordController,
-                              obscureText: !controller.isNewPasswordVisible.value,
+                              controller: controller.phoneController,
+                              keyboardType: TextInputType.phone,
                               decoration: InputDecoration(
-                                hintText: 'Nhập mật khẩu mới',
-                                prefixIcon: Icon(Icons.lock, color: Color(0xFF2B7A78)),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    controller.isNewPasswordVisible.value 
-                                        ? Icons.visibility 
-                                        : Icons.visibility_off,
-                                    color: Color(0xFF2B7A78),
-                                  ),
-                                  onPressed: controller.toggleNewPasswordVisibility,
-                                ),
+                                hintText: 'Nhập số điện thoại',
+                                prefixIcon: const Icon(Icons.phone, color: Color(0xFF2B7A78)),
+                                suffixIcon: controller.isPhoneValid.value 
+                                    ? null 
+                                    : const Icon(Icons.error, color: Colors.red),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(color: Colors.grey[300]!),
@@ -142,63 +136,18 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Color(0xFF2B7A78)),
+                                  borderSide: const BorderSide(color: Color(0xFF2B7A78)),
                                 ),
                                 filled: true,
                                 fillColor: Colors.grey[100],
-                                contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
                               ),
-                              onChanged: (_) => controller.validateNewPassword(),
+                              onChanged: (_) => controller.validatePhone(),
                             )),
                             
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 40),
                             
-                            // Confirm password field
-                            const Text(
-                              'Nhập lại mật khẩu',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Obx(() => TextFormField(
-                              controller: controller.confirmPasswordController,
-                              obscureText: !controller.isConfirmPasswordVisible.value,
-                              decoration: InputDecoration(
-                                hintText: 'Nhập lại mật khẩu mới',
-                                prefixIcon: Icon(Icons.lock, color: Color(0xFF2B7A78)),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    controller.isConfirmPasswordVisible.value 
-                                        ? Icons.visibility 
-                                        : Icons.visibility_off,
-                                    color: Color(0xFF2B7A78),
-                                  ),
-                                  onPressed: controller.toggleConfirmPasswordVisibility,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Color(0xFF2B7A78)),
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey[100],
-                                contentPadding: EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              onChanged: (_) => controller.validateConfirmPassword(),
-                            )),
-                            
-                            const SizedBox(height: 30),
-                            
-                            // Change password button
+                            // Reset button
                             Container(
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
@@ -219,7 +168,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                               height: 50,
                               child: Obx(() => ElevatedButton(
                                 onPressed: controller.isFormValid.value 
-                                    ? () => controller.changePassword(formKey: localFormKey)
+                                    ? () => controller.requestPasswordReset(formKey: localFormKey)
                                     : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
@@ -234,7 +183,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                                         strokeWidth: 2,
                                       )
                                     : const Text(
-                                        'XÁC NHẬN',
+                                        'LẤY LẠI MẬT KHẨU',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,

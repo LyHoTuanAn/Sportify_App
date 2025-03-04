@@ -5,10 +5,10 @@ import '../../../core/styles/style.dart';
 import '../../../core/utilities/screen.dart';
 import '../../../routes/app_pages.dart';
 import '../../../widgets/app_button.dart';
-import '../controllers/change_password_controller.dart';
+import '../controllers/otp_code_controller.dart';
 
-class ChangePasswordView extends GetView<ChangePasswordController> {
-  const ChangePasswordView({super.key});
+class OtpCodeView extends GetView<OtpCodeController> {
+  const OtpCodeView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +84,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                             // Title
                             const Center(
                               child: Text(
-                                'Đặt Lại Mật Khẩu',
+                                'Quên mật khẩu',
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
@@ -96,41 +96,41 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                             const SizedBox(height: 10),
                             
                             // Subtitle
-                            Center(
+                            const Center(
                               child: Text(
                                 'Đặt lịch sân thể thao dễ dàng',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.grey[600],
+                                  color: Colors.grey,
                                 ),
                               ),
                             ),
                             
                             const SizedBox(height: 30),
                             
-                            // New password field
+                            // OTP description
                             const Text(
-                              'Mật khẩu mới',
+                              'Mã OTP',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Obx(() => TextFormField(
-                              controller: controller.newPasswordController,
-                              obscureText: !controller.isNewPasswordVisible.value,
+                            
+                            // OTP Input field
+                            TextFormField(
+                              controller: controller.otpController,
+                              keyboardType: TextInputType.number,
                               decoration: InputDecoration(
-                                hintText: 'Nhập mật khẩu mới',
-                                prefixIcon: Icon(Icons.lock, color: Color(0xFF2B7A78)),
+                                hintText: 'Nhập mã OTP',
+                                prefixIcon: const Icon(
+                                  Icons.key,
+                                  color: Color(0xFF2B7A78),
+                                ),
                                 suffixIcon: IconButton(
-                                  icon: Icon(
-                                    controller.isNewPasswordVisible.value 
-                                        ? Icons.visibility 
-                                        : Icons.visibility_off,
-                                    color: Color(0xFF2B7A78),
-                                  ),
-                                  onPressed: controller.toggleNewPasswordVisibility,
+                                  icon: const Icon(Icons.close, color: Colors.grey),
+                                  onPressed: () => controller.otpController.clear(),
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -142,63 +142,19 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Color(0xFF2B7A78)),
+                                  borderSide: const BorderSide(color: Color(0xFF2B7A78)),
                                 ),
                                 filled: true,
                                 fillColor: Colors.grey[100],
-                                contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
                               ),
-                              onChanged: (_) => controller.validateNewPassword(),
-                            )),
-                            
-                            const SizedBox(height: 20),
-                            
-                            // Confirm password field
-                            const Text(
-                              'Nhập lại mật khẩu',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              onChanged: (_) => controller.validateOtp(),
+                              maxLength: 6,
                             ),
-                            const SizedBox(height: 8),
-                            Obx(() => TextFormField(
-                              controller: controller.confirmPasswordController,
-                              obscureText: !controller.isConfirmPasswordVisible.value,
-                              decoration: InputDecoration(
-                                hintText: 'Nhập lại mật khẩu mới',
-                                prefixIcon: Icon(Icons.lock, color: Color(0xFF2B7A78)),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    controller.isConfirmPasswordVisible.value 
-                                        ? Icons.visibility 
-                                        : Icons.visibility_off,
-                                    color: Color(0xFF2B7A78),
-                                  ),
-                                  onPressed: controller.toggleConfirmPasswordVisibility,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Color(0xFF2B7A78)),
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey[100],
-                                contentPadding: EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              onChanged: (_) => controller.validateConfirmPassword(),
-                            )),
                             
-                            const SizedBox(height: 30),
+                            const SizedBox(height: 40),
                             
-                            // Change password button
+                            // Continue button
                             Container(
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
@@ -218,9 +174,9 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                               width: double.infinity,
                               height: 50,
                               child: Obx(() => ElevatedButton(
-                                onPressed: controller.isFormValid.value 
-                                    ? () => controller.changePassword(formKey: localFormKey)
-                                    : null,
+                                onPressed: controller.isLoading.value 
+                                    ? null 
+                                    : () => controller.verifyOtp(),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   shadowColor: Colors.transparent,
@@ -234,7 +190,7 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                                         strokeWidth: 2,
                                       )
                                     : const Text(
-                                        'XÁC NHẬN',
+                                        'TIẾP TỤC',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -245,6 +201,26 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
                             ),
                             
                             const SizedBox(height: 20),
+                            
+                            // Resend OTP timer
+                            Center(
+                              child: Obx(() => TextButton(
+                                onPressed: controller.canResend.value 
+                                    ? () => controller.resendOtp() 
+                                    : null,
+                                child: Text(
+                                  controller.canResend.value 
+                                      ? 'Gửi lại mã OTP' 
+                                      : 'Gửi lại mã OTP (${controller.remainingTime.value}s)',
+                                  style: TextStyle(
+                                    color: controller.canResend.value 
+                                        ? const Color(0xFF2B7A78) 
+                                        : Colors.grey,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              )),
+                            ),
                           ],
                         ),
                       ),

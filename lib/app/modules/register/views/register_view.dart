@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../core/styles/style.dart';
-import '../../../core/utilities/screen.dart';
-import '../../../routes/app_pages.dart';
-import '../../../widgets/app_button.dart';
 import '../controllers/register_controller.dart';
 
 class RegisterView extends GetView<RegisterController> {
@@ -53,7 +49,7 @@ class RegisterView extends GetView<RegisterController> {
                               alignment: Alignment.topRight,
                               child: IconButton(
                                 icon: const Icon(Icons.close, color: Colors.grey),
-                                onPressed: () => Get.back(),
+                                onPressed: () => controller.goToLogin(),
                               ),
                             ),
                             
@@ -96,19 +92,19 @@ class RegisterView extends GetView<RegisterController> {
                             const SizedBox(height: 10),
                             
                             // Subtitle
-                            Center(
+                            const Center(
                               child: Text(
                                 'Đặt lịch sân thể thao dễ dàng',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.grey[600],
+                                  color: Colors.grey,
                                 ),
                               ),
                             ),
                             
                             const SizedBox(height: 30),
                             
-                            // Phone number field
+                            // Phone field
                             const Text(
                               'Số điện thoại',
                               style: TextStyle(
@@ -122,10 +118,10 @@ class RegisterView extends GetView<RegisterController> {
                               keyboardType: TextInputType.phone,
                               decoration: InputDecoration(
                                 hintText: 'Nhập số điện thoại',
-                                prefixIcon: Icon(Icons.person, color: Color(0xFF2B7A78)),
+                                prefixIcon: const Icon(Icons.phone, color: Color(0xFF2B7A78)),
                                 suffixIcon: controller.isPhoneValid.value 
                                     ? null 
-                                    : Icon(Icons.error, color: Colors.red),
+                                    : const Icon(Icons.error, color: Colors.red),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(color: Colors.grey[300]!),
@@ -136,11 +132,11 @@ class RegisterView extends GetView<RegisterController> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Color(0xFF2B7A78)),
+                                  borderSide: const BorderSide(color: Color(0xFF2B7A78)),
                                 ),
                                 filled: true,
                                 fillColor: Colors.grey[100],
-                                contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
                               ),
                               onChanged: (_) => controller.validatePhone(),
                             )),
@@ -159,11 +155,11 @@ class RegisterView extends GetView<RegisterController> {
                             Obx(() => TextFormField(
                               controller: controller.nameController,
                               decoration: InputDecoration(
-                                hintText: 'Nhập họ và tên đầy đủ',
-                                prefixIcon: Icon(Icons.badge, color: Color(0xFF2B7A78)),
+                                hintText: 'Nhập họ và tên',
+                                prefixIcon: const Icon(Icons.person, color: Color(0xFF2B7A78)),
                                 suffixIcon: controller.isNameValid.value 
                                     ? null 
-                                    : Icon(Icons.error, color: Colors.red),
+                                    : const Icon(Icons.error, color: Colors.red),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(color: Colors.grey[300]!),
@@ -174,11 +170,11 @@ class RegisterView extends GetView<RegisterController> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Color(0xFF2B7A78)),
+                                  borderSide: const BorderSide(color: Color(0xFF2B7A78)),
                                 ),
                                 filled: true,
                                 fillColor: Colors.grey[100],
-                                contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
                               ),
                               onChanged: (_) => controller.validateName(),
                             )),
@@ -198,14 +194,14 @@ class RegisterView extends GetView<RegisterController> {
                               controller: controller.passwordController,
                               obscureText: !controller.isPasswordVisible.value,
                               decoration: InputDecoration(
-                                hintText: 'Tạo mật khẩu của bạn',
-                                prefixIcon: Icon(Icons.lock, color: Color(0xFF2B7A78)),
+                                hintText: 'Nhập mật khẩu',
+                                prefixIcon: const Icon(Icons.lock, color: Color(0xFF2B7A78)),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     controller.isPasswordVisible.value 
-                                        ? Icons.visibility 
-                                        : Icons.visibility_off,
-                                    color: Color(0xFF2B7A78),
+                                        ? Icons.visibility_off 
+                                        : Icons.visibility,
+                                    color: Colors.grey,
                                   ),
                                   onPressed: controller.togglePasswordVisibility,
                                 ),
@@ -219,11 +215,11 @@ class RegisterView extends GetView<RegisterController> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Color(0xFF2B7A78)),
+                                  borderSide: const BorderSide(color: Color(0xFF2B7A78)),
                                 ),
                                 filled: true,
                                 fillColor: Colors.grey[100],
-                                contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
                               ),
                               onChanged: (_) => controller.validatePassword(),
                             )),
@@ -232,7 +228,7 @@ class RegisterView extends GetView<RegisterController> {
                             
                             // Confirm password field
                             const Text(
-                              'Nhập lại mật khẩu',
+                              'Xác nhận mật khẩu',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -243,14 +239,14 @@ class RegisterView extends GetView<RegisterController> {
                               controller: controller.confirmPasswordController,
                               obscureText: !controller.isConfirmPasswordVisible.value,
                               decoration: InputDecoration(
-                                hintText: 'Xác nhận mật khẩu',
-                                prefixIcon: Icon(Icons.lock, color: Color(0xFF2B7A78)),
+                                hintText: 'Nhập lại mật khẩu',
+                                prefixIcon: const Icon(Icons.lock, color: Color(0xFF2B7A78)),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     controller.isConfirmPasswordVisible.value 
-                                        ? Icons.visibility 
-                                        : Icons.visibility_off,
-                                    color: Color(0xFF2B7A78),
+                                        ? Icons.visibility_off 
+                                        : Icons.visibility,
+                                    color: Colors.grey,
                                   ),
                                   onPressed: controller.toggleConfirmPasswordVisibility,
                                 ),
@@ -264,58 +260,99 @@ class RegisterView extends GetView<RegisterController> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Color(0xFF2B7A78)),
+                                  borderSide: const BorderSide(color: Color(0xFF2B7A78)),
                                 ),
                                 filled: true,
                                 fillColor: Colors.grey[100],
-                                contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
                               ),
                               onChanged: (_) => controller.validateConfirmPassword(),
                             )),
                             
-                            const SizedBox(height: 30),
+                            const SizedBox(height: 40),
                             
                             // Register button
-                            SizedBox(
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF2B7A78), Color(0xFF17252A)],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x332B7A78),
+                                    blurRadius: 12,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
                               width: double.infinity,
                               height: 50,
-                              child: ElevatedButton(
-                                onPressed: () => controller.register(formKey: localFormKey),
+                              child: Obx(() => ElevatedButton(
+                                onPressed: controller.isFormValid.value 
+                                    ? () => controller.register(formKey: localFormKey)
+                                    : null,
                                 style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.zero,
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                ).copyWith(
-                                  backgroundColor: MaterialStateProperty.all(Colors.transparent),
-                                  elevation: MaterialStateProperty.all(0),
                                 ),
-                                child: Ink(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFF2B7A78), Color(0xFF17252A)],
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Color(0x332B7A78),
-                                        blurRadius: 12,
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      'ĐĂNG KÝ',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
+                                child: controller.isLoading.value
+                                    ? const CircularProgressIndicator(
                                         color: Colors.white,
+                                        strokeWidth: 2,
+                                      )
+                                    : const Text(
+                                        'ĐĂNG KÝ',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                    ),
+                              )),
+                            ),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Or sign in with text
+                            const Row(
+                              children: [
+                                Expanded(child: Divider()),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  child: Text('Hoặc đăng ký với', style: TextStyle(color: Colors.grey)),
+                                ),
+                                Expanded(child: Divider()),
+                              ],
+                            ),
+                            
+                            const SizedBox(height: 20),
+                            
+                            // Google sign in button
+                            Container(
+                              width: double.infinity,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: TextButton.icon(
+                                onPressed: controller.signInWithGoogle,
+                                icon: Image.asset(
+                                  'assets/images/google.png',
+                                  height: 24,
+                                ),
+                                label: const Text(
+                                  'Google',
+                                  style: TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
@@ -327,82 +364,22 @@ class RegisterView extends GetView<RegisterController> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  'Bạn đã có tài khoản? ',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                  ),
+                                const Text(
+                                  'Đã có tài khoản?',
+                                  style: TextStyle(color: Colors.grey),
                                 ),
-                                GestureDetector(
-                                  onTap: () => Get.toNamed(Routes.login),
+                                TextButton(
+                                  onPressed: () => controller.goToLogin(),
                                   child: const Text(
                                     'Đăng nhập',
                                     style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
                                       color: Color(0xFF2B7A78),
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            
-                            const SizedBox(height: 20),
-                            
-                            // Or sign up with
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Divider(
-                                    color: Colors.grey[400],
-                                    thickness: 1,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  child: Text(
-                                    'hoặc đăng ký với',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Divider(
-                                    color: Colors.grey[400],
-                                    thickness: 1,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            
-                            const SizedBox(height: 20),
-                            
-                            // Google sign in button
-                            Center(
-                              child: GestureDetector(
-                                onTap: controller.signInWithGoogle,
-                                child: Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey[300]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Image.asset(
-                                      'assets/images/google.png',
-                                      height: 24,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 20),
                           ],
                         ),
                       ),

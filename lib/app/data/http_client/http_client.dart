@@ -123,7 +123,7 @@ ErrorEntity createErrorEntity(DioException error) {
         } else if (errCode == 401) {
           Preferences.clear();
           if (getx.Get.currentRoute != Routes.login) {
-            getx.Get.offAndToNamed(Routes.welcome);
+            getx.Get.offAndToNamed(Routes.login);
           }
         }
         if (errData != null &&

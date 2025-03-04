@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../routes/app_pages.dart';
+
 class RegisterController extends GetxController {
   // Form controllers
   final phoneController = TextEditingController();
@@ -110,6 +112,11 @@ class RegisterController extends GetxController {
                         isConfirmPasswordValid.value;
   }
 
+  // Navigate to login screen
+  void goToLogin() {
+    Get.offAllNamed(Routes.login);
+  }
+
   // Register user
   void register({GlobalKey<FormState>? formKey}) async {
     validateAll();
@@ -145,7 +152,14 @@ class RegisterController extends GetxController {
           duration: const Duration(seconds: 3),
         );
         
-        // TODO: Navigate to login or home screen
+        // Trong trường hợp xác thực số điện thoại, chuyển đến màn hình OTP
+        Get.toNamed(
+          Routes.otpCode,
+          arguments: {
+            'phone': phoneController.text.trim(),
+            'from': 'register'
+          }
+        );
         
       } catch (e) {
         // Show error message
@@ -171,20 +185,6 @@ class RegisterController extends GetxController {
       'Google Sign-In',
       'Tính năng đang được phát triển',
       backgroundColor: Colors.orange,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
-      margin: const EdgeInsets.all(20),
-      borderRadius: 10,
-    );
-  }
-  
-  // Sign in with Facebook
-  void signInWithFacebook() {
-    // TODO: Implement Facebook Sign-In
-    Get.snackbar(
-      'Facebook Sign-In',
-      'Tính năng đang được phát triển',
-      backgroundColor: Colors.blue,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
       margin: const EdgeInsets.all(20),
