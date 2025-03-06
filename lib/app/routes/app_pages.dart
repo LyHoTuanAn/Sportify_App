@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/Payment/bindings/Payment_binding.dart';
+import '../modules/Payment/views/Payment_view.dart';
 import '../modules/change-password/bindings/change_password_binding.dart';
 import '../modules/change-password/views/change_password_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
@@ -104,5 +106,11 @@ class AppPages {
       page: () => const SuccessfulPaymentView(),
       binding: SuccessfulPaymentBinding(),
     ),
+  GetPage(
+  name: _Paths.payment,
+  page: () => const PaymentView(),
+  binding: PaymentBinding(),
+  )
   ];
 }
+

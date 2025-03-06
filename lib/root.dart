@@ -30,7 +30,7 @@ class RootApp extends StatelessWidget {
           ),
         ),
         title: 'Sportify',
-        initialRoute: Preferences.isAuth() ? Routes.dashboard : Routes.successfullPayment,
+        initialRoute: Preferences.isAuth() ? Routes.dashboard : Routes.payment,
         getPages: AppPages.routes,
         customTransition: ZoomTransitions(),
         navigatorObservers: [FirebaseAnalyticService.observer],

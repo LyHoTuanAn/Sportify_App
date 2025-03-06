@@ -20,6 +20,7 @@ abstract class Routes {
   static const list = _Paths.list;
   static const outstanding = _Paths.outstanding;
   static const successfullPayment = _Paths.successfullPayment;
+  static const payment = _Paths.payment;
 }
 
 abstract class _Paths {
@@ -39,4 +40,5 @@ abstract class _Paths {
   static const list = '/list';
   static const outstanding = '/outstanding';
   static const successfullPayment = '/successfullPayment';
+  static const payment = '/payment';
 }
