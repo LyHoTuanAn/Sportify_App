@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/booking-price/bindings/booking_price_binding.dart';
+import '../modules/booking-price/views/booking_price_view.dart';
 import '../modules/change-password/bindings/change_password_binding.dart';
 import '../modules/change-password/views/change_password_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
@@ -96,6 +98,11 @@ class AppPages {
       name: _Paths.otpCode,
       page: () => const OtpCodeView(),
       binding: OtpCodeBinding(),
+    ),
+    GetPage(
+      name: _Paths.bookingPrice,
+      page: () => const BookingPriceView(),
+      binding: BookingPriceBinding(),
     ),
   ];
 }
