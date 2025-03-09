@@ -18,8 +18,8 @@ import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
-import '../modules/welcome/bindings/welcome_binding.dart';
-import '../modules/welcome/views/welcome_view.dart';
+import '../modules/user-profile/bindings/user_profile_binding.dart';
+import '../modules/user-profile/views/user_profile_view.dart';
 import '../modules/forgot-password/bindings/forgot_password_binding.dart';
 import '../modules/forgot-password/views/forgot_password_view.dart';
 import '../modules/otp-code/bindings/otp_code_binding.dart';
@@ -32,7 +32,7 @@ class AppPages {
 
   static const initial = Routes.splash;
 
-  static final routes = [
+  static final routes = <GetPage>[
     GetPage(
       name: _Paths.home,
       page: () => const HomeView(),
@@ -96,6 +96,11 @@ class AppPages {
       name: _Paths.otpCode,
       page: () => const OtpCodeView(),
       binding: OtpCodeBinding(),
+    ),
+    GetPage(
+      name: _Paths.userprofile,
+      page: () => const UserProfileView(),
+      binding: UserProfileBinding(),
     ),
   ];
 }

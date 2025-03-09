@@ -19,6 +19,7 @@ abstract class Routes {
   static const profile = _Paths.profile;
   static const list = _Paths.list;
   static const outstanding = _Paths.outstanding;
+  static const userprofile = _Paths.userprofile;
 }
 
 abstract class _Paths {
@@ -37,4 +38,5 @@ abstract class _Paths {
   static const profile = '/profile';
   static const list = '/list';
   static const outstanding = '/outstanding';
+  static const userprofile = '/userprofile';
 }
