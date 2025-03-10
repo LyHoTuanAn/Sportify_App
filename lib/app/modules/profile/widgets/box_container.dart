@@ -11,6 +11,8 @@ class BoxContainer extends StatelessWidget {
     this.headerButtonTitle = '',
     this.headerButtonTap,
     this.headerButtonIcon,
+    this.margin,
+    this.padding,
   });
 
   final Widget child;
@@ -18,23 +20,25 @@ class BoxContainer extends StatelessWidget {
   final IconData? headerButtonIcon;
   final String headerTitle, headerButtonTitle;
   final VoidCallback? headerButtonTap;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      margin: margin ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: padding ?? const EdgeInsets.all(15),
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: const [
           BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.06),
+            color: Color.fromRGBO(0, 0, 0, 0.05),
             blurRadius: 4,
+            offset: Offset(0, 2),
           ),
         ],
-        border: Border.all(
-          color: const Color(0xffD6DEED),
-        ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
@@ -42,9 +46,9 @@ class BoxContainer extends StatelessWidget {
             Row(
               children: [
                 headerTitle.text
-                    .size(18)
+                    .size(16)
                     .medium
-                    .color(AppTheme.primary)
+                    .color(const Color(0xFF2B7A78))
                     .make()
                     .expand(),
                 isLoading
@@ -65,11 +69,11 @@ class BoxContainer extends StatelessWidget {
                             child: Row(
                               children: [
                                 Icon(headerButtonIcon,
-                                    color: AppTheme.secondary),
+                                    color: const Color(0xFF2B7A78)),
                                 Dimes.width5,
                                 headerButtonTitle.text
-                                    .color(AppTheme.secondary)
-                                    .size(16)
+                                    .color(const Color(0xFF2B7A78))
+                                    .size(14)
                                     .medium
                                     .make(),
                               ],
