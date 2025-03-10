@@ -12,6 +12,7 @@ import 'app/data/providers/notification_provider.dart';
 import 'app/modules/profile/controllers/profile_controller.dart';
 import 'root.dart';
 
+
 Future<void> initServices() async {
   Get.log('starting services ...');
   await Firebase.initializeApp();
