@@ -19,6 +19,7 @@ abstract class Routes {
   static const profile = _Paths.profile;
   static const list = _Paths.list;
   static const outstanding = _Paths.outstanding;
+  static const successfullPayment = _Paths.successfullPayment;
   static const bookingPrice = _Paths.bookingPrice;
 }
 
@@ -38,5 +39,6 @@ abstract class _Paths {
   static const profile = '/profile';
   static const list = '/list';
   static const outstanding = '/outstanding';
+  static const successfullPayment = '/successfullPayment';
   static const bookingPrice = '/booking-price';
 }
