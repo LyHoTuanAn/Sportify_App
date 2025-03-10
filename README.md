@@ -36,7 +36,7 @@ lib/
 ## Kiến trúc ứng dụng
 
 Ứng dụng được thiết kế theo kiến trúc GetX với mô hình MVC:
-
+````
 1. **Model**: Quản lý dữ liệu và logic nghiệp vụ
 2. **View**: Hiển thị UI và phản hồi hành động của người dùng
 3. **Controller**: Điều khiển luồng dữ liệu và xử lý logic
