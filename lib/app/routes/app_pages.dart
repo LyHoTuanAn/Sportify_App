@@ -14,6 +14,7 @@ import '../modules/notifications/views/notifications_view.dart';
 import '../modules/outstanding/bindings/outstanding_binding.dart';
 import '../modules/outstanding/views/outstanding_view.dart';
 import '../modules/profile/views/profile_view.dart';
+import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';

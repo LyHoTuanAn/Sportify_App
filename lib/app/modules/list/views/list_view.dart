@@ -1,272 +1,453 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 
 import '../controllers/list_controller.dart';
+import '../../../widgets/bottom_nav_bar.dart';
+import '../../../routes/app_pages.dart';
 
 class ListPageView extends GetView<ListController> {
   const ListPageView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Set status bar color to match design
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+    );
+    
     return Scaffold(
+      backgroundColor: const Color(0xFFF9F9F9),
       body: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
         child: Column(
           children: [
-            // Logo
-              Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+              // Header with logo
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
                 children: [
                   Image.asset(
                     'assets/images/logo.png',
-                    height: 40,
+                        height: 30,
                   ),
                   const SizedBox(width: 8),
                   const Text(
-                    'Sportify',
+                        'SPORTIFY',
                     style: TextStyle(
-                      fontSize: 24,
+                          fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2B7A78),
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ],
+                  ),
+                  // User info placeholder - you can implement this later if needed
+                ],
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Search Box
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Search Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Tìm kiếm sân thể thao...',
-                  hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                  prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.filter_list),
-                    onPressed: () {
-                      // Add filter functionality
-                    },
-                  ),
+                  ],
                 ),
-              ),
-            ),
-
-            // Rest of the previous implementation remains the same
-            _buildFilterTabs(),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.search,
+                      color: Color(0xFF777777),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 10),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(10),
-                children: [
-                  _buildVenueCard(
-                    name: 'Sân Cầu Lông Gia Định',
-                    address: '248 Nguyễn Thành Vinh, Q.12',
-                    distance: '16.4m từ bạn',
-                    rating: 4.8,
-                    reviewCount: 100,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildVenueCard(
-                    name: 'Sân Cầu Lông Thành Phát',
-                    address: '48 Lê Duẩn, Gò Vấp',
-                    distance: '2.5km từ bạn',
-                    rating: 4.5,
-                    reviewCount: 156,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildVenueCard(
-                    name: 'CLB Cầu Lông Tân Bình',
-                    address: '122 Hoàng Hoa Thám, Tân Bình',
-                    distance: '3.7km từ bạn',
-                    rating: 4.2,
-                    reviewCount: 162,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildVenueCard(
-                    name: 'CLB Cầu Lông Tân Bình',
-                    address: '122 Hoàng Hoa Thám, Tân Bình',
-                    distance: '3.7km từ bạn',
-                    rating: 4.2,
-                    reviewCount: 162,
-                  ),
-                ],
+                      child: TextField(
+                        onChanged: controller.searchVenues,
+                        decoration: const InputDecoration(
+                          hintText: 'Tìm kiếm sân thể thao...',
+                          hintStyle: TextStyle(
+                            color: Color(0xFF777777),
+                            fontSize: 15,
+                            fontFamily: 'Poppins',
+                          ),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        style: const TextStyle(
+                          color: Color(0xFF333333),
+                          fontSize: 15,
+                          fontFamily: 'Poppins',
+                        ),
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.teal,
-        unselectedItemColor: Colors.grey,
+              
+              const SizedBox(height: 20),
+              
+              // Filter buttons
+              _buildFilterButtons(),
+              
+              const SizedBox(height: 20),
+              
+              // Venue List
+              Expanded(
+                child: Obx(() {
+                  if (controller.isLoading.value && controller.filteredVenues.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF2B7A78),
+                      ),
+                    );
+                  }
+                  
+                  if (controller.filteredVenues.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Không tìm thấy sân phù hợp',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                              fontFamily: 'Poppins',
+                            ),
+          ),
+        ],
+      ),
+    );
+                  }
+                  
+                  return ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: controller.filteredVenues.length,
+                    itemBuilder: (context, index) {
+                      final venue = controller.filteredVenues[index];
+                      return _buildVenueItem(venue, index);
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: BottomNavBar(
         currentIndex: 1,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Trang chủ',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Danh sách',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.location_on),
-            label: 'Nổi bật',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Tài khoản',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-  Widget _buildFilterTabs() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      child: Row(
-        children: [
-          _buildFilterButton('Tất cả', isActive: true),
-          const SizedBox(width: 10),
-          _buildFilterButton('Đánh giá cao'),
-          const SizedBox(width: 10),
-          _buildFilterButton('Giá ưu đãi'),
-          const SizedBox(width: 10),
-          _buildFilterButton('Khuyến mãi'),
-        ],
+        onTap: (index) {
+          switch (index) {
+            case 0: 
+              Get.offAllNamed(Routes.home);
+              break;
+            case 1: 
+              break;
+            case 2: 
+              Get.offAllNamed(Routes.outstanding);
+              break;
+            case 3: 
+              Get.offAllNamed(Routes.profile);
+              break;
+          }
+        },
       ),
     );
   }
 
-  Widget _buildFilterButton(String text, {bool isActive = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  Widget _buildFilterButtons() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Obx(() => Row(
+        children: List.generate(
+          controller.filters.length,
+          (index) => Padding(
+            padding: EdgeInsets.only(right: index < controller.filters.length - 1 ? 10 : 0),
+            child: _buildFilterButton(
+              controller.filters[index],
+              isActive: index == controller.selectedFilterIndex.value,
+              onTap: () => controller.setFilter(index),
+            ),
+          ),
+        ),
+      )),
+    );
+  }
+
+  Widget _buildFilterButton(String text, {bool isActive = false, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isActive ? Colors.teal : Colors.grey[200],
-        borderRadius: BorderRadius.circular(20),
+          color: isActive ? const Color(0xFF2B7A78) : Colors.white,
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(
+            color: isActive ? const Color(0xFF2B7A78) : const Color(0xFFE0E0E0),
+          ),
       ),
       child: Text(
         text,
         style: TextStyle(
-          color: isActive ? Colors.white : Colors.black,
-          fontSize: 12,
+            color: isActive ? Colors.white : const Color(0xFF333333),
+            fontSize: 14,
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+            fontFamily: 'Poppins',
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildVenueCard({
-    required String name,
-    required String address,
-    required String distance,
-    required double rating,
-    required int reviewCount,
-  }) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(15),
+  Widget _buildVenueItem(Venue venue, int index) {
+    // Staggered animation timing
+    final animationDelay = Duration(milliseconds: 100 * (index + 1));
+    
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOutQuad,
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, 20 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: child,
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  name,
+                  // Court header
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(
+                      venue.name,
                   style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF333333),
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.teal,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: const Text(
-                    'Mở cửa',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
+                  
+                  const SizedBox(height: 10),
+                  
+                  // Court details
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Location
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              size: 14,
+                              color: Color(0xFF2B7A78),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                venue.address,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF777777),
+                                  fontFamily: 'Poppins',
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+                        
+                        const SizedBox(height: 6),
+                        
+                        // Distance
             Row(
               children: [
-                const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                            const Icon(
+                              Icons.route,
+                              size: 14,
+                              color: Color(0xFF2B7A78),
+                            ),
                 const SizedBox(width: 8),
                 Text(
-                  address,
-                  style: const TextStyle(color: Colors.grey),
+                              venue.distance,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF777777),
+                                fontFamily: 'Poppins',
+                              ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              distance,
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
+                        
+                        const SizedBox(height: 10),
+                        
+                        // Badges
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            ...venue.features.map((feature) => _buildBadge(feature)),
+                            if (venue.discount != null) 
+                              _buildPromoBadge(venue.discount!),
+                          ],
+                        ),
+                        
+                        // Rating and booking
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Stars
             Row(
               children: [
-                ...List.generate(
-                  5,
-                      (index) => Icon(
-                    Icons.star,
-                    color: index < rating.floor() ? Colors.amber : Colors.grey,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text('($reviewCount)'),
-              ],
-            ),
-            const SizedBox(height: 16),
+                                Row(
+                                  children: List.generate(5, (i) {
+                                    if (i < venue.rating.floor()) {
+                                      return const Icon(Icons.star, size: 14, color: Color(0xFFffc107));
+                                    } else if (i < venue.rating) {
+                                      return const Icon(Icons.star_half, size: 14, color: Color(0xFFffc107));
+                                    } else {
+                                      return const Icon(Icons.star_border, size: 14, color: Color(0xFFffc107));
+                                    }
+                                  }),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  "(${venue.reviewCount})",
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF777777),
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            
+                            // Book button
         Container(
+                              height: 36,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF2B7A78), Color(0xFF17252A)], // Gradient colors
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color(0xFF2B7A78),
+                                    Color(0xFF17252A),
+                                  ],
             ),
-            borderRadius: BorderRadius.circular(10), // Match button shape
+                                borderRadius: BorderRadius.circular(25),
           ),
-            child:ElevatedButton(
+                              child: ElevatedButton(
               onPressed: () {
-                // Add booking functionality
+                                  // Handle booking
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent, // Transparent to show gradient
-                shadowColor: Colors.transparent, // Optional: Remove shadow
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                                  minimumSize: Size.zero, // No minimum size
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce tap target
+                                  textStyle: const TextStyle(
+                                    fontSize: 12, // Smaller font
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  backgroundColor: Colors.transparent,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                minimumSize: const Size(double.infinity, 50),
+                                    borderRadius: BorderRadius.circular(25)
+                                  ),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text("Đặt lịch"),
+                                    SizedBox(width: 6), // Smaller gap
+                                    Icon(
+                                      Icons.arrow_forward,
+                                      size: 13, // Smaller icon
+                                      color: Color(0xFFFFFFFF),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-
+            ),
+            
+            // Status badge
+            if (venue.isOpen)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF2B7A78),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(10),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
               child: const Text(
-                'Đặt lịch',
+                    "Mở cửa",
                 style: TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Poppins',
                 ),
               ),
             ),
@@ -275,4 +456,43 @@ class ListPageView extends GetView<ListController> {
         ),
       ),
     );
+  }
+
+  Widget _buildBadge(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFFDEF2F1),
+        borderRadius: BorderRadius.circular(50),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Color(0xFF2B7A78),
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Poppins',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPromoBadge(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFECB3),
+        borderRadius: BorderRadius.circular(50),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Color(0xFFFF8F00),
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Poppins',
+        ),
+      ),
+    );
+  }
   }
