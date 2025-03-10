@@ -28,30 +28,49 @@ class ListPageView extends GetView<ListController> {
         child: Column(
           children: [
               // Header with logo
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                children: [
-                  Image.asset(
-                    'assets/images/logo.png',
-                        height: 30,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                        'SPORTIFY',
-                    style: TextStyle(
-                          fontSize: 20,
-                      fontWeight: FontWeight.bold,
+            Row(
+              children: [
+                Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
                       color: Color(0xFF2B7A78),
-                          fontFamily: 'Poppins',
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFF2B7A78).withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
+                      ],
+                    ),
+                    child: Image.asset('assets/images/logo.png', width: 20, height: 20, color: Colors.white)
+                ),
+                SizedBox(width: 10),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SPORTIFY',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2B7A78),
                       ),
-                    ],
-                  ),
-                  // User info placeholder - you can implement this later if needed
-                ],
-              ),
+                    ),
+                    Text(
+                      'BADMINTON',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF3AAFA9),
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
               
               const SizedBox(height: 20),
               
