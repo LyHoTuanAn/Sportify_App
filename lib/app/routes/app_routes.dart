@@ -29,7 +29,7 @@ abstract class _Paths {
   static const dashboard = '/dashboard';
   static const register = '/register';
   static const splash = '/splash';
-  static const welcome = '/welcome'; // Keeping the path definition but not using it
+  static const welcome = '/welcome'; 
   static const otpLogin = '/otpLogin';
   static const otpCode = '/otp-code';
   static const changePassword = '/change-password';
