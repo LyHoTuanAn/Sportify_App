@@ -239,7 +239,7 @@ class HomeView extends GetView<HomeController> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.calendar_today_outlined, size: 18),
+                    Icon(Icons.calendar_today_outlined, size: 18, color: Color(0xFF2B7A78)),
                     SizedBox(width: 8),
                     Text(
                       'Đặt sân ngay',
