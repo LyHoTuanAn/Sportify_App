@@ -15,6 +15,7 @@ class ProfileView extends GetView<ProfileController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -104,7 +105,9 @@ class ProfileView extends GetView<ProfileController> {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: Loading());
+          return const Center(
+            child: Loading(),
+          );
         }
 
         return Column(
@@ -394,27 +397,6 @@ class ProfileView extends GetView<ProfileController> {
                         ],
                       ),
                     )),
-            ),
-
-            // Bottom navigation
-            BottomNavBar(
-              currentIndex: 3, // Profile tab is at index 3
-              onTap: (index) {
-                if (index != 3) {
-                  // Handle navigation to other tabs
-                  switch (index) {
-                    case 0:
-                      Get.toNamed('/home');
-                      break;
-                    case 1:
-                      Get.toNamed('/list');
-                      break;
-                    case 2:
-                      Get.toNamed('/featured');
-                      break;
-                  }
-                }
-              },
             ),
           ],
         );

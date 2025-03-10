@@ -26,25 +26,6 @@ class HomeView extends GetView<HomeController> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 0,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              // Already on home
-              break;
-            case 1:
-              Get.toNamed('/list');
-              break;
-            case 2:
-              Get.toNamed('/outstanding');
-              break;
-            case 3:
-              Get.toNamed('/profile');
-              break;
-          }
-        },
-      ),
     );
   }
 

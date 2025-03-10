@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 
 import '../controllers/list_controller.dart';
-import '../../../widgets/bottom_nav_bar.dart';
-import '../../../routes/app_pages.dart';
 
 class ListPageView extends GetView<ListController> {
   const ListPageView({Key? key}) : super(key: key);
@@ -25,52 +23,52 @@ class ListPageView extends GetView<ListController> {
         bottom: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-        child: Column(
-          children: [
+          child: Column(
+            children: [
               // Header with logo
-            Row(
-              children: [
-                Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF2B7A78),
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0xFF2B7A78).withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Image.asset('assets/images/logo.png', width: 20, height: 20, color: Colors.white)
-                ),
-                SizedBox(width: 10),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'SPORTIFY',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+              Row(
+                children: [
+                  Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
                         color: Color(0xFF2B7A78),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF2B7A78).withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
                       ),
-                    ),
-                    Text(
-                      'BADMINTON',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF3AAFA9),
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1,
+                      child: Image.asset('assets/images/logo.png', width: 20, height: 20, color: Colors.white)
+                  ),
+                  SizedBox(width: 10),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'SPORTIFY',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2B7A78),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                      Text(
+                        'BADMINTON',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF3AAFA9),
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               
               const SizedBox(height: 20),
               
@@ -96,7 +94,7 @@ class ListPageView extends GetView<ListController> {
                       size: 18,
                     ),
                     const SizedBox(width: 10),
-            Expanded(
+                    Expanded(
                       child: TextField(
                         onChanged: controller.searchVenues,
                         decoration: const InputDecoration(
@@ -176,24 +174,6 @@ class ListPageView extends GetView<ListController> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 1,
-        onTap: (index) {
-          switch (index) {
-            case 0: 
-              Get.offAllNamed(Routes.home);
-              break;
-            case 1: 
-              break;
-            case 2: 
-              Get.offAllNamed(Routes.outstanding);
-              break;
-            case 3: 
-              Get.offAllNamed(Routes.profile);
-              break;
-          }
-        },
       ),
     );
   }

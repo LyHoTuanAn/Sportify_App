@@ -1,18 +1,25 @@
 import 'package:get/get.dart';
 
-import '../../home/controllers/home_controller.dart';
-import '../../messages/controllers/messages_controller.dart';
-import '../../notifications/controllers/notifications_controller.dart';
+import '../../home/bindings/home_binding.dart';
+import '../../list/bindings/list_binding.dart';
+import '../../outstanding/bindings/outstanding_binding.dart';
+import '../../profile/bindings/profile_binding.dart';
 import '../../profile/controllers/profile_controller.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => DashboardController());
-    Get.lazyPut(() => HomeController());
-    Get.lazyPut(() => MessagesController());
-    Get.lazyPut(() => NotificationsController());
-    Get.lazyPut(() => ProfileController());
+    Get.put(DashboardController(), permanent: true);
+    
+    // Đảm bảo các controllers cần thiết được inject
+    HomeBinding().dependencies();
+    ListBinding().dependencies();
+    OutstandingBinding().dependencies();
+    
+    // Profile controller là permanent
+    if (!Get.isRegistered<ProfileController>()) {
+      ProfileBinding().dependencies();
+    }
   }
 }

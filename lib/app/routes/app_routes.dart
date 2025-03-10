@@ -21,7 +21,6 @@ abstract class Routes {
   static const outstanding = _Paths.outstanding;
   static const successfullPayment = _Paths.successfullPayment;
   static const bookingPrice = _Paths.bookingPrice;
-  static const userprofile = _Paths.userprofile;
 }
 
 abstract class _Paths {
@@ -42,5 +41,4 @@ abstract class _Paths {
   static const outstanding = '/outstanding';
   static const successfullPayment = '/successfullPayment';
   static const bookingPrice = '/booking-price';
-  static const userprofile = '/userprofile';
 }

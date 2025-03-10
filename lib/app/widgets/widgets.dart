@@ -21,3 +21,4 @@ export 'bottom_nav_bar.dart';
 export 'alert_dialog.dart';
 export 'container_button.dart';
 export 'measure_size.dart';
+export 'main_layout.dart';
