@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../controllers/payment_controller.dart';
 
-class PaymentView extends StatelessWidget {
+class PaymentView extends GetView<PaymentController> {
   const PaymentView({Key? key}) : super(key: key);
 
   @override
@@ -69,23 +70,23 @@ class PaymentView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Text(
+        children: [
+          const Text(
             "Đơn hàng sẽ hết hạn sau: ",
             style: TextStyle(
               color: Color(0xFF17252A),
               fontSize: 14,
             ),
           ),
-          Text(
-            "14:30",
-            style: TextStyle(
+          Obx(() => Text(
+            controller.formattedTime,
+            style: const TextStyle(
               color: Color(0xFF17252A),
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
-          ),
-          Text(
+          )),
+          const Text(
             " phút",
             style: TextStyle(
               color: Color(0xFF17252A),
@@ -401,12 +402,11 @@ class PaymentView extends StatelessWidget {
 
                 const SizedBox(height: 5), // Tạo khoảng cách giữa hai ảnh
 
-                // Ảnh download.png phía dưới
-                Image.asset(
-                  'assets/images/download.png', // Ảnh biểu tượng dưới QR
-                  width: 35, // Điều chỉnh kích thước nếu cần
-                  height: 35,
-                  fit: BoxFit.contain,
+                // Icon tải xuống
+                Icon(
+                  Icons.file_download_rounded, // Sử dụng icon tải xuống có viền tròn đẹp hơn
+                  size: 35,
+                  color: Color(0xFF2B7A78), // Sử dụng màu chủ đạo của app
                 ),
               ],
             ),

@@ -20,6 +20,7 @@ abstract class Routes {
   static const list = _Paths.list;
   static const outstanding = _Paths.outstanding;
   static const successfullPayment = _Paths.successfullPayment;
+  static const bookingPrice = _Paths.bookingPrice;
   static const payment = _Paths.payment;
 }
 
@@ -29,7 +30,7 @@ abstract class _Paths {
   static const dashboard = '/dashboard';
   static const register = '/register';
   static const splash = '/splash';
-  static const welcome = '/welcome'; // Keeping the path definition but not using it
+  static const welcome = '/welcome'; 
   static const otpLogin = '/otpLogin';
   static const otpCode = '/otp-code';
   static const changePassword = '/change-password';
@@ -40,5 +41,6 @@ abstract class _Paths {
   static const list = '/list';
   static const outstanding = '/outstanding';
   static const successfullPayment = '/successfullPayment';
+  static const bookingPrice = '/booking-price';
   static const payment = '/payment';
 }

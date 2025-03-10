@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/booking-price/bindings/booking_price_binding.dart';
+import '../modules/booking-price/views/booking_price_view.dart';
 import '../modules/Payment/bindings/Payment_binding.dart';
 import '../modules/Payment/views/Payment_view.dart';
 import '../modules/change-password/bindings/change_password_binding.dart';
@@ -15,6 +17,7 @@ import '../modules/login/views/login_view.dart';
 import '../modules/notifications/views/notifications_view.dart';
 import '../modules/outstanding/bindings/outstanding_binding.dart';
 import '../modules/outstanding/views/outstanding_view.dart';
+import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
@@ -34,23 +37,24 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const initial = Routes.splash;
+  static const initial = Routes.dashboard;
 
-  static final routes = [
+  static final routes = <GetPage>[
     GetPage(
-      name: _Paths.home,
-      page: () => const HomeView(),
-      binding: HomeBinding(),
+      name: _Paths.dashboard,
+      page: () => const DashboardView(),
+      binding: DashboardBinding(),
+      bindings: [
+        HomeBinding(),
+        ListBinding(),
+        OutstandingBinding(),
+        ProfileBinding(),
+      ],
     ),
     GetPage(
       name: _Paths.login,
       page: () => LoginView(),
       binding: LoginBinding(),
-    ),
-    GetPage(
-      name: _Paths.dashboard,
-      page: () => const DashboardView(),
-      binding: DashboardBinding(),
     ),
     GetPage(
       name: _Paths.register,
@@ -80,6 +84,7 @@ class AppPages {
     GetPage(
       name: _Paths.profile,
       page: () => const ProfileView(),
+      binding: ProfileBinding(),
     ),
     GetPage(
       name: _Paths.list,
@@ -105,6 +110,11 @@ class AppPages {
       name: _Paths.successfullPayment,
       page: () => const SuccessfulPaymentView(),
       binding: SuccessfulPaymentBinding(),
+    ),
+    GetPage(
+      name: _Paths.bookingPrice,
+      page: () => const BookingPriceView(),
+      binding: BookingPriceBinding(),
     ),
   GetPage(
   name: _Paths.payment,
