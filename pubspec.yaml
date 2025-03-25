@@ -11,7 +11,7 @@ dependencies:
   dio: ^5.4.1
   image_picker: ^1.0.7
   rxdart: ^0.28.0
-  get: ^4.6.1
+  get: ^4.6.5
   flutter:
     sdk: flutter
   extended_image: ^9.1.0
@@ -23,7 +23,9 @@ dependencies:
   flutter_slidable: ^3.0.1
   flutter_application_id: ^2.0.0-dev
   firebase_crashlytics: ^4.3.0
-  firebase_core: ^3.10.0
+  firebase_core: ^3.12.1
+  firebase_auth: ^5.5.1
+  google_sign_in: ^6.3.0
   photo_view: ^0.15.0
   emoji_picker_flutter: ^4.2.0
   barcode_widget: ^2.0.2

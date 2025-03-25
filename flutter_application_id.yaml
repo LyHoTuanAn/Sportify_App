@@ -1,7 +1,7 @@
 flutter_application_id:
   android:
-    id: "org.sportify"
+    id: "com.sportify"
     name: "Sportify"
   ios:
-    id: "org.sportify"
+    id: "com.sportify"
     name: "Sportify"

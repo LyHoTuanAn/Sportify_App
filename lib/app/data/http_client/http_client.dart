@@ -46,11 +46,11 @@ class ApiClient {
   }
 
   static Future<Response> connect(
-    String url, {
+    String path, {
     ApiMethod method = ApiMethod.get,
-    Map<String, String>? headers,
     Map<String, dynamic>? query,
-    data,
+    dynamic data,
+    Map<String, dynamic>? headers,
     bool cache = false,
     CancelToken? cancelToken,
     Options? options,
@@ -62,15 +62,20 @@ class ApiClient {
       } else if (data != null && data is Map) {
         map = data as Map<String, dynamic>;
       } else {
-        map = Uri.parse(url).queryParameters;
+        map = Uri.parse(path).queryParameters;
       }
 
-      final header = {
-        'Authorization': 'Bearer ${Preferences.getString(StringUtils.token)}',
-        'timezone': DateTime.now().timeZoneName
+      final requestHeaders = <String, dynamic>{
+        'Accept': 'application/json',
+        ...(headers ?? {})
       };
+
+      if (Preferences.getString(StringUtils.token)?.isNotEmpty ?? false) {
+        requestHeaders['Authorization'] =
+            'Bearer ${Preferences.getString(StringUtils.token)}';
+      }
       if (map.containsKey('lat') && map.containsKey('long')) {
-        header.addAll(
+        requestHeaders.addAll(
           {
             'lat': map['lat'].toString(),
             'long': map['long'].toString(),
@@ -81,20 +86,20 @@ class ApiClient {
         method: methodData[method],
         responseType: ResponseType.json,
         contentType: 'application/json',
-        headers: header,
+        headers: requestHeaders,
       );
       final request = await dio.request(
-        url,
+        path,
         options: options,
         data: data,
         queryParameters: query,
         cancelToken: cancelToken,
       );
       debugPrint(
-          '$url\nmethod: ${options.method}\nheader: ${options.headers}\ndata: $data\nrequest:$request');
+          '$path\nmethod: ${options.method}\nheader: ${options.headers}\ndata: $data\nrequest:$request');
       return request;
     } on DioException catch (error) {
-      debugPrint('$url -- ${error.response?.data}');
+      debugPrint('$path -- ${error.response?.data}');
       throw createErrorEntity(error);
     }
   }

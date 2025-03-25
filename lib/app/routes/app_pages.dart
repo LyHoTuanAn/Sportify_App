@@ -53,7 +53,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.login,
-      page: () => LoginView(),
+      page: () => const LoginView(),
       binding: LoginBinding(),
     ),
     GetPage(

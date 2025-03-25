@@ -6,13 +6,15 @@ import '../../../data/models/models.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../data/services/firebase_analytics_service.dart';
 import '../../../routes/app_pages.dart';
+import '../../../data/services/google_auth_service.dart';
+import '../../../data/providers/providers.dart';
 
 class ProfileController extends GetxController with ScrollMixin {
   final user = Rxn<UserModel>();
   final hasBookings = false.obs; // Biến kiểm tra xem user có lịch đặt hay không
   final isLoading = true.obs;
   final selectedTab = 0.obs;
-  
+
   @override
   void onInit() {
     super.onInit();
@@ -30,48 +32,31 @@ class ProfileController extends GetxController with ScrollMixin {
     AppUtils.pickerImage(onTap: (bytes) async {
       try {
         // Xử lý cập nhật avatar tại đây
+        final updatedUser = await ApiProvider.uploadAvatar(bytes);
+        user.value = updatedUser;
       } catch (e) {
         AppUtils.toast(e.toString());
       }
     });
   }
 
-  // Tạo dữ liệu giả lập
-  UserModel _createMockUser() {
-    return UserModel(
-      firstName: "Anh",
-      lastName: "Long",
-      email: "anhlong@gmail.com",
-      phone: "",
-      avatar: "https://scontent.fsgn2-7.fna.fbcdn.net/v/t39.30808-6/472766639_2110637802724872_6038201334895326166_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFagjyU-w2R2E8ZeYJzYFk8Kjzn1AEt7LoqPOfUAS3sunYi7X71gaPmg1sATYwz1uMBOpvN1i3AcbYBD69ovHnQ&_nc_ohc=kBKfAbysbwAQ7kNvgFOD4jM&_nc_oc=Adhr15tYeT7BDttnVpNLM3m7WurYdUBMylTaFESGcLcAh84a6qrTZ91JRWbi2t5HqXY&_nc_zt=23&_nc_ht=scontent.fsgn2-7.fna&_nc_gid=AXSuayAPSV7uG1T2F5puh5B&oh=00_AYGFcX9a1PuHsKn9wQxN6a91QpYrSf4-s7BX_O3AaLDptw&oe=67D4AA98", // Using Facebook Graph API to get direct image URL
-      dateOfBirth: DateTime(1990, 1, 1),
-      gender: "Nam",
-      isEnableNotification: true,
-      address: [
-        Address(
-          id: "1",
-          fullAddress: "123 Đường ABC, Quận 1, TP.HCM",
-          city: "TP.HCM",
-          state: "",
-          apartment: "Apt 101",
-          isDefault: true,
-          loading: false,
-        ),
-      ],
-      isDeleted: false,
-    );
-  }
-
   Future<ProfileController> getUserDetail({bool isLogin = false}) async {
     try {
       isLoading.value = true;
-      
-      // Giả lập delay call API
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Sử dụng dữ liệu giả lập thay vì gọi API
-      user.value = _createMockUser();
-      hasBookings.value = false;
+
+      // Fetch real user data from the API
+      final userId = Preferences.getString(StringUtils.currentId);
+      if (userId != null && userId.isNotEmpty) {
+        user.value = await ApiProvider.getDetail();
+
+        // Check if user has bookings - this would be a separate API call
+        // hasBookings.value = await BookingProvider.hasBookings();
+      } else {
+        // User is not logged in
+        Preferences.clear();
+        Get.offAllNamed(Routes.login);
+        return this;
+      }
 
       if (isLogin) {
         FirebaseAnalyticService.logEvent('Login');
@@ -79,6 +64,7 @@ class ProfileController extends GetxController with ScrollMixin {
     } catch (e) {
       Preferences.clear();
       AppUtils.toast(e.toString());
+      Get.offAllNamed(Routes.login);
     } finally {
       isLoading.value = false;
     }
@@ -88,9 +74,12 @@ class ProfileController extends GetxController with ScrollMixin {
   void toggleNotify(bool newVal) async {
     user.update((val) => val?.isEnableNotification = newVal);
     try {
-      // Giả lập API call
-      await Future.delayed(const Duration(milliseconds: 500));
-      AppUtils.toast('Cập nhật thông báo thành công');
+      final success = await ApiProvider.toggleNotify(newVal);
+      if (success) {
+        AppUtils.toast('Cập nhật thông báo thành công');
+      } else {
+        throw Exception('Cập nhật thông báo thất bại');
+      }
     } catch (e) {
       user.update((val) => val?.isEnableNotification = !newVal);
       AppUtils.toast(e.toString());
@@ -103,7 +92,9 @@ class ProfileController extends GetxController with ScrollMixin {
 
   updateAddress(int index, bool load) {
     user.update((val) {
-      val?.address[index].loading = load;
+      if (val?.address != null && index < (val?.address?.length ?? 0)) {
+        val?.address[index].loading = load;
+      }
     });
   }
 
@@ -112,6 +103,7 @@ class ProfileController extends GetxController with ScrollMixin {
   }
 
   void logout() {
+    GoogleAuthService.signOut();
     Preferences.clear();
     Get.offAllNamed('/login');
   }
@@ -125,4 +117,57 @@ class ProfileController extends GetxController with ScrollMixin {
 
   @override
   Future<void> onTopScroll() async {}
+
+  // Connect with Google account to update profile info
+  void connectGoogleAccount() async {
+    try {
+      final userCredential = await GoogleAuthService.signInWithGoogle();
+
+      if (userCredential != null && userCredential.user != null) {
+        final googleUser = userCredential.user!;
+
+        // Update user information with Google data
+        final userData = {
+          'recipient': {
+            'first_name': googleUser.displayName?.split(' ').first,
+            'last_name': googleUser.displayName?.split(' ').length == 1
+                ? ''
+                : googleUser.displayName?.split(' ').sublist(1).join(' '),
+            'email': googleUser.email,
+          }
+        };
+
+        // If phone number is available, add it
+        if (googleUser.phoneNumber != null) {
+          userData['recipient']!['phone_number'] = googleUser.phoneNumber;
+        }
+
+        // Update user profile with Google data
+        await ApiProvider.updateUser(userData);
+
+        // Refresh user data
+        await getUserDetail();
+
+        Get.snackbar(
+          'Thành công',
+          'Đã cập nhật thông tin từ tài khoản Google',
+          backgroundColor: const Color(0xFF2B7A78),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+          margin: const EdgeInsets.all(20),
+          borderRadius: 10,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Lỗi',
+        'Không thể kết nối với tài khoản Google: ${e.toString()}',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(20),
+        borderRadius: 10,
+      );
+    }
+  }
 }

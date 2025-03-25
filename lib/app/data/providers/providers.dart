@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/utilities/utilities.dart';
 import '../../routes/app_pages.dart';
@@ -327,6 +328,51 @@ class ApiProvider {
       );
       return Dashboard.fromJson(res.data);
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<dynamic> googleAuth(User firebaseUser) async {
+    try {
+      final deviceToken = await FirebaseMessaging.instance.getToken();
+
+      // Get ID token from Firebase user
+      final idToken = await firebaseUser.getIdToken();
+
+      final res = await ApiClient.connect(
+        ApiUrl.googleAuth,
+        method: ApiMethod.post,
+        headers: {'Accept': 'application/json'},
+        data: {
+          "email": firebaseUser.email,
+          "name": firebaseUser.displayName,
+          "uid": firebaseUser.uid,
+          "firebase_token": idToken,
+          "device_token": deviceToken,
+          "device_type": Platform.operatingSystem,
+          "avatar": firebaseUser.photoURL,
+          "device_name": Platform.isAndroid ? 'Android device' : 'iOS device',
+        },
+      );
+
+      AppUtils.log(res.data);
+
+      if (res.statusCode == 200 && res.data['status'] == 1) {
+        final data = res.data['user'];
+        final token = res.data['access_token'];
+
+        Preferences.setString(StringUtils.token, token);
+        Preferences.setString(StringUtils.currentId, data['id'].toString());
+        if (firebaseUser.phoneNumber != null) {
+          Preferences.setString(
+              StringUtils.phoneNumber, firebaseUser.phoneNumber!);
+        }
+
+        return data;
+      }
+      return null;
+    } catch (e) {
+      AppUtils.log('Google auth error: $e');
       rethrow;
     }
   }

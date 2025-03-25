@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import '../models/dashboard_model.dart';
 import '../models/models.dart';
 import '../providers/providers.dart';
+import '../services/google_auth_service.dart';
 
 part 'auth_repository.dart';
 part 'user_repository.dart';

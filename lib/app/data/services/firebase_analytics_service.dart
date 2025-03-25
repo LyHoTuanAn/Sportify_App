@@ -33,4 +33,13 @@ class FirebaseAnalyticService {
       AppUtils.log(e);
     }
   }
+
+  // Add this method to track Google sign in events
+  static void logGoogleSignIn() {
+    try {
+      analytics.logLogin(loginMethod: 'Google');
+    } catch (e) {
+      AppUtils.log(e);
+    }
+  }
 }

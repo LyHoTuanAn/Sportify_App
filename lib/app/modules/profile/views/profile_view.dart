@@ -35,6 +35,8 @@ class ProfileView extends GetView<ProfileController> {
                 EditProfileBottom.showBottom();
               } else if (value == 'password') {
                 controller.navigateToChangePassword();
+              } else if (value == 'google') {
+                controller.connectGoogleAccount();
               } else if (value == 'logout') {
                 controller.logout();
               }
@@ -61,6 +63,21 @@ class ProfileView extends GetView<ProfileController> {
                 child: Center(
                   child: Text(
                     'Thay đổi mật khẩu',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+              const PopupMenuDivider(height: 1),
+              const PopupMenuItem<String>(
+                value: 'google',
+                height: 48,
+                child: Center(
+                  child: Text(
+                    'Kết nối Google',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black87,
@@ -162,12 +179,14 @@ class ProfileView extends GetView<ProfileController> {
                   ),
                   const SizedBox(height: 10),
                   // Phone number section
-                  if (controller.user.value?.phone == null || controller.user.value?.phone?.isEmpty == true)
+                  if (controller.user.value?.phone == null ||
+                      controller.user.value?.phone?.isEmpty == true)
                     Column(
                       children: [
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 65),
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 15),
                           decoration: BoxDecoration(
                             color: const Color(0xFF3AAFA9).withOpacity(0.4),
                             borderRadius: BorderRadius.circular(50),
@@ -180,7 +199,8 @@ class ProfileView extends GetView<ProfileController> {
                               Flexible(
                                 child: Text(
                                   'Bạn chưa cung cấp số điện thoại',
-                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 12),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -192,10 +212,12 @@ class ProfileView extends GetView<ProfileController> {
                           margin: const EdgeInsets.only(top: 10),
                           child: ElevatedButton.icon(
                             onPressed: () => EditProfileBottom.showBottom(),
-                            icon: const Icon(Icons.add, color: Color(0xFF2B7A78), size: 16),
+                            icon: const Icon(Icons.add,
+                                color: Color(0xFF2B7A78), size: 16),
                             label: const Text(
                               'Thêm số điện thoại',
-                              style: TextStyle(color: Color(0xFF2B7A78), fontSize: 11),
+                              style: TextStyle(
+                                  color: Color(0xFF2B7A78), fontSize: 11),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
@@ -210,7 +232,8 @@ class ProfileView extends GetView<ProfileController> {
                   else
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 125),
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 15),
                       decoration: BoxDecoration(
                         color: const Color(0xFF3AAFA9).withOpacity(0.4),
                         borderRadius: BorderRadius.circular(50),
@@ -218,11 +241,13 @@ class ProfileView extends GetView<ProfileController> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.phone, color: Colors.white, size: 18),
+                          const Icon(Icons.phone,
+                              color: Colors.white, size: 18),
                           Expanded(
                             child: Text(
                               controller.user.value!.phone!,
-                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 12),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -362,7 +387,8 @@ class ProfileView extends GetView<ProfileController> {
                           _buildInfoItem(
                             icon: Icons.person_outline,
                             label: 'Họ và tên',
-                            value: '${controller.user.value?.firstName ?? ''} ${controller.user.value?.lastName ?? ''}',
+                            value:
+                                '${controller.user.value?.firstName ?? ''} ${controller.user.value?.lastName ?? ''}',
                           ),
                           _buildInfoItem(
                             icon: Icons.email_outlined,
@@ -386,13 +412,17 @@ class ProfileView extends GetView<ProfileController> {
                           _buildInfoItem(
                             icon: Icons.people_outline,
                             label: 'Giới tính',
-                            value: controller.user.value?.gender ?? 'Chưa cập nhật',
+                            value: controller.user.value?.gender ??
+                                'Chưa cập nhật',
                           ),
-                          if (controller.user.value?.address?.isNotEmpty ?? false)
+                          if (controller.user.value?.address?.isNotEmpty ??
+                              false)
                             _buildInfoItem(
                               icon: Icons.location_on_outlined,
                               label: 'Địa chỉ',
-                              value: controller.user.value?.address?.first.fullAddress ?? 'Chưa cập nhật',
+                              value: controller
+                                      .user.value?.address?.first.fullAddress ??
+                                  'Chưa cập nhật',
                             ),
                         ],
                       ),
