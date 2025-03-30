@@ -102,6 +102,7 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10"
     implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
+    implementation platform('com.google.firebase:firebase-bom:33.11.0')
     // implementation platform('com.google.firebase:firebase-bom:33.10.0')
     // implementation 'com.google.firebase:firebase-analytics'
 }
