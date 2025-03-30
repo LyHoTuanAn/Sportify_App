@@ -1,5 +1,6 @@
 library repositories;
 
+import 'dart:developer' as AppUtils;
 import 'dart:typed_data';
 
 import '../models/dashboard_model.dart';

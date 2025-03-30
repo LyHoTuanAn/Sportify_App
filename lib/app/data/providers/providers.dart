@@ -6,6 +6,8 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../core/utilities/utilities.dart';
 import '../../routes/app_pages.dart';
@@ -327,6 +329,97 @@ class ApiProvider {
       );
       return Dashboard.fromJson(res.data);
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> signInWithGoogle() async {
+    try {
+      // Initialize Google Sign-In
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      await googleSignIn.signOut(); // Sign out first to ensure fresh login
+
+      // Start the Google Sign-In process
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        // User canceled the sign-in flow
+        return null;
+      }
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Create a new credential
+      final credential = firebase_auth.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google credential
+      final userCredential = await firebase_auth.FirebaseAuth.instance
+          .signInWithCredential(credential);
+      final user = userCredential.user;
+
+      if (user != null) {
+        // Get the token for our backend
+        final idToken = await user.getIdToken();
+
+        return {
+          'token': idToken,
+          'uid': user.uid,
+          'email': user.email,
+          'name': user.displayName,
+          'photoUrl': user.photoURL
+        };
+      }
+      return null;
+    } catch (e) {
+      AppUtils.log('Error signing in with Google: $e');
+      rethrow;
+    }
+  }
+
+  static Future<UserModel> authenticateWithFirebaseToken(
+      String token, String name, String photoUrl) async {
+    try {
+      final deviceToken = await FirebaseMessaging.instance.getToken();
+      final Map<String, dynamic> requestData = {
+        'id_token': token,
+        'device_token': deviceToken,
+        'device_type': Platform.operatingSystem,
+        'name': name,
+        'photo_url': photoUrl
+      };
+
+      final res = await ApiClient.connect(
+        ApiUrl.firebaseAuth,
+        method: ApiMethod.post,
+        data: requestData,
+      );
+
+      if (res.statusCode == 200 && res.data['status'] == 'success') {
+        final userData = res.data['user'];
+        final authToken = res.data['token'];
+
+        if (userData != null && authToken != null) {
+          // Lưu thông tin xác thực
+          Preferences.setString(StringUtils.token, authToken.toString());
+          Preferences.setString(StringUtils.refreshToken, '');
+          Preferences.setString(
+              StringUtils.currentId, userData['id'].toString());
+
+          // Tạo bản sao an toàn của dữ liệu người dùng và chuyển ID thành string
+          final userModelData = Map<String, dynamic>.from(userData);
+          userModelData['id'] = userModelData['id'].toString();
+
+          return UserModel.fromMap(userModelData);
+        }
+        throw Exception('Thiếu dữ liệu người dùng hoặc token trong phản hồi');
+      }
+      throw Exception(res.data['message'] ?? 'Xác thực thất bại');
+    } catch (e) {
+      AppUtils.log('Lỗi xác thực Firebase: $e');
       rethrow;
     }
   }

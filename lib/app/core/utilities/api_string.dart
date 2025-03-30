@@ -28,6 +28,9 @@ class ApiUrl {
 
   static const String refreshToken = '$receipt/refresh_token';
 
+  // Firebase authentication endpoint
+  static const String firebaseAuth = '$receipt/auth/firebase';
+
   //delete/restore account
   static deleteRecipient(id) => '$receipt/recipients/$id';
   static const String restoreRecipient = '$receipt/recipients/restore';
