@@ -38,7 +38,8 @@ class Article {
 class OutstandingController extends GetxController {
   final RxString selectedCategory = 'Tất cả'.obs;
   final RxList<Article> articles = <Article>[].obs;
-  final RxList<String> categories = <String>['Tất cả', 'Cầu lông', 'Tennis', 'Bóng đá', 'Bóng rổ'].obs;
+  final RxList<String> categories =
+      <String>['Tất cả', 'Cầu lông', 'Tennis', 'Bóng đá', 'Bóng rổ'].obs;
 
   @override
   void onInit() {
@@ -58,9 +59,11 @@ class OutstandingController extends GetxController {
       {
         'id': '1',
         'category': 'Cầu lông',
-        'title': 'Cầu lông Malaysia do Leong Jun Hao dẫn đầu không lọt vào tứ kết đồng đội hỗn hợp...',
-        'description': 'Đội tuyển Malaysia đã phải dừng bước ở vòng bảng sau khi để thua trước các đối thủ mạnh lỡ Trung...',
-        'image_url': 'assets/images/badminton1.jpg',
+        'title':
+            'Cầu lông Malaysia do Leong Jun Hao dẫn đầu không lọt vào tứ kết đồng đội hỗn hợp...',
+        'description':
+            'Đội tuyển Malaysia đã phải dừng bước ở vòng bảng sau khi để thua trước các đối thủ mạnh lỡ Trung...',
+        'image_url': 'assets/images/logo.png',
         'time_ago': '1 giờ trước',
         'likes': 24,
         'comments': 8,
@@ -68,9 +71,11 @@ class OutstandingController extends GetxController {
       {
         'id': '2',
         'category': 'Cầu lông',
-        'title': 'Thắng lợi của tuyển Việt Nam tại giải đấu đồng đội hỗn hợp châu Á 2025',
-        'description': 'Đội tuyển Việt Nam gây bất ngờ lớn khi đánh bại Thái Lan để tiến vào vòng tứ kết giải đấu năm nay.',
-        'image_url': 'assets/images/badminton2.jpg',
+        'title':
+            'Thắng lợi của tuyển Việt Nam tại giải đấu đồng đội hỗn hợp châu Á 2025',
+        'description':
+            'Đội tuyển Việt Nam gây bất ngờ lớn khi đánh bại Thái Lan để tiến vào vòng tứ kết giải đấu năm nay.',
+        'image_url': 'assets/images/logo.png',
         'time_ago': '3 giờ trước',
         'likes': 42,
         'comments': 15,
@@ -78,9 +83,11 @@ class OutstandingController extends GetxController {
       {
         'id': '3',
         'category': 'Cầu lông',
-        'title': '5 bài tập nâng cao kỹ thuật đánh cầu lông cho người mới bắt đầu',
-        'description': 'Những bài tập cơ bản giúp người mới chơi cầu lông có thể nhanh chóng nắm bắt kỹ thuật và tự tin hơn...',
-        'image_url': 'assets/images/badminton3.jpg',
+        'title':
+            '5 bài tập nâng cao kỹ thuật đánh cầu lông cho người mới bắt đầu',
+        'description':
+            'Những bài tập cơ bản giúp người mới chơi cầu lông có thể nhanh chóng nắm bắt kỹ thuật và tự tin hơn...',
+        'image_url': 'assets/images/logo.png',
         'time_ago': '6 giờ trước',
         'likes': 0,
         'comments': 0,

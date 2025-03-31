@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/styles/style.dart';
 import '../../../data/services/firebase_analytics_service.dart';
@@ -122,32 +123,79 @@ class ProfileView extends GetView<ProfileController> {
                   Stack(
                     alignment: Alignment.bottomRight,
                     children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.white,
-                        backgroundImage: controller.user.value?.avatar != null
-                            ? NetworkImage(controller.user.value!.avatar!)
-                            : null,
-                        child: controller.user.value?.avatar == null
-                            ? const Icon(
-                                Icons.person,
-                                size: 40,
+                      Obx(() {
+                        if (controller.avatarLoading.value) {
+                          return Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Center(
+                              child: CircularProgressIndicator(
                                 color: Color(0xFF3AAFA9),
-                              )
-                            : null,
-                      ),
-                      GestureDetector(
-                        onTap: controller.changeAvatar,
-                        child: const CircleAvatar(
-                          radius: 10,
-                          backgroundColor: Colors.black,
-                          child: Icon(
-                            Icons.camera_alt,
-                            size: 12,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          return Hero(
+                            tag: 'profileAvatar',
+                            child: controller.user.value?.avatar != null
+                                ? CachedNetworkImage(
+                                    imageUrl: controller.user.value!.avatar!,
+                                    imageBuilder: (context, imageProvider) =>
+                                        CircleAvatar(
+                                      radius: 40,
+                                      backgroundColor: Colors.white,
+                                      backgroundImage: imageProvider,
+                                    ),
+                                    placeholder: (context, url) =>
+                                        const CircleAvatar(
+                                      radius: 40,
+                                      backgroundColor: Colors.white,
+                                      child: CircularProgressIndicator(
+                                        color: Color(0xFF3AAFA9),
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        const CircleAvatar(
+                                      radius: 40,
+                                      backgroundColor: Colors.white,
+                                      child: Icon(
+                                        Icons.error_outline,
+                                        color: Colors.red,
+                                        size: 30,
+                                      ),
+                                    ),
+                                  )
+                                : const CircleAvatar(
+                                    radius: 40,
+                                    backgroundColor: Colors.white,
+                                    child: Icon(
+                                      Icons.person,
+                                      size: 40,
+                                      color: Color(0xFF3AAFA9),
+                                    ),
+                                  ),
+                          );
+                        }
+                      }),
+                      Obx(() => GestureDetector(
+                            onTap: controller.avatarLoading.value
+                                ? null
+                                : controller.changeAvatar,
+                            child: const CircleAvatar(
+                              radius: 10,
+                              backgroundColor: Colors.black,
+                              child: Icon(
+                                Icons.camera_alt,
+                                size: 12,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -162,12 +210,14 @@ class ProfileView extends GetView<ProfileController> {
                   ),
                   const SizedBox(height: 10),
                   // Phone number section
-                  if (controller.user.value?.phone == null || controller.user.value?.phone?.isEmpty == true)
+                  if (controller.user.value?.phone == null ||
+                      controller.user.value?.phone?.isEmpty == true)
                     Column(
                       children: [
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 65),
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 15),
                           decoration: BoxDecoration(
                             color: const Color(0xFF3AAFA9).withOpacity(0.4),
                             borderRadius: BorderRadius.circular(50),
@@ -180,7 +230,8 @@ class ProfileView extends GetView<ProfileController> {
                               Flexible(
                                 child: Text(
                                   'Bạn chưa cung cấp số điện thoại',
-                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 12),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -192,10 +243,12 @@ class ProfileView extends GetView<ProfileController> {
                           margin: const EdgeInsets.only(top: 10),
                           child: ElevatedButton.icon(
                             onPressed: () => EditProfileBottom.showBottom(),
-                            icon: const Icon(Icons.add, color: Color(0xFF2B7A78), size: 16),
+                            icon: const Icon(Icons.add,
+                                color: Color(0xFF2B7A78), size: 16),
                             label: const Text(
                               'Thêm số điện thoại',
-                              style: TextStyle(color: Color(0xFF2B7A78), fontSize: 11),
+                              style: TextStyle(
+                                  color: Color(0xFF2B7A78), fontSize: 11),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
@@ -210,7 +263,8 @@ class ProfileView extends GetView<ProfileController> {
                   else
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 125),
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 15),
                       decoration: BoxDecoration(
                         color: const Color(0xFF3AAFA9).withOpacity(0.4),
                         borderRadius: BorderRadius.circular(50),
@@ -218,11 +272,13 @@ class ProfileView extends GetView<ProfileController> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.phone, color: Colors.white, size: 18),
+                          const Icon(Icons.phone,
+                              color: Colors.white, size: 18),
                           Expanded(
                             child: Text(
                               controller.user.value!.phone!,
-                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 12),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -306,97 +362,105 @@ class ProfileView extends GetView<ProfileController> {
 
             // Content based on selected tab
             Expanded(
-              child: Obx(() => controller.selectedTab.value == 0
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 60,
-                            color: Color(0xFF3AAFA9),
+              child: IndexedStack(
+                index: controller.selectedTab.value,
+                children: [
+                  // Tab 1 - Lịch đã đặt
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.calendar_today,
+                          size: 60,
+                          color: Color(0xFF3AAFA9),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Bạn chưa có lịch đặt nào',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
                           ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Bạn chưa có lịch đặt nào',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
+                        ),
+                        const SizedBox(height: 15),
+                        ElevatedButton.icon(
+                          onPressed: controller.navigateToBookingPage,
+                          icon: const Text(
+                            'Đặt lịch ngay',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          label: const Icon(Icons.arrow_forward,
+                              color: Colors.white, size: 16),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2B7A78),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
                             ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
                           ),
-                          const SizedBox(height: 15),
-                          ElevatedButton.icon(
-                            onPressed: controller.navigateToBookingPage,
-                            icon: const Text(
-                              'Đặt lịch ngay',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            label: const Icon(Icons.arrow_forward,
-                                color: Colors.white, size: 16),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2B7A78),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                            ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Tab 2 - Thông tin thành viên
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Thông tin cá nhân',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2B7A78),
                           ),
-                        ],
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Thông tin cá nhân',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2B7A78),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildInfoItem(
+                          icon: Icons.person_outline,
+                          label: 'Họ và tên',
+                          value:
+                              '${controller.user.value?.firstName ?? ''} ${controller.user.value?.lastName ?? ''}',
+                        ),
+                        _buildInfoItem(
+                          icon: Icons.email_outlined,
+                          label: 'Email',
+                          value: controller.user.value?.email ?? '',
+                        ),
+                        _buildInfoItem(
+                          icon: Icons.phone_outlined,
+                          label: 'Số điện thoại',
+                          value: controller.user.value?.phone?.isEmpty ?? true
+                              ? 'Chưa cập nhật'
+                              : controller.user.value?.phone ?? '',
+                        ),
+                        _buildInfoItem(
+                          icon: Icons.calendar_today_outlined,
+                          label: 'Ngày sinh',
+                          value: controller.user.value?.dateOfBirth != null
+                              ? '${controller.user.value?.dateOfBirth?.day}/${controller.user.value?.dateOfBirth?.month}/${controller.user.value?.dateOfBirth?.year}'
+                              : 'Chưa cập nhật',
+                        ),
+                        _buildGenderInfoItem(
+                          controller.user.value?.gender ?? 'Chưa cập nhật',
+                        ),
+                        if (controller.user.value?.address?.isNotEmpty ?? false)
                           _buildInfoItem(
-                            icon: Icons.person_outline,
-                            label: 'Họ và tên',
-                            value: '${controller.user.value?.firstName ?? ''} ${controller.user.value?.lastName ?? ''}',
+                            icon: Icons.location_on_outlined,
+                            label: 'Địa chỉ',
+                            value: controller
+                                    .user.value?.address?.first.fullAddress ??
+                                'Chưa cập nhật',
                           ),
-                          _buildInfoItem(
-                            icon: Icons.email_outlined,
-                            label: 'Email',
-                            value: controller.user.value?.email ?? '',
-                          ),
-                          _buildInfoItem(
-                            icon: Icons.phone_outlined,
-                            label: 'Số điện thoại',
-                            value: controller.user.value?.phone?.isEmpty ?? true
-                                ? 'Chưa cập nhật'
-                                : controller.user.value?.phone ?? '',
-                          ),
-                          _buildInfoItem(
-                            icon: Icons.calendar_today_outlined,
-                            label: 'Ngày sinh',
-                            value: controller.user.value?.dateOfBirth != null
-                                ? '${controller.user.value?.dateOfBirth?.day}/${controller.user.value?.dateOfBirth?.month}/${controller.user.value?.dateOfBirth?.year}'
-                                : 'Chưa cập nhật',
-                          ),
-                          _buildInfoItem(
-                            icon: Icons.people_outline,
-                            label: 'Giới tính',
-                            value: controller.user.value?.gender ?? 'Chưa cập nhật',
-                          ),
-                          if (controller.user.value?.address?.isNotEmpty ?? false)
-                            _buildInfoItem(
-                              icon: Icons.location_on_outlined,
-                              label: 'Địa chỉ',
-                              value: controller.user.value?.address?.first.fullAddress ?? 'Chưa cập nhật',
-                            ),
-                        ],
-                      ),
-                    )),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -441,5 +505,83 @@ class ProfileView extends GetView<ProfileController> {
         ],
       ),
     );
+  }
+
+  // Widget mới để hiển thị giới tính theo cách hấp dẫn hơn
+  Widget _buildGenderInfoItem(String gender) {
+    IconData genderIcon = Icons.person;
+    Color genderColor = const Color(0xFF2B7A78);
+
+    if (gender.toLowerCase() == 'nam') {
+      genderIcon = Icons.male;
+      genderColor = Colors.blue;
+    } else if (gender.toLowerCase() == 'nữ') {
+      genderIcon = Icons.female;
+      genderColor = Colors.pink;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.people_outline, size: 20, color: const Color(0xFF2B7A78)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Giới tính',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: genderColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                        color: genderColor.withOpacity(0.5), width: 1),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(genderIcon, size: 18, color: genderColor),
+                      const SizedBox(width: 8),
+                      Text(
+                        gender,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: genderColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ImageProvider _getCachedAvatarImage(String? url) {
+    if (url == null || url.isEmpty)
+      return const AssetImage('assets/default_avatar.png');
+
+    // Cache ảnh để sử dụng lại
+    final imageProvider = NetworkImage(url);
+
+    // Precache ảnh ngay lập tức để ngăn loading lại
+    precacheImage(imageProvider, Get.context!);
+
+    return imageProvider;
   }
 }

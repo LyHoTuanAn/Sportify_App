@@ -423,4 +423,91 @@ class ApiProvider {
       rethrow;
     }
   }
+
+  static Future<UserModel> getUserMe() async {
+    try {
+      final res = await ApiClient.connect(
+        ApiUrl.userMe,
+        method: ApiMethod.get,
+      );
+
+      if (res.statusCode == 200 && res.data['status'] == 1) {
+        final userData = res.data['data'];
+
+        // Convert some fields to match our UserModel structure
+        Map<String, dynamic> formattedData = {
+          'id': userData['id'].toString(),
+          'email': userData['email'],
+          'first_name': userData['first_name'],
+          'last_name': userData['last_name'],
+          'avatar': userData['avatar_url'],
+          'phone_number': userData['phone'],
+          'date_of_birth': userData['birthday'],
+          'gender': userData['gender'],
+          'is_enable_notification': true
+        };
+
+        return UserModel.fromMap(formattedData);
+      }
+      throw Exception(
+          res.data['message'] ?? 'Không thể lấy thông tin người dùng');
+    } catch (e) {
+      AppUtils.log('Lỗi khi lấy thông tin từ /api/auth/me: $e');
+      rethrow;
+    }
+  }
+
+  // Thêm phương thức mới để cập nhật profile
+  static Future<UserModel> updateUserMe(Map<String, dynamic> data) async {
+    try {
+      AppUtils.log('Sending update data: $data'); // In dữ liệu trước khi gửi
+
+      final res = await ApiClient.connect(
+        ApiUrl.updateUserMe,
+        method: ApiMethod.post,
+        data: data,
+      );
+
+      AppUtils.log('Update user response: ${res.data}'); // In phản hồi API
+
+      if (res.statusCode == 200 &&
+          (res.data['status'] == 1 || res.data['status'] == true)) {
+        // If the response contains user data, use it
+        if (res.data['data'] != null) {
+          final userData = res.data['data'];
+
+          // In thông tin cụ thể về avatar_url để kiểm tra
+          AppUtils.log('Avatar URL in response: ${userData['avatar_url']}');
+
+          // Convert some fields to match our UserModel structure
+          Map<String, dynamic> formattedData = {
+            'id': userData['id'].toString(),
+            'email': userData['email'],
+            'first_name': userData['first_name'],
+            'last_name': userData['last_name'],
+            'avatar': userData['avatar_url'],
+            'phone_number': userData['phone'],
+            'date_of_birth': userData['birthday'],
+            'gender': userData['gender'],
+            'is_enable_notification': true
+          };
+
+          AppUtils.log('Formatted data for UserModel: $formattedData');
+          return UserModel.fromMap(formattedData);
+        }
+        // If response only contains success message but no data, get fresh user data
+        else {
+          // Fetch the updated user data after successful update
+          return getUserMe();
+        }
+      }
+
+      // Handle error case
+      throw Exception(
+          res.data['message'] ?? 'Không thể cập nhật thông tin người dùng');
+    } catch (e) {
+      AppUtils.log('Lỗi khi cập nhật thông tin: $e');
+      rethrow;
+    }
+  }
 }

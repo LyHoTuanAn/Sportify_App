@@ -31,6 +31,8 @@ import '../modules/forgot-password/bindings/forgot_password_binding.dart';
 import '../modules/forgot-password/views/forgot_password_view.dart';
 import '../modules/otp-code/bindings/otp_code_binding.dart';
 import '../modules/otp-code/views/otp_code_view.dart';
+import '../modules/chat/bindings/chat_binding.dart';
+import '../modules/chat/views/chat_view.dart';
 
 part 'app_routes.dart';
 
@@ -53,7 +55,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.login,
-      page: () => LoginView(),
+      page: () => const LoginView(),
       binding: LoginBinding(),
     ),
     GetPage(
@@ -116,11 +118,15 @@ class AppPages {
       page: () => const BookingPriceView(),
       binding: BookingPriceBinding(),
     ),
-  GetPage(
-  name: _Paths.payment,
-  page: () => const PaymentView(),
-  binding: PaymentBinding(),
-  )
+    GetPage(
+      name: _Paths.payment,
+      page: () => const PaymentView(),
+      binding: PaymentBinding(),
+    ),
+    GetPage(
+      name: _Paths.chat,
+      page: () => const ChatView(),
+      binding: ChatBinding(),
+    ),
   ];
 }
-

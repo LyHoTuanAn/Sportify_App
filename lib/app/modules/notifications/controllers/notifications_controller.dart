@@ -9,6 +9,7 @@ import '../../../data/models/models.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../widgets/widgets.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
+import '../../../core/utilities/snackbar_util.dart';
 
 class NotificationsController extends GetxController
     with
@@ -67,23 +68,19 @@ class NotificationsController extends GetxController
   }
 
   void remove(id) {
-    BottomWellSuccess.show(
-      'Do you want to delete it?',
-      image: AppImage.confirmDelete,
-      enableDrag: true,
-      callback: () {
-        removeIndex = notifications.indexWhere((e) => e.id == id);
-        removeItem = notifications[removeIndex];
-        notifications.remove(removeItem);
-        toastCtr.forward();
-        change(notifications, status: RxStatus.success());
+    SnackbarUtil.showConfirmation('Bạn có muốn xóa thông báo này không?',
+        onConfirm: () {
+      removeIndex = notifications.indexWhere((e) => e.id == id);
+      removeItem = notifications[removeIndex];
+      notifications.remove(removeItem);
+      toastCtr.forward();
+      change(notifications, status: RxStatus.success());
+      _timer?.cancel();
+      _timer = Timer.periodic(duration, (_) {
         _timer?.cancel();
-        _timer = Timer.periodic(duration, (_) {
-          _timer?.cancel();
-          _delete(removeItem);
-        });
-      },
-    );
+        _delete(removeItem);
+      });
+    });
   }
 
   void changNumberUnreadBottom() {

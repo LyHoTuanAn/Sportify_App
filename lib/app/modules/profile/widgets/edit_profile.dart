@@ -24,7 +24,6 @@ class _EditProfileBottomState extends State<EditProfileBottom> {
   late TextEditingController _email;
   late TextEditingController _gender;
   late TextEditingController _phoneNumber;
-  late TextEditingController _mediaRecord;
 
   DateTime? birthDay;
   @override
@@ -35,8 +34,6 @@ class _EditProfileBottomState extends State<EditProfileBottom> {
     _email = TextEditingController(text: ctr.user.value?.email);
     _gender = TextEditingController(text: ctr.user.value?.gender);
     _phoneNumber = TextEditingController(text: ctr.user.value?.phone);
-    _mediaRecord =
-        TextEditingController(text: ctr.user.value?.medicalRecordNumber);
 
     super.initState();
   }
@@ -49,7 +46,6 @@ class _EditProfileBottomState extends State<EditProfileBottom> {
     _gender.dispose();
     _email.dispose();
     _phoneNumber.dispose();
-    _mediaRecord.dispose();
     super.dispose();
   }
 
@@ -70,23 +66,27 @@ class _EditProfileBottomState extends State<EditProfileBottom> {
     if (_formKey.currentState!.validate()) {
       try {
         _stateObx.value = RxStatus.loading();
+
+        // Tạo dữ liệu để gửi lên server với định dạng đúng
         final data = {
-          "recipient": UserModel(
-            firstName: _firstName.text,
-            lastName: _lastName.text,
-            dateOfBirth: birthDay,
-            email: _email.text,
-            phone: _phoneNumber.text,
-            gender: _gender.text.toLowerCase(),
-            medicalRecordNumber: _mediaRecord.text,
-          ).toMap()
+          'first_name': _firstName.text,
+          'last_name': _lastName.text,
+          'gender': _gender.text,
+          'birthday': birthDay != null
+              ? "${birthDay!.year}-${birthDay!.month.toString().padLeft(2, '0')}-${birthDay!.day.toString().padLeft(2, '0')}"
+              : null,
+          'phone': _phoneNumber.text,
+          'email': _email.text,
         };
-        final res = await Repo.user.updateUser(data);
-        if (res) {
-          Get.back();
-          ctr.getUserDetail();
-          BottomWellSuccess.show('Thông tin cá nhân đã được cập nhật thành công.');
-        }
+
+        // Sử dụng controller để cập nhật dữ liệu
+        await ctr.updateProfile(data);
+
+        Get.back();
+        // Không cần gọi getUserDetail ở đây nữa vì đã được gọi bên trong updateProfile
+        SnackbarUtil.showSuccess(
+            'Thông tin cá nhân đã được cập nhật thành công.');
+
         _stateObx.value = RxStatus.success();
       } catch (e) {
         _stateObx.value = RxStatus.success();
@@ -137,7 +137,7 @@ class _EditProfileBottomState extends State<EditProfileBottom> {
               ],
             ),
           ),
-          
+
           // Form
           Expanded(
             child: Form(
@@ -157,38 +157,26 @@ class _EditProfileBottomState extends State<EditProfileBottom> {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    
+
                     // Các trường thông tin
                     _buildInputField(
                       label: 'Họ',
                       controller: _firstName,
                       icon: Icons.person_outline,
-                      validator: (val) => val!.isEmpty ? 'Vui lòng nhập họ' : null,
+                      validator: (val) =>
+                          val!.isEmpty ? 'Vui lòng nhập họ' : null,
                     ),
-                    
+
                     _buildInputField(
                       label: 'Tên',
                       controller: _lastName,
                       icon: Icons.person_outline,
-                      validator: (val) => val!.isEmpty ? 'Vui lòng nhập tên' : null,
+                      validator: (val) =>
+                          val!.isEmpty ? 'Vui lòng nhập tên' : null,
                     ),
-                    
-                    _buildInputField(
-                      label: 'Giới tính',
-                      controller: _gender,
-                      icon: Icons.people_outline,
-                      readOnly: true,
-                      onTap: () {
-                        BottomChangeSelect.show(
-                          items: const ['Nữ', 'Nam'],
-                          active: _gender.text,
-                          callback: (val) {
-                            _gender.text = val;
-                          },
-                        );
-                      },
-                    ),
-                    
+
+                    _buildGenderSelection(),
+
                     _buildInputField(
                       label: 'Ngày sinh',
                       controller: _birthDay,
@@ -204,35 +192,30 @@ class _EditProfileBottomState extends State<EditProfileBottom> {
                         }
                       },
                     ),
-                    
+
                     _buildInputField(
                       label: 'Số điện thoại',
                       controller: _phoneNumber,
                       icon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                     ),
-                    
+
                     _buildInputField(
                       label: 'Email',
                       controller: _email,
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                     ),
-                    
-                    _buildInputField(
-                      label: 'Mã số y tế (không bắt buộc)',
-                      controller: _mediaRecord,
-                      icon: Icons.health_and_safety_outlined,
-                    ),
-                    
+
                     const SizedBox(height: 30),
-                    
+
                     // Nút cập nhật
                     Obx(
                       () => SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _stateObx.value.isLoading ? null : updateUser,
+                          onPressed:
+                              _stateObx.value.isLoading ? null : updateUser,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF2B7A78),
                             padding: const EdgeInsets.symmetric(vertical: 15),
@@ -264,6 +247,119 @@ class _EditProfileBottomState extends State<EditProfileBottom> {
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGenderSelection() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Giới tính',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF777777),
+            ),
+          ),
+          const SizedBox(height: 5),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _gender.text = 'Nam';
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: _gender.text == 'Nam'
+                          ? const Color(0xFF2B7A78)
+                          : const Color(0xFFF9F9F9),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: _gender.text == 'Nam'
+                            ? const Color(0xFF2B7A78)
+                            : const Color(0xFFE0E0E0),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.male,
+                          color: _gender.text == 'Nam'
+                              ? Colors.white
+                              : Colors.blue,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Nam',
+                          style: TextStyle(
+                            color: _gender.text == 'Nam'
+                                ? Colors.white
+                                : Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _gender.text = 'Nữ';
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: _gender.text == 'Nữ'
+                          ? const Color(0xFF2B7A78)
+                          : const Color(0xFFF9F9F9),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: _gender.text == 'Nữ'
+                            ? const Color(0xFF2B7A78)
+                            : const Color(0xFFE0E0E0),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.female,
+                          color:
+                              _gender.text == 'Nữ' ? Colors.white : Colors.pink,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Nữ',
+                          style: TextStyle(
+                            color: _gender.text == 'Nữ'
+                                ? Colors.white
+                                : Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -312,7 +408,8 @@ class _EditProfileBottomState extends State<EditProfileBottom> {
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(color: Color(0xFF2B7A78)),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               fillColor: const Color(0xFFF9F9F9),
               filled: true,
             ),

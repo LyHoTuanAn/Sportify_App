@@ -22,6 +22,9 @@ class UserModel {
     this.isDeleted = false,
     this.shopNPI,
     this.userStoreModel,
+    this.firebaseUid,
+    this.createdAt,
+    this.updatedAt,
   });
   String? id;
   String? email;
@@ -52,6 +55,11 @@ class UserModel {
   final int? shopNPI;
   final UserStoreModel? userStoreModel;
 
+  // New fields from the API
+  String? firebaseUid;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+
   factory UserModel.fromMap(Map<dynamic, dynamic> json) => UserModel(
         id: json["id"],
         email: json["email"],
@@ -59,10 +67,12 @@ class UserModel {
         lastName: json["last_name"] ?? '',
         dateOfBirth: json['date_of_birth'] != null
             ? DateTime.parse(json['date_of_birth'])
-            : null,
-        phone: json['phone_number'],
+            : json['birthday'] != null
+                ? DateTime.parse(json['birthday'])
+                : null,
+        phone: json['phone_number'] ?? json['phone'],
         insuranceCard: json["insurance_card"],
-        avatar: json['avatar'],
+        avatar: json['avatar'] ?? json['avatar_url'],
         address: json['addresses'] == null
             ? []
             : (json['addresses'] as List)
@@ -76,15 +86,22 @@ class UserModel {
         emergencyContact: json["emergency_contact"] == null
             ? null
             : EmergencyContact.fromMap(json["emergency_contact"]),
-        fullName: json['full_name'] ?? '',
+        fullName: json['full_name'] ?? json['name'] ?? '',
         isEnableNotification: json["is_enable_notification"] ?? false,
-        fullAddress: json["full_address"] ?? '',
+        fullAddress: json["full_address"] ?? json["address"] ?? '',
         isV1: json['version_app'] == 'v1',
         isDeleted: json['is_deleted'] ?? false,
         shopNPI: json["npi"],
         userStoreModel: json["store"] == null
             ? null
             : UserStoreModel.fromMap(json["store"]),
+        firebaseUid: json["firebase_uid"],
+        createdAt: json["created_at"] != null
+            ? DateTime.parse(json["created_at"])
+            : null,
+        updatedAt: json["updated_at"] != null
+            ? DateTime.parse(json["updated_at"])
+            : null,
       );
 
   Map<String, dynamic> toMap() => {

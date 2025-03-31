@@ -31,8 +31,16 @@ class ApiUrl {
   // Firebase authentication endpoint
   static const String firebaseAuth = '$receipt/auth/firebase';
 
+  // New endpoint for user profile
+  static const String userMe = '$receipt/auth/me';
+  static const String updateUserMe =
+      userMe; // Same endpoint but different HTTP method (PUT/PATCH)
+
   //delete/restore account
   static deleteRecipient(id) => '$receipt/recipients/$id';
   static const String restoreRecipient = '$receipt/recipients/restore';
   static const String getDashboard = '$receipt/home';
+
+  // Add media store endpoint
+  static const String mediaStore = '$receipt/media/store';
 }

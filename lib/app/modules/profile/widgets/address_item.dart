@@ -31,30 +31,34 @@ class AddressItem extends StatelessWidget {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 1),
                       )
-                    : Image.asset(
-                        activated ? AppImage.check : AppImage.empty,
-                        color: activated
-                            ? AppTheme.secondary
-                            : AppTheme.deactivate,
-                        width: 20,
+                    : Icon(
+                        activated ? Icons.check_circle : Icons.circle_outlined,
+                        color:
+                            activated ? const Color(0xFF2B7A78) : Colors.grey,
+                        size: 20,
                       ),
-                Dimes.width10,
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (title.isNotEmpty)
-                        title.text
-                            .size(11)
-                            .minFontSize(11)
-                            .color(AppTheme.deactivate)
-                            .make(),
-                      content.text
-                          .size(16)
-                          .medium
-                          .color(AppTheme.primary)
-                          .make(),
-                      Dimes.height10,
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      Text(
+                        content,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF2B7A78),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                       const Divider(height: 1),
                     ],
                   ),
