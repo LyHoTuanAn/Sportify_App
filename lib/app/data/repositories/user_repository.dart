@@ -8,6 +8,7 @@ abstract class UserBase {
   Future<Dashboard> getDashboard();
   Future<UserModel> getUserMe();
   Future<UserModel> updateUserMe(Map<String, dynamic> data);
+  Future<Map<String, dynamic>?> uploadMedia(Uint8List bytes, int folderId);
 }
 
 class UserRepository implements UserBase {
@@ -44,5 +45,10 @@ class UserRepository implements UserBase {
   @override
   Future<UserModel> updateUserMe(Map<String, dynamic> data) {
     return ApiProvider.updateUserMe(data);
+  }
+
+  @override
+  Future<Map<String, dynamic>?> uploadMedia(Uint8List bytes, int folderId) {
+    return ApiProvider.uploadMedia(bytes, folderId);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../data/repositories/repositories.dart';
 import '../modules/booking-price/bindings/booking_price_binding.dart';
 import '../modules/booking-price/views/booking_price_view.dart';
 import '../modules/Payment/bindings/Payment_binding.dart';
@@ -33,6 +34,7 @@ import '../modules/otp-code/bindings/otp_code_binding.dart';
 import '../modules/otp-code/views/otp_code_view.dart';
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_view.dart';
+import '../modules/profile/controllers/profile_controller.dart';
 
 part 'app_routes.dart';
 
@@ -129,4 +131,12 @@ class AppPages {
       binding: ChatBinding(),
     ),
   ];
+}
+
+class ProfileBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut<UserRepository>(() => UserRepository());
+    Get.lazyPut<ProfileController>(() => ProfileController());
+  }
 }

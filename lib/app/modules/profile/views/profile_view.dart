@@ -135,51 +135,61 @@ class ProfileView extends GetView<ProfileController> {
                             child: const Center(
                               child: CircularProgressIndicator(
                                 color: Color(0xFF3AAFA9),
+                                strokeWidth: 2,
                               ),
                             ),
                           );
                         } else {
-                          return Hero(
-                            tag: 'profileAvatar',
-                            child: controller.user.value?.avatar != null
-                                ? CachedNetworkImage(
-                                    imageUrl: controller.user.value!.avatar!,
-                                    imageBuilder: (context, imageProvider) =>
-                                        CircleAvatar(
-                                      radius: 40,
-                                      backgroundColor: Colors.white,
-                                      backgroundImage: imageProvider,
-                                    ),
-                                    placeholder: (context, url) =>
-                                        const CircleAvatar(
-                                      radius: 40,
-                                      backgroundColor: Colors.white,
-                                      child: CircularProgressIndicator(
-                                        color: Color(0xFF3AAFA9),
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        const CircleAvatar(
-                                      radius: 40,
-                                      backgroundColor: Colors.white,
-                                      child: Icon(
-                                        Icons.error_outline,
-                                        color: Colors.red,
-                                        size: 30,
-                                      ),
-                                    ),
-                                  )
-                                : const CircleAvatar(
-                                    radius: 40,
-                                    backgroundColor: Colors.white,
-                                    child: Icon(
-                                      Icons.person,
-                                      size: 40,
-                                      color: Color(0xFF3AAFA9),
-                                    ),
+                          if (controller.user.value?.avatar != null &&
+                              controller.user.value!.avatar!.isNotEmpty) {
+                            return CachedNetworkImage(
+                              imageUrl: controller.user.value!.avatar!,
+                              cacheKey:
+                                  'user_avatar_${controller.user.value!.id}',
+                              imageBuilder: (context, imageProvider) =>
+                                  CircleAvatar(
+                                radius: 40,
+                                backgroundColor: Colors.white,
+                                backgroundImage: imageProvider,
+                              ),
+                              placeholder: (context, url) => CircleAvatar(
+                                radius: 40,
+                                backgroundColor: Colors.grey[200],
+                                child: const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Color(0xFF3AAFA9),
                                   ),
-                          );
+                                ),
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  CircleAvatar(
+                                radius: 40,
+                                backgroundColor: Colors.white,
+                                child: Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: const Color(0xFF3AAFA9),
+                                ),
+                              ),
+                              memCacheWidth: 300,
+                              memCacheHeight: 300,
+                              maxWidthDiskCache: 500,
+                              maxHeightDiskCache: 500,
+                            );
+                          } else {
+                            return const CircleAvatar(
+                              radius: 40,
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Color(0xFF3AAFA9),
+                              ),
+                            );
+                          }
                         }
                       }),
                       Obx(() => GestureDetector(

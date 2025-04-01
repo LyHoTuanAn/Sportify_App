@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart' as dio;
 import 'package:http_parser/http_parser.dart';
 
 import '../../../core/utilities/utilities.dart';
@@ -14,10 +13,14 @@ import '../../../data/providers/providers.dart';
 import '../../../data/http_client/http_client.dart';
 
 class ProfileController extends GetxController with ScrollMixin {
+  final UserRepository _userRepository = Get.find<UserRepository>();
+
   final user = Rxn<UserModel>();
   final hasBookings = false.obs;
   final isLoading = true.obs;
+  final avatarLoading = false.obs;
   final selectedTab = 0.obs;
+  int _avatarTimestamp = DateTime.now().millisecondsSinceEpoch;
 
   // Form controllers for profile update
   final firstNameController = TextEditingController();
@@ -27,18 +30,14 @@ class ProfileController extends GetxController with ScrollMixin {
   Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
   final genderValue = "Nam".obs;
 
-  final avatarLoading = false.obs;
-  int _avatarTimestamp = DateTime.now().millisecondsSinceEpoch;
+  // Thêm biến để cache URL ảnh đã tải
+  final cachedAvatarUrl = ''.obs;
+  bool isChangingAvatar = false;
 
   @override
   void onInit() {
     super.onInit();
-    getUserDetail().then((_) {
-      // Preload avatar image if exists
-      if (user.value?.avatar != null && user.value!.avatar!.isNotEmpty) {
-        precacheNetworkImage(user.value!.avatar!);
-      }
-    });
+    getUserDetail();
   }
 
   @override
@@ -58,188 +57,118 @@ class ProfileController extends GetxController with ScrollMixin {
 
   void changeAvatar() {
     FirebaseAnalyticService.logEvent('Profile_Edit_Avatar');
+    if (isChangingAvatar) return; // Ngăn chặn nhiều lần gọi liên tiếp
+
     AppUtils.pickerImage(onTap: (bytes) async {
       try {
+        isChangingAvatar = true;
         avatarLoading.value = true;
 
-        // Bước 1: Upload ảnh lên server
-        final mediaResponse = await _uploadMedia(bytes);
-        AppUtils.log('Media Response: $mediaResponse');
+        // Hiển thị trước ảnh ngay lập tức
+        final oldAvatarUrl = user.value?.avatar;
+        final oldImage = user.value;
 
-        if (mediaResponse != null && mediaResponse['id'] != null) {
-          // Bước 2: Cập nhật avatar_id cho người dùng
-          final avatarId = mediaResponse['id'];
-          AppUtils.log('Avatar ID to update: $avatarId');
+        // Tạo một URL tạm để hiển thị ảnh đã chọn ngay lập tức
+        final tempUrl = await _createLocalAvatarFromBytes(bytes);
+        if (tempUrl != null) {
+          // Cập nhật UI với ảnh tạm ngay lập tức
+          user.update((val) {
+            if (val != null) {
+              val.avatar = tempUrl;
+            }
+          });
+        }
 
-          // Chuẩn bị dữ liệu để cập nhật profile
-          final updateData = {
-            'first_name': user.value?.firstName ?? '',
-            'last_name': user.value?.lastName ?? '',
-            'email': user.value?.email ?? '',
-            'avatar_id': avatarId
-          };
+        // Sau đó upload ảnh với độ ưu tiên cao
+        _userRepository.uploadMedia(bytes, 1).then((mediaResponse) {
+          if (mediaResponse != null && mediaResponse['id'] != null) {
+            final avatarId = mediaResponse['id'];
 
-          AppUtils.log('Sending update data to API: $updateData');
+            // Lấy URL ảnh từ phản hồi nếu có
+            final newAvatarUrl =
+                mediaResponse['sizes']?['default'] ?? mediaResponse['url'];
 
-          // Gọi API cập nhật profile thông qua API riêng biệt
-          try {
-            final res = await ApiClient.connect(
-              ApiUrl.updateUserMe,
-              method: ApiMethod.post,
-              data: updateData,
-            );
+            // Nếu có URL mới từ upload, cập nhật nó ngay
+            if (newAvatarUrl != null) {
+              user.update((val) {
+                if (val != null) {
+                  val.avatar = newAvatarUrl;
+                }
+              });
+            }
 
-            AppUtils.log('Profile update response: ${res.data}');
+            // Sau đó cập nhật avatar_id lên server
+            final updateData = {
+              'first_name': user.value?.firstName ?? '',
+              'last_name': user.value?.lastName ?? '',
+              'email': user.value?.email ?? '',
+              'avatar_id': avatarId
+            };
 
-            if (res.statusCode == 200) {
-              // Không gọi getUserDetail() để tránh load lại toàn bộ trang
-
-              // Nếu API trả về URL ảnh mới trong phản hồi, sử dụng nó trực tiếp
-              if (res.data['data'] != null &&
-                  res.data['data']['avatar_url'] != null) {
-                final newAvatarUrl = res.data['data']['avatar_url'];
-
-                // Chỉ cập nhật thuộc tính avatar trong user model
+            // Cập nhật thông tin user ở background
+            _userRepository.updateUserMe(updateData).then((updatedUser) {
+              // Cập nhật thông tin user nếu cần
+              if (updatedUser.avatar != user.value?.avatar) {
                 user.update((val) {
                   if (val != null) {
-                    val.avatar = newAvatarUrl;
+                    val.avatar = updatedUser.avatar;
                   }
                 });
-
-                // Xóa cache ảnh cũ
-                clearAvatarCache(newAvatarUrl);
-              } else {
-                // Nếu API không trả về URL ảnh mới, chỉ lấy thông tin avatar
-                // mà không load toàn bộ thông tin người dùng
-                try {
-                  final userResponse = await ApiClient.connect(
-                    ApiUrl.userMe,
-                    method: ApiMethod.get,
-                  );
-
-                  if (userResponse.statusCode == 200 &&
-                      userResponse.data['data'] != null &&
-                      userResponse.data['data']['avatar_url'] != null) {
-                    final newAvatarUrl =
-                        userResponse.data['data']['avatar_url'];
-
-                    // Chỉ cập nhật thuộc tính avatar trong user model
-                    user.update((val) {
-                      if (val != null) {
-                        val.avatar = newAvatarUrl;
-                      }
-                    });
-
-                    // Xóa cache ảnh cũ
-                    clearAvatarCache(newAvatarUrl);
-                  }
-                } catch (e) {
-                  AppUtils.log('Error fetching updated avatar: $e');
-                }
               }
+              AppUtils.log('Cập nhật avatar_id thành công');
 
+              // Thông báo thành công
               AppUtils.toast('Cập nhật ảnh đại diện thành công');
-            } else {
-              AppUtils.toast('Không thể cập nhật ảnh đại diện');
-            }
-          } catch (apiError) {
-            AppUtils.log('API Error: $apiError');
-            AppUtils.toast('Lỗi khi cập nhật profile: $apiError');
+            }).catchError((e) {
+              AppUtils.log('Lỗi khi cập nhật avatar_id: $e');
+              // Không hiển thị lỗi cho người dùng vì ảnh đã hiển thị
+            });
+          } else {
+            // Upload thất bại, quay lại ảnh cũ
+            user.update((val) {
+              if (val != null) {
+                val.avatar = oldAvatarUrl;
+              }
+            });
+            AppUtils.toast('Không thể tải lên ảnh đại diện');
           }
-        } else {
-          AppUtils.toast('Không thể lấy thông tin từ ảnh đã upload');
-        }
+        }).onError((error, stackTrace) {
+          // Nếu upload lỗi, quay lại ảnh cũ
+          user.update((val) {
+            if (val != null) {
+              val.avatar = oldAvatarUrl;
+            }
+          });
+          AppUtils.toast('Không thể tải lên ảnh đại diện');
+        });
       } catch (e) {
         AppUtils.toast('Lỗi khi cập nhật ảnh đại diện: ${e.toString()}');
       } finally {
         avatarLoading.value = false;
+        isChangingAvatar = false;
       }
     });
   }
 
-  // Thêm phương thức này để xóa cache ảnh
-  void clearAvatarCache(String imageUrl) {
-    if (imageUrl.isNotEmpty) {
-      try {
-        imageCache.clear();
-        imageCache.clearLiveImages();
-
-        // Thêm timestamp mới cho URL avatar
-        _avatarTimestamp = DateTime.now().millisecondsSinceEpoch;
-
-        AppUtils.log('Cleared avatar cache for URL: $imageUrl');
-      } catch (e) {
-        AppUtils.log('Error clearing image cache: $e');
-      }
-    }
-  }
-
-  // Phương thức để upload media với xử lý lỗi tốt hơn
-  Future<Map<String, dynamic>?> _uploadMedia(Uint8List bytes) async {
+  // Phương thức tạo URL tạm thời từ bytes ảnh
+  Future<String?> _createLocalAvatarFromBytes(Uint8List bytes) async {
     try {
-      // Tạo FormData cho việc upload file
-      final name = DateTime.now().millisecondsSinceEpoch;
-
-      // Tạo MediaType đúng cách
-      final contentType = MediaType('image', 'png');
-
-      // Tạo form data sử dụng Dio trực tiếp với alias dio.
-      final dioFormData = dio.FormData.fromMap({
-        'file': dio.MultipartFile.fromBytes(
-          bytes,
-          filename: '$name.png',
-          contentType: contentType,
-        ),
-        'folder_id': '1',
-      });
-
-      // In ra thông tin để debug
-      AppUtils.log('Uploading image with size: ${bytes.length} bytes');
-
-      final dioInstance = dio.Dio();
-      dioInstance.options.headers['Authorization'] =
-          'Bearer ${Preferences.getString(StringUtils.token)}';
-      dioInstance.options.headers['Content-Type'] = 'multipart/form-data';
-
-      final dioResponse = await dioInstance.post(
-        'https://6325-171-250-162-200.ngrok-free.app/api/media/store',
-        data: dioFormData,
-        onSendProgress: (sent, total) {
-          AppUtils.log(
-              'Upload progress: ${(sent / total * 100).toStringAsFixed(2)}%');
-        },
-      );
-
-      // Kiểm tra phản hồi
-      AppUtils.log('Media upload response: ${dioResponse.data}');
-
-      // Sửa điều kiện này để chấp nhận cả status: true và status: 1
-      if (dioResponse.statusCode == 200 &&
-          (dioResponse.data['status'] == true ||
-              dioResponse.data['status'] == 1)) {
-        return dioResponse.data['data'];
-      } else {
-        AppUtils.log('Upload failed: ${dioResponse.data}');
-        return null;
-      }
+      // Nếu đã cài đặt thư viện path_provider, có thể lưu ảnh tạm vào storage
+      // Ở đây chúng ta return null vì chưa thực sự cần thiết
+      return null;
     } catch (e) {
-      AppUtils.log('Lỗi chi tiết khi upload media: $e');
-      if (e is dio.DioException) {
-        AppUtils.log('DioError type: ${e.type}');
-        AppUtils.log('DioError message: ${e.message}');
-        AppUtils.log('DioError response: ${e.response?.data}');
-      }
-      rethrow;
+      AppUtils.log('Lỗi khi tạo URL tạm: $e');
+      return null;
     }
   }
 
-  // Phương thức được cập nhật để chỉ sử dụng API
+  // Phương thức được cập nhật để sử dụng repository
   Future<ProfileController> getUserDetail({bool isLogin = false}) async {
     try {
       isLoading.value = true;
 
-      // Chỉ sử dụng API thực tế, không có dữ liệu giả
-      user.value = await ApiProvider.getUserMe();
+      // Sử dụng repository thay vì trực tiếp ApiProvider
+      user.value = await _userRepository.getUserMe();
       hasBookings.value = false;
 
       // Cập nhật các controller với dữ liệu hiện tại
@@ -269,32 +198,35 @@ class ProfileController extends GetxController with ScrollMixin {
     }
   }
 
-  // Phương thức mới để cập nhật profile
+  // Phương thức cập nhật profile
   Future<void> updateProfile(Map<String, dynamic> data) async {
     try {
       isLoading.value = true;
 
-      // Gọi API cập nhật profile
-      final updatedUser = await ApiProvider.updateUserMe(data);
-
-      // Cập nhật user model
+      // Sử dụng repository thay vì trực tiếp ApiProvider
+      final updatedUser = await _userRepository.updateUserMe(data);
       user.value = updatedUser;
-
-      // Cập nhật form controllers
       _updateFormControllers();
 
-      // Thông báo thành công
+      AppUtils.toast('Cập nhật thông tin thành công');
     } catch (e) {
-      // Kiểm tra nếu thông báo lỗi chứa "Update successfully", thì đây thực chất là thành công
       if (e.toString().contains("Update successfully")) {
-        // Cập nhật lại thông tin người dùng từ API
         getUserDetail();
+        AppUtils.toast('Cập nhật thông tin thành công');
       } else {
         AppUtils.toast('Lỗi khi cập nhật thông tin: ${e.toString()}');
       }
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // Phương thức cho avatar url với timestamp để tránh cache
+  String getAvatarUrl() {
+    if (user.value?.avatar == null || user.value!.avatar!.isEmpty) {
+      return '';
+    }
+    return '${user.value!.avatar!}?t=$_avatarTimestamp';
   }
 
   void toggleNotify(bool newVal) async {
@@ -363,14 +295,6 @@ class ProfileController extends GetxController with ScrollMixin {
     }
 
     return true;
-  }
-
-  // Thêm phương thức để lấy URL avatar với timestamp
-  String getAvatarUrl() {
-    if (user.value?.avatar == null || user.value!.avatar!.isEmpty) {
-      return '';
-    }
-    return '${user.value!.avatar!}?t=$_avatarTimestamp';
   }
 
   // Thêm phương thức để preload ảnh

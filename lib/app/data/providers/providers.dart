@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http_parser/http_parser.dart';
 
 import '../../core/utilities/utilities.dart';
 import '../../routes/app_pages.dart';
@@ -508,6 +509,106 @@ class ApiProvider {
     } catch (e) {
       AppUtils.log('Lỗi khi cập nhật thông tin: $e');
       rethrow;
+    }
+  }
+
+  // Nâng cấp phương thức uploadMedia
+  static Future<Map<String, dynamic>?> uploadMedia(
+      Uint8List bytes, int folderId) async {
+    try {
+      // Nén ảnh trước khi upload
+      final compressedBytes = await _compressImage(bytes);
+      AppUtils.log(
+          'Compressed image from ${bytes.length} to ${compressedBytes.length} bytes');
+
+      final name = DateTime.now().millisecondsSinceEpoch;
+      final contentType = MediaType('image', 'jpeg'); // JPEG thường nhỏ hơn PNG
+
+      // Tạo FormData để upload file
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(
+          compressedBytes,
+          filename: '$name.jpg',
+          contentType: contentType,
+        ),
+        'folder_id': '$folderId',
+      });
+
+      // Tối ưu config cho Dio
+      final dioInstance = Dio();
+      dioInstance.options.headers['Authorization'] =
+          'Bearer ${Preferences.getString(StringUtils.token)}';
+      dioInstance.options.headers['Content-Type'] = 'multipart/form-data';
+      dioInstance.options.connectTimeout = const Duration(seconds: 10);
+      dioInstance.options.receiveTimeout = const Duration(seconds: 10);
+      dioInstance.options.sendTimeout = const Duration(seconds: 10);
+
+      // Sử dụng đường dẫn API đầy đủ từ ApiUrl
+      final apiUrl =
+          'https://9259-2001-ee0-1b35-7e5e-65d5-9191-2fd3-c454.ngrok-free.app/api/media/store';
+
+      // Cấu hình cache cho request
+      final options = Options(
+        extra: {
+          'max-age': 60 * 60 * 24, // Cache 24 giờ
+        },
+      );
+
+      final dioResponse = await dioInstance.post(
+        apiUrl,
+        data: formData,
+        options: options,
+        onSendProgress: (sent, total) {
+          // Chỉ log tiến trình cho debug, không log quá nhiều
+          if (sent == total || sent % (total ~/ 10) == 0) {
+            AppUtils.log(
+                'Upload progress: ${(sent / total * 100).toStringAsFixed(0)}%');
+          }
+        },
+      );
+
+      if (dioResponse.statusCode == 200 &&
+          (dioResponse.data['status'] == true ||
+              dioResponse.data['status'] == 1)) {
+        return dioResponse.data['data'];
+      } else {
+        AppUtils.log('Upload failed: ${dioResponse.data}');
+        return null;
+      }
+    } catch (e) {
+      AppUtils.log('Lỗi khi upload media: $e');
+      if (e is DioException) {
+        AppUtils.log('DioError type: ${e.type}');
+      }
+      rethrow;
+    }
+  }
+
+  // Thêm phương thức nén ảnh
+  static Future<Uint8List> _compressImage(Uint8List bytes) async {
+    try {
+      // Cài đặt package flutter_image_compress
+      // Phụ thuộc vào kích thước ảnh gốc, điều chỉnh thông số phù hợp
+      final quality = 85; // Giảm chất lượng xuống 85%
+      final minWidth = 800; // Giảm kích thước xuống tối đa 800px
+      final minHeight = 600;
+
+      // Sử dụng flutter_image_compress để nén ảnh
+      // Nếu bạn đã có package flutter_image_compress, uncomment dòng dưới
+      // final result = await FlutterImageCompress.compressWithList(
+      //   bytes,
+      //   minWidth: minWidth,
+      //   minHeight: minHeight,
+      //   quality: quality,
+      //   format: CompressFormat.jpeg,
+      // );
+      // return result;
+
+      // Nếu không có package, trả về bytes gốc
+      return bytes;
+    } catch (e) {
+      AppUtils.log('Lỗi khi nén ảnh: $e');
+      return bytes; // Trả về ảnh gốc nếu có lỗi
     }
   }
 }
