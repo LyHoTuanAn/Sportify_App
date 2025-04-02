@@ -5,8 +5,6 @@ import '../modules/booking-price/bindings/booking_price_binding.dart';
 import '../modules/booking-price/views/booking_price_view.dart';
 import '../modules/Payment/bindings/Payment_binding.dart';
 import '../modules/Payment/views/Payment_view.dart';
-import '../modules/change-password/bindings/change_password_binding.dart';
-import '../modules/change-password/views/change_password_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -22,6 +20,8 @@ import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/reset-password/bindings/reset_password_binding.dart';
+import '../modules/reset-password/views/reset_password_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 import '../modules/successful-payment/bindings/successful_payment_binding.dart';
@@ -77,11 +77,6 @@ class AppPages {
     //   binding: WelcomeBinding(),
     // ),
     GetPage(
-      name: _Paths.changePassword,
-      page: () => const ChangePasswordView(),
-      binding: ChangePasswordBinding(),
-    ),
-    GetPage(
       name: _Paths.detailNotify,
       page: () => NotificationDetail(id: Get.parameters['id'] as String),
     ),
@@ -109,6 +104,11 @@ class AppPages {
       name: _Paths.otpCode,
       page: () => const OtpCodeView(),
       binding: OtpCodeBinding(),
+    ),
+    GetPage(
+      name: _Paths.resetPassword,
+      page: () => const ResetPasswordView(),
+      binding: ResetPasswordBinding(),
     ),
     GetPage(
       name: _Paths.successfullPayment,

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../data/models/models.dart';
-import '../../../data/repositories/repositories.dart'; // Make sure this import is included
+import '../../../data/repositories/repositories.dart';
 import '../../../routes/app_pages.dart';
-
+import '../../../modules/dashboard/controllers/dashboard_controller.dart';
+import '../../register/controllers/register_controller.dart';
+import '../../forgot-password/controllers/forgot_password_controller.dart';
 class LoginController extends GetxController {
   // Form controllers
   final phoneController = TextEditingController();
@@ -37,13 +39,6 @@ class LoginController extends GetxController {
     validateAll();
   }
 
-  @override
-  void onClose() {
-    phoneController.dispose();
-    passwordController.dispose();
-    super.onClose();
-  }
-
   // Toggle password visibility
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
@@ -54,11 +49,23 @@ class LoginController extends GetxController {
     final phone = phoneController.text.trim();
     // Simple Vietnamese phone number validation (10 digits starting with 0)
     isPhoneValid.value = phone.isNotEmpty &&
-        phone.startsWith('0') &&
-        phone.length == 10 &&
-        phone.isNumericOnly;
+        (phone.startsWith('0') || phone.startsWith('+84')) &&
+        ((phone.startsWith('0') && phone.length == 10) ||
+            (phone.startsWith('+84') && phone.length == 12)) &&
+        phone.replaceAll('+', '').isNumericOnly;
   }
 
+  @override  
+  void dispose() {
+    if (Get.isRegistered<RegisterController>()) {
+      Get.delete<RegisterController>();
+    }
+    if (Get.isRegistered<ForgotPasswordController>()) {
+      Get.delete<ForgotPasswordController>();
+    }
+    super.dispose();
+  }
+  
   // Validate password
   void validatePassword() {
     final password = passwordController.text.trim();
@@ -87,6 +94,14 @@ class LoginController extends GetxController {
     Get.toNamed(Routes.register);
   }
 
+  // Format phone number to ensure +84 format
+  String _formatPhoneNumber(String phone) {
+    if (phone.startsWith('0')) {
+      return '+84${phone.substring(1)}';
+    }
+    return phone;
+  }
+
   // Login user
   void login({GlobalKey<FormState>? formKey}) async {
     validateAll();
@@ -102,27 +117,46 @@ class LoginController extends GetxController {
       try {
         isLoading.value = true;
 
-        // Simulate API call with delay
-        await Future.delayed(const Duration(seconds: 2));
+        final phone = _formatPhoneNumber(phoneController.text.trim());
+        final password = passwordController.text.trim();
 
-        // This is where we'll call the API in the future
-        print('Phone: ${phoneController.text}');
-        print('Password: ${passwordController.text}');
+        // Call login API
+        final result = await Repo.auth.login(phone, password);
 
-        // Show success message
-        Get.snackbar(
-          'Đăng nhập thành công',
-          'Chào mừng bạn trở lại với Sportify!',
-          backgroundColor: const Color(0xFF2B7A78),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-          margin: const EdgeInsets.all(20),
-          borderRadius: 10,
-          duration: const Duration(seconds: 3),
-        );
+        if (result['success'] == true) {
+          // Show success message
+          Get.snackbar(
+            'Đăng nhập thành công',
+            'Chào mừng bạn trở lại với Sportify!',
+            backgroundColor: const Color(0xFF2B7A78),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(20),
+            borderRadius: 10,
+            duration: const Duration(seconds: 3),
+          );
 
-        // Chuyển đến trang chủ
-        Get.offAllNamed(Routes.dashboard);
+          // Navigate to home
+          var result = Get.offAllNamed(Routes.dashboard);
+          // Wait for navigation to complete, then set the tab
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (Get.isRegistered<DashboardController>()) {
+              final dashboardController = Get.find<DashboardController>();
+              dashboardController.changePage(0);
+            }
+          });
+        } else {
+          // Show error message
+          Get.snackbar(
+            'Đăng nhập thất bại',
+            result['message'] ?? 'Vui lòng kiểm tra thông tin đăng nhập',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(20),
+            borderRadius: 10,
+          );
+        }
       } catch (e) {
         // Show error message
         Get.snackbar(
@@ -161,7 +195,14 @@ class LoginController extends GetxController {
         );
 
         // Navigate to home
-        Get.offAllNamed(Routes.dashboard);
+        var result = Get.offAllNamed(Routes.dashboard);
+        // Wait for navigation to complete, then set the tab
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (Get.isRegistered<DashboardController>()) {
+            final dashboardController = Get.find<DashboardController>();
+            dashboardController.changePage(0);
+          }
+        });
       } else {
         // Show error message
         Get.snackbar(

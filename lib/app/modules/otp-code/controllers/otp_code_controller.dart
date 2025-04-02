@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../data/models/models.dart';
+import '../../../data/repositories/repositories.dart';
 import '../../../routes/app_pages.dart';
 
 class OtpCodeController extends GetxController {
@@ -10,18 +12,19 @@ class OtpCodeController extends GetxController {
 
   // Observable variables for form validation
   final isOtpValid = false.obs;
-  
+
   // Loading state
   final isLoading = false.obs;
-  
+
   // Timer for OTP resend
-  final remainingTime = 26.obs; // Starting timer at 26s as shown in screenshot
+  final remainingTime = 60.obs; // 60s countdown
   final canResend = false.obs;
   Timer? _timer;
 
   // From arguments
   final phoneNumber = ''.obs;
   final fromScreen = ''.obs;
+  final otpValue = ''.obs;
 
   // Form key for validation
   final formKey = GlobalKey<FormState>();
@@ -29,18 +32,25 @@ class OtpCodeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    
+
     // Get arguments passed from previous screen
     if (Get.arguments != null) {
       if (Get.arguments['phone'] != null) {
         phoneNumber.value = Get.arguments['phone'];
       }
-      
+
       if (Get.arguments['from'] != null) {
         fromScreen.value = Get.arguments['from'];
       }
+
+      // Check if OTP is directly passed from previous screen
+      if (Get.arguments['otp'] != null) {
+        otpValue.value = Get.arguments['otp'];
+        otpController.text = otpValue.value;
+        validateOtp();
+      }
     }
-    
+
     // Start the countdown timer
     startTimer();
   }
@@ -54,10 +64,10 @@ class OtpCodeController extends GetxController {
 
   // Start countdown timer
   void startTimer() {
-    remainingTime.value = 26; // 26s as shown in the screenshot
+    remainingTime.value = 60; // 60s countdown
     canResend.value = false;
     _timer?.cancel();
-    
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remainingTime.value > 0) {
         remainingTime.value--;
@@ -76,46 +86,30 @@ class OtpCodeController extends GetxController {
   }
 
   // Resend OTP
-  void resendOtp() {
+  void resendOtp() async {
     if (!canResend.value) return;
-    
-    // Simulate API call
-    print('Resending OTP to $phoneNumber...');
-    
-    // Reset timer
-    startTimer();
-    
-    // Show message
-    Get.snackbar(
-      'Đã gửi lại mã OTP',
-      'Vui lòng kiểm tra tin nhắn của bạn',
-      backgroundColor: const Color(0xFF2B7A78),
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
-      margin: const EdgeInsets.all(20),
-      borderRadius: 10,
-      duration: const Duration(seconds: 3),
-    );
-  }
 
-  // Verify OTP and reset password
-  void verifyOtp() async {
-    validateOtp();
+    try {
+      isLoading.value = true;
 
-    if (isOtpValid.value) {
-      try {
-        isLoading.value = true;
-        
-        // Simulate API call with delay
-        await Future.delayed(const Duration(seconds: 2));
-        
-        // This is where we'll call the API in the future
-        print('OTP: ${otpController.text} for phone: $phoneNumber');
-        
-        // Show success message
+      // Call API to resend OTP
+      final result = await Repo.auth.sendOtp(phoneNumber.value);
+
+      if (result['status'] == 1) {
+        // Reset timer
+        startTimer();
+
+        // Extract OTP from response for testing purposes
+        String otpMessage =
+            result['message'] ?? 'Vui lòng kiểm tra tin nhắn của bạn';
+        if (result['otp'] != null) {
+          otpMessage = 'Mã OTP của bạn là: ${result['otp']}';
+        }
+
+        // Show success message with OTP
         Get.snackbar(
-          'Xác thực thành công',
-          'Bạn có thể đặt lại mật khẩu mới',
+          'Đã gửi lại mã OTP',
+          otpMessage,
           backgroundColor: const Color(0xFF2B7A78),
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,
@@ -123,29 +117,92 @@ class OtpCodeController extends GetxController {
           borderRadius: 10,
           duration: const Duration(seconds: 3),
         );
-        
-        // Navigate based on where we came from
-        if (fromScreen.value == 'forgot_password') {
-          Get.toNamed(
-            Routes.changePassword,
-            arguments: {
-              'phone': phoneNumber.value,
-              'from': 'reset_password'
-            }
+      } else {
+        // Show error message
+        Get.snackbar(
+          'Gửi OTP thất bại',
+          result['message'] ?? 'Vui lòng thử lại sau',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+          margin: const EdgeInsets.all(20),
+          borderRadius: 10,
+        );
+      }
+    } catch (e) {
+      // Show error message
+      Get.snackbar(
+        'Gửi OTP thất bại',
+        'Có lỗi xảy ra, vui lòng thử lại sau',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(20),
+        borderRadius: 10,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Verify OTP
+  void verifyOtp() async {
+    validateOtp();
+
+    if (isOtpValid.value) {
+      try {
+        isLoading.value = true;
+
+        final otp = otpController.text.trim();
+
+        // Call API to verify OTP
+        final isRegister = fromScreen.value == 'register';
+        final isPasswordReset = fromScreen.value == 'forgot_password';
+        final result = await Repo.auth.verifyOtp(
+            phoneNumber.value, otp, isRegister,
+            isPasswordReset: isPasswordReset);
+
+        if (result['success'] == true) {
+          // Show success message
+          Get.snackbar(
+            'Xác thực thành công',
+            'Bạn đã xác thực thành công',
+            backgroundColor: const Color(0xFF2B7A78),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(20),
+            borderRadius: 10,
+            duration: const Duration(seconds: 3),
           );
-        } else if (fromScreen.value == 'register') {
-          // Nếu từ đăng ký thì có thể chuyển đến màn hình đăng nhập hoặc trang chủ
-          Get.offAllNamed(Routes.login);
+
+          // Navigate based on where we came from
+          if (fromScreen.value == 'forgot_password') {
+            Get.toNamed(Routes.resetPassword,
+                arguments: {'phone': phoneNumber.value});
+          } else if (fromScreen.value == 'register') {
+            // If from registration, go to homepage
+            Get.offAllNamed(Routes.dashboard);
+          } else {
+            // Default go to login
+            Get.offAllNamed(Routes.login);
+          }
         } else {
-          // Mặc định chuyển đến đăng nhập
-          Get.offAllNamed(Routes.login);
+          // Show error message
+          Get.snackbar(
+            'Xác thực thất bại',
+            result['message'] ?? 'Mã OTP không đúng hoặc đã hết hạn',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(20),
+            borderRadius: 10,
+          );
         }
-        
       } catch (e) {
         // Show error message
         Get.snackbar(
           'Xác thực thất bại',
-          'Mã OTP không đúng hoặc đã hết hạn',
+          'Có lỗi xảy ra, vui lòng thử lại sau',
           backgroundColor: Colors.red,
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,
@@ -167,4 +224,4 @@ class OtpCodeController extends GetxController {
       );
     }
   }
-} 
+}

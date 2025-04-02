@@ -3,9 +3,14 @@ class ApiUrl {
   ApiUrl._internal();
   static final ApiUrl _instance = ApiUrl._internal();
   static const String receipt = '/api';
-  static const String sendOpt = '$receipt/send_otp';
-  static const String login = '$receipt/login';
-  static const String logout = '$receipt/logout';
+  static const String sendOtp = '/api/auth/send-otp';
+  static const String verifyOtp = '/api/auth/verify-otp';
+  static const String forgotPassword = '/api/forgot-password';
+  static const String login = '/api/auth/login';
+  static const String register = '/api/auth/register';
+  static const String logout = '/api/auth/logout';
+  static const String changePassword = '/api/auth/change-password';
+  static const String resetPassword = '/api/reset-password';
 
   static String detailRecipient(id) => '$receipt/recipients/$id';
   static String notifications = '$receipt/notifications';

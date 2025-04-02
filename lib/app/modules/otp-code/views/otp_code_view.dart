@@ -84,7 +84,7 @@ class OtpCodeView extends GetView<OtpCodeController> {
                             // Title
                             const Center(
                               child: Text(
-                                'Quên mật khẩu',
+                                'Xác thực OTP',
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,

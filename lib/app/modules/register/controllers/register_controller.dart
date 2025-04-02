@@ -2,25 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../data/models/models.dart';
-import '../../../data/repositories/repositories.dart'; // Make sure this import is included
+import '../../../data/repositories/repositories.dart';
 import '../../../routes/app_pages.dart';
 
 class RegisterController extends GetxController {
   // Form controllers
   final phoneController = TextEditingController();
   final nameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
 
   // Observable variables for form validation
   final isPhoneValid = true.obs;
   final isNameValid = true.obs;
+  final isEmailValid = true.obs;
   final isPasswordValid = true.obs;
-  final isConfirmPasswordValid = true.obs;
 
   // Observable for password visibility
   final isPasswordVisible = false.obs;
-  final isConfirmPasswordVisible = false.obs;
 
   // Loading state
   final isLoading = false.obs;
@@ -37,8 +36,8 @@ class RegisterController extends GetxController {
     // Add listeners to update form validity
     ever(isPhoneValid, (_) => updateFormValidity());
     ever(isNameValid, (_) => updateFormValidity());
+    ever(isEmailValid, (_) => updateFormValidity());
     ever(isPasswordValid, (_) => updateFormValidity());
-    ever(isConfirmPasswordValid, (_) => updateFormValidity());
 
     // Initial validation
     validateAll();
@@ -48,8 +47,8 @@ class RegisterController extends GetxController {
   void onClose() {
     phoneController.dispose();
     nameController.dispose();
+    emailController.dispose();
     passwordController.dispose();
-    confirmPasswordController.dispose();
     super.onClose();
   }
 
@@ -58,19 +57,15 @@ class RegisterController extends GetxController {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
 
-  // Toggle confirm password visibility
-  void toggleConfirmPasswordVisibility() {
-    isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
-  }
-
   // Validate phone number
   void validatePhone() {
     final phone = phoneController.text.trim();
     // Simple Vietnamese phone number validation (10 digits starting with 0)
     isPhoneValid.value = phone.isNotEmpty &&
-        phone.startsWith('0') &&
-        phone.length == 10 &&
-        phone.isNumericOnly;
+        (phone.startsWith('0') || phone.startsWith('+84')) &&
+        ((phone.startsWith('0') && phone.length == 10) ||
+            (phone.startsWith('+84') && phone.length == 12)) &&
+        phone.replaceAll('+', '').isNumericOnly;
   }
 
   // Validate name
@@ -79,44 +74,47 @@ class RegisterController extends GetxController {
     isNameValid.value = name.isNotEmpty && name.length >= 3;
   }
 
+  // Validate email
+  void validateEmail() {
+    final email = emailController.text.trim();
+    // Email validation using GetX's built-in email validator
+    isEmailValid.value = email.isNotEmpty && email.isEmail;
+  }
+
   // Validate password
   void validatePassword() {
     final password = passwordController.text.trim();
     // Password must be at least 6 characters
     isPasswordValid.value = password.length >= 6;
-
-    // Also validate confirm password when password changes
-    if (confirmPasswordController.text.isNotEmpty) {
-      validateConfirmPassword();
-    }
-  }
-
-  // Validate confirm password
-  void validateConfirmPassword() {
-    isConfirmPasswordValid.value =
-        confirmPasswordController.text == passwordController.text &&
-            confirmPasswordController.text.trim().isNotEmpty;
   }
 
   // Validate all fields
   void validateAll() {
     validatePhone();
     validateName();
+    validateEmail();
     validatePassword();
-    validateConfirmPassword();
   }
 
   // Update overall form validity
   void updateFormValidity() {
     isFormValid.value = isPhoneValid.value &&
         isNameValid.value &&
-        isPasswordValid.value &&
-        isConfirmPasswordValid.value;
+        isEmailValid.value &&
+        isPasswordValid.value;
   }
 
   // Navigate to login screen
   void goToLogin() {
     Get.offAllNamed(Routes.login);
+  }
+
+  // Format phone number to ensure +84 format
+  String _formatPhoneNumber(String phone) {
+    if (phone.startsWith('0')) {
+      return '+84${phone.substring(1)}';
+    }
+    return phone;
   }
 
   // Register user
@@ -134,31 +132,57 @@ class RegisterController extends GetxController {
       try {
         isLoading.value = true;
 
-        // Simulate API call with delay
-        await Future.delayed(const Duration(seconds: 2));
+        final phone = _formatPhoneNumber(phoneController.text.trim());
+        final name = nameController.text.trim();
+        final email = emailController.text.trim();
+        final password = passwordController.text.trim();
 
-        // This is where we'll call the API in the future
-        print('Phone: ${phoneController.text}');
-        print('Name: ${nameController.text}');
-        print('Password: ${passwordController.text}');
+        // Call register API
+        final result = await Repo.auth.register(name, phone, email, password);
 
-        // Show success message
-        Get.snackbar(
-          'Đăng ký thành công',
-          'Chào mừng bạn đến với Sportify!',
-          backgroundColor: const Color(0xFF2B7A78),
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-          margin: const EdgeInsets.all(20),
-          borderRadius: 10,
-          duration: const Duration(seconds: 3),
-        );
+        if (result['status'] == 1 && result['require_verification'] == true) {
+          // Extract OTP from response for testing purposes
+          String otpMessage =
+              result['message'] ?? 'Chào mừng bạn đến với Sportify!';
+          String? otpValue;
+          if (result['otp'] != null) {
+            otpValue = result['otp'].toString();
+            otpMessage = 'Mã OTP của bạn là: $otpValue';
+          }
 
-        // Trong trường hợp xác thực số điện thoại, chuyển đến màn hình OTP
-        Get.toNamed(Routes.otpCode, arguments: {
-          'phone': phoneController.text.trim(),
-          'from': 'register'
-        });
+          // Show success message with OTP
+          Get.snackbar(
+            'Đăng ký thành công',
+            otpMessage,
+            backgroundColor: const Color(0xFF2B7A78),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(20),
+            borderRadius: 10,
+            duration: const Duration(seconds: 3),
+          );
+
+          // Navigate to OTP screen for verification
+          Map<String, dynamic> arguments = {'phone': phone, 'from': 'register'};
+
+          // Add OTP to arguments if available
+          if (otpValue != null) {
+            arguments['otp'] = otpValue;
+          }
+
+          Get.toNamed(Routes.otpCode, arguments: arguments);
+        } else {
+          // Show error message
+          Get.snackbar(
+            'Đăng ký thất bại',
+            result['message'] ?? 'Vui lòng thử lại sau',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+            margin: const EdgeInsets.all(20),
+            borderRadius: 10,
+          );
+        }
       } catch (e) {
         // Show error message
         Get.snackbar(

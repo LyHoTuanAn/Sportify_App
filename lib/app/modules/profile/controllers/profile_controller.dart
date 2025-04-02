@@ -1,7 +1,9 @@
 import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
 
 import '../../../core/utilities/utilities.dart';
@@ -11,6 +13,7 @@ import '../../../data/services/firebase_analytics_service.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/providers/providers.dart';
 import '../../../data/http_client/http_client.dart';
+import '../widgets/widgets.dart';
 
 class ProfileController extends GetxController with ScrollMixin {
   final UserRepository _userRepository = Get.find<UserRepository>();
@@ -88,6 +91,9 @@ class ProfileController extends GetxController with ScrollMixin {
             final newAvatarUrl =
                 mediaResponse['sizes']?['default'] ?? mediaResponse['url'];
 
+            // Log URL để debug
+            AppUtils.log('New avatar URL from media response: $newAvatarUrl');
+
             // Nếu có URL mới từ upload, cập nhật nó ngay
             if (newAvatarUrl != null) {
               user.update((val) {
@@ -95,6 +101,10 @@ class ProfileController extends GetxController with ScrollMixin {
                   val.avatar = newAvatarUrl;
                 }
               });
+
+              // Force refresh avatar cache
+              refreshAvatar();
+              cachedAvatarUrl.value = newAvatarUrl;
             }
 
             // Sau đó cập nhật avatar_id lên server
@@ -108,12 +118,18 @@ class ProfileController extends GetxController with ScrollMixin {
             // Cập nhật thông tin user ở background
             _userRepository.updateUserMe(updateData).then((updatedUser) {
               // Cập nhật thông tin user nếu cần
-              if (updatedUser.avatar != user.value?.avatar) {
+              if (updatedUser.avatar != null &&
+                  updatedUser.avatar != user.value?.avatar) {
+                AppUtils.log(
+                    'Updated avatar URL from server: ${updatedUser.avatar}');
                 user.update((val) {
                   if (val != null) {
                     val.avatar = updatedUser.avatar;
                   }
                 });
+                // Force refresh UI
+                cachedAvatarUrl.value = updatedUser.avatar ?? '';
+                refreshAvatar();
               }
               AppUtils.log('Cập nhật avatar_id thành công');
 
@@ -134,6 +150,7 @@ class ProfileController extends GetxController with ScrollMixin {
           }
         }).onError((error, stackTrace) {
           // Nếu upload lỗi, quay lại ảnh cũ
+          AppUtils.log('Avatar upload error: $error');
           user.update((val) {
             if (val != null) {
               val.avatar = oldAvatarUrl;
@@ -226,7 +243,29 @@ class ProfileController extends GetxController with ScrollMixin {
     if (user.value?.avatar == null || user.value!.avatar!.isEmpty) {
       return '';
     }
-    return '${user.value!.avatar!}?t=$_avatarTimestamp';
+
+    // Always add a timestamp to force refresh
+    String url = user.value!.avatar!;
+
+    // Detailed log for debugging
+    AppUtils.log('Original avatar URL: $url');
+
+    // Check if URL is valid
+    if (!isValidAvatarUrl(url)) {
+      AppUtils.log('Invalid avatar URL detected: $url');
+      return '';
+    }
+
+    // Check if URL already has query parameters
+    String finalUrl;
+    if (url.contains('?')) {
+      finalUrl = '$url&t=$_avatarTimestamp';
+    } else {
+      finalUrl = '$url?t=$_avatarTimestamp';
+    }
+
+    AppUtils.log('Final avatar URL with timestamp: $finalUrl');
+    return finalUrl;
   }
 
   void toggleNotify(bool newVal) async {
@@ -256,12 +295,20 @@ class ProfileController extends GetxController with ScrollMixin {
   }
 
   void logout() {
+    // Xóa các preferences trước
     Preferences.clear();
-    Get.offAllNamed('/login');
+
+    // Log sự kiện đăng xuất
+    FirebaseAnalyticService.logEvent('User_Logout');
+
+    // Điều hướng đến trang login, xóa tất cả các routes trước đó
+    Get.offAllNamed(Routes.login);
   }
 
   void navigateToChangePassword() {
-    Get.toNamed('/change-password');
+    FirebaseAnalyticService.logEvent('Profile_Change_Password');
+    // Sử dụng widget bottom sheet thay vì điều hướng
+    ChangePasswordWidget.showBottom();
   }
 
   // Phương thức mới để chọn ngày sinh
@@ -307,6 +354,46 @@ class ProfileController extends GetxController with ScrollMixin {
       }
     } catch (e) {
       AppUtils.log('Error precaching image: $e');
+    }
+  }
+
+  // Add this method to force refresh the avatar
+  void refreshAvatar() {
+    _avatarTimestamp = DateTime.now().millisecondsSinceEpoch;
+    update(); // Force UI update
+  }
+
+  // Phương thức để tải ảnh trực tiếp như một phương thức thay thế
+  Future<Image?> loadAvatarDirectly() async {
+    if (user.value?.avatar == null || user.value!.avatar!.isEmpty) {
+      return null;
+    }
+
+    final avatarUrl = getAvatarUrl();
+    AppUtils.log('Directly loading avatar from: $avatarUrl');
+
+    try {
+      // Tạo một HttpClient mới
+      final httpClient = HttpClient();
+      final request = await httpClient.getUrl(Uri.parse(avatarUrl));
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        AppUtils.log('Avatar HTTP request successful');
+        final bytes = await consolidateHttpClientResponseBytes(response);
+        return Image.memory(
+          bytes,
+          width: 80,
+          height: 80,
+          fit: BoxFit.cover,
+        );
+      } else {
+        AppUtils.log('Avatar HTTP request failed: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      AppUtils.log('Error directly loading avatar: $e');
+      return null;
     }
   }
 }

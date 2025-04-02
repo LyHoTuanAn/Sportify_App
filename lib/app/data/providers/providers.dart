@@ -41,10 +41,10 @@ class ApiProvider {
     }
   }
 
-  static Future<bool> sendOtp(String phone, String countryCode) async {
+  static Future<bool> sendPhoneOtp(String phone, String countryCode) async {
     try {
       final res = await ApiClient.connect(
-        ApiUrl.sendOpt,
+        ApiUrl.sendOtp,
         method: ApiMethod.post,
         data: {
           "recipient": {
@@ -543,15 +543,24 @@ class ApiProvider {
       dioInstance.options.receiveTimeout = const Duration(seconds: 10);
       dioInstance.options.sendTimeout = const Duration(seconds: 10);
 
+      // Lấy base URL từ ApiClient
+      final baseUrl = ApiClient.getBaseUrl().isNotEmpty
+          ? ApiClient.getBaseUrl()
+          : 'https://9259-2001-ee0-1b35-7e5e-65d5-9191-2fd3-c454.ngrok-free.app';
+
+      // Loại bỏ dấu / ở cuối nếu có
+      final normalizedBaseUrl = baseUrl.endsWith('/')
+          ? baseUrl.substring(0, baseUrl.length - 1)
+          : baseUrl;
+
       // Sử dụng đường dẫn API đầy đủ từ ApiUrl
-      final apiUrl =
-          'https://9259-2001-ee0-1b35-7e5e-65d5-9191-2fd3-c454.ngrok-free.app/api/media/store';
+      final apiUrl = '$normalizedBaseUrl${ApiUrl.mediaStore}';
+
+      AppUtils.log('Using media upload URL: $apiUrl');
 
       // Cấu hình cache cho request
       final options = Options(
-        extra: {
-          'max-age': 60 * 60 * 24, // Cache 24 giờ
-        },
+        headers: dioInstance.options.headers,
       );
 
       final dioResponse = await dioInstance.post(
@@ -609,6 +618,211 @@ class ApiProvider {
     } catch (e) {
       AppUtils.log('Lỗi khi nén ảnh: $e');
       return bytes; // Trả về ảnh gốc nếu có lỗi
+    }
+  }
+
+  // Authentication methods
+  static Future<Map<String, dynamic>> register(
+      String fullName, String phone, String email, String password) async {
+    try {
+      final res = await ApiClient.connect(
+        ApiUrl.register,
+        method: ApiMethod.post,
+        data: {
+          "fullname": fullName,
+          "phone": phone,
+          "email": email,
+          "password": password,
+          "device_name": "mobile_app"
+        },
+      );
+      return res.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<Map<String, dynamic>> sendOtp(String phone) async {
+    try {
+      final res = await ApiClient.connect(
+        ApiUrl.sendOtp,
+        method: ApiMethod.post,
+        data: {"phone": phone},
+      );
+      return res.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<Map<String, dynamic>> verifyOtp(
+      String phone, String otp, bool isRegister,
+      {bool isPasswordReset = false}) async {
+    try {
+      final res = await ApiClient.connect(
+        ApiUrl.verifyOtp,
+        method: ApiMethod.post,
+        data: {
+          "phone": phone,
+          "otp": otp,
+          "is_register": isRegister,
+          "is_password_reset": isPasswordReset,
+          "device_name": "mobile_app"
+        },
+      );
+
+      if (res.statusCode == 200 && res.data['status'] == 1) {
+        // Only attempt to save authentication info if this is a registration or login verification
+        // not a password reset verification
+        if (!isPasswordReset) {
+          final userData = res.data['user'];
+          final authToken = res.data['access_token'];
+
+          if (userData != null && authToken != null) {
+            // Save authentication info
+            Preferences.setString(StringUtils.token, authToken.toString());
+            Preferences.setString(
+                StringUtils.currentId, userData['id'].toString());
+
+            // Convert user data to match our UserModel structure
+            Map<String, dynamic> formattedData = {
+              'id': userData['id'].toString(),
+              'email': userData['email'],
+              'first_name': userData['first_name'],
+              'last_name': userData['last_name'],
+              'avatar': userData['avatar_url'],
+              'phone_number': userData['phone'],
+              'date_of_birth': userData['birthday'],
+              'gender': userData['gender'],
+              'is_enable_notification': true
+            };
+
+            return {'success': true, 'user': formattedData};
+          }
+        }
+
+        // For password reset verification
+        return {
+          'success': true,
+          'message': res.data['message'] ?? 'Verification successful',
+          'phone': res.data['phone'] ?? phone
+        };
+      }
+
+      return {
+        'success': false,
+        'message': res.data['message'] ?? 'Verification failed'
+      };
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<Map<String, dynamic>> forgotPassword(String phone) async {
+    try {
+      final res = await ApiClient.connect(
+        ApiUrl.forgotPassword,
+        method: ApiMethod.post,
+        data: {"phone": phone},
+      );
+      return res.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<Map<String, dynamic>> login(
+      String username, String password) async {
+    try {
+      final deviceToken = await FirebaseMessaging.instance.getToken();
+      final res = await ApiClient.connect(
+        ApiUrl.login,
+        method: ApiMethod.post,
+        data: {
+          "username": username,
+          "password": password,
+          "device_name": "mobile_app",
+          "device_token": deviceToken,
+          "device_type": Platform.operatingSystem
+        },
+      );
+
+      if (res.statusCode == 200 && res.data['status'] == 1) {
+        final userData = res.data['user'];
+        final authToken = res.data['access_token'];
+
+        if (userData != null && authToken != null) {
+          // Save authentication info
+          Preferences.setString(StringUtils.token, authToken.toString());
+          Preferences.setString(
+              StringUtils.currentId, userData['id'].toString());
+
+          // Convert user data to match our UserModel structure
+          Map<String, dynamic> formattedData = {
+            'id': userData['id'].toString(),
+            'email': userData['email'],
+            'first_name': userData['first_name'],
+            'last_name': userData['last_name'],
+            'avatar': userData['avatar_url'],
+            'phone_number': userData['phone'],
+            'date_of_birth': userData['birthday'],
+            'gender': userData['gender'],
+            'is_enable_notification': true
+          };
+
+          return {'success': true, 'user': formattedData};
+        }
+      }
+
+      return {
+        'success': false,
+        'message': res.data['message'] ?? 'Login failed'
+      };
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<Map<String, dynamic>> changePassword({
+    String? currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      // Prepare request data based on whether we have a current password
+      final requestData = currentPassword != null
+          ? {"current_password": currentPassword, "new_password": newPassword}
+          : {"new_password": newPassword};
+
+      final res = await ApiClient.connect(
+        ApiUrl.changePassword,
+        method: ApiMethod.post,
+        data: requestData,
+      );
+
+      return res.data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<Map<String, dynamic>> resetPassword({
+    required String phone,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      final response = await ApiClient.connect(
+        ApiUrl.resetPassword,
+        method: ApiMethod.post,
+        data: {
+          "phone": phone,
+          "password": password,
+          "password_confirmation": passwordConfirmation,
+        },
+      );
+      return response.data;
+    } catch (e) {
+      rethrow;
     }
   }
 }

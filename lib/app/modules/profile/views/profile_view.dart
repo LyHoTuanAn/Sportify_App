@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:io';
 
 import '../../../core/styles/style.dart';
 import '../../../data/services/firebase_analytics_service.dart';
@@ -140,44 +141,58 @@ class ProfileView extends GetView<ProfileController> {
                             ),
                           );
                         } else {
-                          if (controller.user.value?.avatar != null &&
-                              controller.user.value!.avatar!.isNotEmpty) {
-                            return CachedNetworkImage(
-                              imageUrl: controller.user.value!.avatar!,
-                              cacheKey:
-                                  'user_avatar_${controller.user.value!.id}',
-                              imageBuilder: (context, imageProvider) =>
-                                  CircleAvatar(
-                                radius: 40,
-                                backgroundColor: Colors.white,
-                                backgroundImage: imageProvider,
-                              ),
-                              placeholder: (context, url) => CircleAvatar(
-                                radius: 40,
-                                backgroundColor: Colors.grey[200],
-                                child: const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Color(0xFF3AAFA9),
-                                  ),
+                          final avatarUrl = controller.getAvatarUrl();
+                          if (avatarUrl.isNotEmpty) {
+                            debugPrint('Attempting to load avatar: $avatarUrl');
+                            // Force the image to refresh using key based on timestamp
+                            return CircleAvatar(
+                              radius: 40,
+                              backgroundColor: Colors.white,
+                              child: ClipOval(
+                                child: Image.network(
+                                  avatarUrl,
+                                  key: ValueKey(
+                                      'avatar_${DateTime.now().millisecondsSinceEpoch}'),
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                  cacheWidth: 200, // Limit cache size
+                                  cacheHeight: 200,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) {
+                                      debugPrint('Avatar loaded successfully');
+                                      return child;
+                                    }
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                        strokeWidth: 2,
+                                        color: const Color(0xFF3AAFA9),
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    debugPrint(
+                                        'Avatar image error: $error, URL: $avatarUrl');
+                                    debugPrint('Stack trace: $stackTrace');
+                                    // Try to ping the URL to check connectivity
+                                    _checkImageUrl(avatarUrl);
+                                    return const Icon(
+                                      Icons.person,
+                                      size: 40,
+                                      color: Color(0xFF3AAFA9),
+                                    );
+                                  },
                                 ),
                               ),
-                              errorWidget: (context, url, error) =>
-                                  CircleAvatar(
-                                radius: 40,
-                                backgroundColor: Colors.white,
-                                child: Icon(
-                                  Icons.person,
-                                  size: 40,
-                                  color: const Color(0xFF3AAFA9),
-                                ),
-                              ),
-                              memCacheWidth: 300,
-                              memCacheHeight: 300,
-                              maxWidthDiskCache: 500,
-                              maxHeightDiskCache: 500,
                             );
                           } else {
                             return const CircleAvatar(
@@ -582,16 +597,23 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  ImageProvider _getCachedAvatarImage(String? url) {
-    if (url == null || url.isEmpty)
-      return const AssetImage('assets/default_avatar.png');
+  NetworkImage _getCachedAvatarImage(String url) {
+    debugPrint('Creating network image for: $url');
+    return NetworkImage(url);
+  }
 
-    // Cache ảnh để sử dụng lại
-    final imageProvider = NetworkImage(url);
-
-    // Precache ảnh ngay lập tức để ngăn loading lại
-    precacheImage(imageProvider, Get.context!);
-
-    return imageProvider;
+  void _checkImageUrl(String url) {
+    debugPrint('Checking image URL availability: $url');
+    HttpClient()
+        .getUrl(Uri.parse(url))
+        .then((HttpClientRequest request) => request.close())
+        .then((HttpClientResponse response) {
+      debugPrint('URL check result: ${response.statusCode}');
+      if (response.statusCode != 200) {
+        debugPrint('Image URL returned invalid status: ${response.statusCode}');
+      }
+    }).catchError((error) {
+      debugPrint('Error checking URL: $error');
+    });
   }
 }
