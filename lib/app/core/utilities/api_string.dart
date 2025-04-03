@@ -10,6 +10,19 @@ class ApiUrl {
   static const String register = '/api/auth/register';
   static const String logout = '/api/auth/logout';
   static const String changePassword = '/api/auth/change-password';
+
+  // Weather API endpoints (OpenWeatherMap)
+  static const String weatherApiKey = 'e887f1f3530ec4596bf6bf0b5a7dca8d';
+  static const String weatherBaseUrl = 'https://api.openweathermap.org/data';
+
+  // One Call API 3.0 - This requires a paid subscription
+  static String weatherOnecall(double lat, double lon) =>
+      '$weatherBaseUrl/3.0/onecall?lat=$lat&lon=$lon&units=metric&appid=$weatherApiKey&lang=vi';
+
+  // Remove all other weather API methods/formats and use only One Call API 3.0
+  // The following free API endpoint methods are no longer needed:
+  // currentWeather, weatherForecast, weatherOverview, etc.
+
   static const String resetPassword = '/api/reset-password';
 
   static String detailRecipient(id) => '$receipt/recipients/$id';
@@ -45,6 +58,8 @@ class ApiUrl {
   static deleteRecipient(id) => '$receipt/recipients/$id';
   static const String restoreRecipient = '$receipt/recipients/restore';
   static const String getDashboard = '$receipt/home';
+  static const String coupons = '$receipt/coupon';
+  static couponDetail(String id) => '$receipt/coupon/$id';
 
   // Add media store endpoint
   static const String mediaStore = '$receipt/media/store';

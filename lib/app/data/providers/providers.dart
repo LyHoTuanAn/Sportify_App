@@ -825,4 +825,31 @@ class ApiProvider {
       rethrow;
     }
   }
+
+  static Future<List<Coupon>> getCoupons() async {
+    try {
+      final res = await ApiClient.connect(ApiUrl.coupons);
+      if (res.statusCode == 200 && res.data['status'] == 'success') {
+        final couponsData = res.data['data'] as List;
+        return couponsData.map((e) => Coupon.fromMap(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      AppUtils.log('Error fetching coupons: $e');
+      return [];
+    }
+  }
+
+  static Future<Coupon?> getCouponDetail(String id) async {
+    try {
+      final res = await ApiClient.connect(ApiUrl.couponDetail(id));
+      if (res.statusCode == 200 && res.data['status'] == 'success') {
+        return Coupon.fromMap(res.data['data']);
+      }
+      return null;
+    } catch (e) {
+      AppUtils.log('Error fetching coupon detail: $e');
+      return null;
+    }
+  }
 }

@@ -35,6 +35,11 @@ import '../modules/otp-code/views/otp_code_view.dart';
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_view.dart';
 import '../modules/profile/controllers/profile_controller.dart';
+import '../modules/coupon/bindings/coupon_binding.dart';
+import '../modules/coupon/views/coupon_view.dart';
+import '../modules/coupon/views/coupon_detail_view.dart';
+import '../modules/weather/bindings/weather_binding.dart';
+import '../modules/weather/views/weather_view.dart';
 
 part 'app_routes.dart';
 
@@ -129,6 +134,21 @@ class AppPages {
       name: _Paths.chat,
       page: () => const ChatView(),
       binding: ChatBinding(),
+    ),
+    GetPage(
+      name: Routes.coupon,
+      page: () => const CouponView(),
+      binding: CouponBinding(),
+    ),
+    GetPage(
+      name: Routes.couponDetail,
+      page: () => const CouponDetailView(),
+      binding: CouponBinding(),
+    ),
+    GetPage(
+      name: _Paths.weather,
+      page: () => const WeatherView(),
+      binding: WeatherBinding(),
     ),
   ];
 }

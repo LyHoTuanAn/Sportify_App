@@ -11,6 +11,8 @@ import 'app/data/http_client/http_client.dart';
 import 'app/data/providers/notification_provider.dart';
 import 'app/modules/profile/controllers/profile_controller.dart';
 import 'root.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> initServices() async {
   Get.log('starting services ...');
@@ -36,6 +38,11 @@ Future<void> initServices() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Thêm dòng này để khởi tạo dữ liệu ngôn ngữ tiếng Việt
+  await initializeDateFormatting('vi_VN', null);
+
+  await GetStorage.init();
+
   // Setup Firebase và Preferences before running the app
   await Firebase.initializeApp();
   await Preferences.setPreferences();
@@ -43,10 +50,10 @@ void main() async {
   final flavor = await getFlavorSettings();
   switch (flavor) {
     case 'dev':
-      ApiClient.setBaseUrl('https://vnsportify.space');
+      ApiClient.setBaseUrl('https://b175-103-199-40-106.ngrok-free.app');
       break;
     default:
-      ApiClient.setBaseUrl('https://vnsportify.space');
+      ApiClient.setBaseUrl('https://b175-103-199-40-106.ngrok-free.app');
   }
 
   // Run the app after setting up Preferences

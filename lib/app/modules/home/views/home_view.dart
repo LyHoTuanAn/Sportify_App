@@ -3,6 +3,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../controllers/home_controller.dart';
 import '../../../widgets/widgets.dart';
+import '../widgets/coupons_bottom_sheet.dart';
+import '../widgets/coupon_detail_bottom_sheet.dart';
+import '../../../data/models/coupon.dart';
+import '../../../routes/app_pages.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -44,21 +48,21 @@ class HomeView extends GetView<HomeController> {
           Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Color(0xFF2B7A78),
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xFF2B7A78).withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Image.asset('assets/images/logo.png', width: 20, height: 20, color: Colors.white)
-              ),
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF2B7A78),
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF2B7A78).withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Image.asset('assets/images/logo.png',
+                      width: 20, height: 20, color: Colors.white)),
               SizedBox(width: 10),
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,33 +96,25 @@ class HomeView extends GetView<HomeController> {
             ),
             child: Row(
               children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF2B7A78),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      controller.userInitial,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                Icon(
+                  Icons.location_on,
+                  size: 14,
+                  color: Color(0xFF2B7A78),
+                ),
+                SizedBox(width: 4),
+                Obx(() => Container(
+                      constraints: BoxConstraints(maxWidth: 150),
+                      child: Text(
+                        controller.currentLocation.value,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF2B7A78),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 6),
-                Text(
-                  controller.userName,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF2B7A78),
-                  ),
-                ),
+                    )),
               ],
             ),
           ),
@@ -220,7 +216,8 @@ class HomeView extends GetView<HomeController> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.calendar_today_outlined, size: 18, color: Color(0xFF2B7A78)),
+                    Icon(Icons.calendar_today_outlined,
+                        size: 18, color: Color(0xFF2B7A78)),
                     SizedBox(width: 8),
                     Text(
                       'Đặt sân ngay',
@@ -317,36 +314,45 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildCategoryItem({required String icon, required String label}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 45,
-          height: 45,
-          decoration: BoxDecoration(
-            color: const Color(0xFFDEF2F1),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [],
-            border: Border.all(color: const Color(0xFFDEF2F1).withOpacity(0.7), width: 1),
-          ),
-          child: Center(
-            child: Icon(
-              controller.getIconForCategory(icon),
-              color: const Color(0xFF2B7A78),
-              size: 18,
+    return GestureDetector(
+      onTap: () {
+        // Navigate to corresponding pages based on category
+        if (label == 'Thời tiết') {
+          Get.toNamed(Routes.weather);
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 45,
+            height: 45,
+            decoration: BoxDecoration(
+              color: const Color(0xFFDEF2F1),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [],
+              border: Border.all(
+                  color: const Color(0xFFDEF2F1).withOpacity(0.7), width: 1),
+            ),
+            child: Center(
+              child: Icon(
+                controller.getIconForCategory(icon),
+                color: const Color(0xFF2B7A78),
+                size: 18,
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Color(0xFF333333),
-            fontWeight: FontWeight.w500,
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFF333333),
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -415,7 +421,8 @@ class HomeView extends GetView<HomeController> {
                               return Container(
                                 color: Colors.grey[200],
                                 child: const Center(
-                                  child: Icon(Icons.broken_image, color: Colors.grey),
+                                  child: Icon(Icons.broken_image,
+                                      color: Colors.grey),
                                 ),
                               );
                             },
@@ -512,7 +519,10 @@ class HomeView extends GetView<HomeController> {
             children: [
               _buildSectionTitle('Voucher giảm giá'),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Hiển thị danh sách tất cả coupon dạng bottom sheet
+                  _showCouponsBottomSheet(Get.context!);
+                },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(0, 0),
@@ -540,168 +550,206 @@ class HomeView extends GetView<HomeController> {
             ],
           ),
           const SizedBox(height: 25),
-          Column(
-            children: controller.vouchers.map((voucher) {
-              Color voucherColor;
-              switch (voucher['color']) {
-                case 'red':
-                  voucherColor = const Color(0xFFFF6B6B);
-                  break;
-                case 'orange':
-                  voucherColor = const Color(0xFFFF9E40);
-                  break;
-                case 'purple':
-                  voucherColor = const Color(0xFF5E60CE);
-                  break;
-                default:
-                  voucherColor = const Color(0xFF2B7A78);
-              }
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                height: 89,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade100, width: 1),
+          Obx(() {
+            if (controller.isLoadingCoupons.value) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF2B7A78),
                 ),
-                clipBehavior: Clip.antiAlias,
-                child: Stack(
-                  children: [
-                    Row(
+              );
+            }
+
+            if (controller.coupons.isEmpty) {
+              return const Center(
+                child: Text(
+                  'Không có voucher nào',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
+              );
+            }
+
+            return Column(
+              children: controller.coupons.map((coupon) {
+                // Determine color based on discount type
+                Color voucherColor = coupon.discountType == 'fixed'
+                    ? const Color(0xFFFF6B6B)
+                    : const Color(0xFF5E60CE);
+
+                return GestureDetector(
+                  onTap: () {
+                    // Hiển thị chi tiết coupon dạng bottom sheet
+                    _showCouponDetailBottomSheet(Get.context!, coupon);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade100, width: 1),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Stack(
                       children: [
-                        Container(
-                          width: 80,
-                          color: voucherColor,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                voucher['discount'],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1,
+                        Row(
+                          children: [
+                            Container(
+                              width: 80,
+                              color: voucherColor,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    coupon.displayAmount,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1,
+                                    ),
+                                  ),
+                                  if (coupon.discountType != 'fixed')
+                                    const Text(
+                                      '%',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        height: 1,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      coupon.name,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF17252A),
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.access_time_outlined,
+                                          size: 16,
+                                          color: Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            "Hết hạn: ${DateFormat('dd/M/yyyy').format(DateTime.parse(coupon.endDate))}",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.grey[600],
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.local_offer_outlined,
+                                          size: 16,
+                                          color: Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            "Mã: ${coupon.code}",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.grey[600],
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const Text(
-                                '%',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1,
-                                ),
+                            ),
+                          ],
+                        ),
+                        Positioned(
+                          left: -6,
+                          top: 0,
+                          bottom: 0,
+                          child: Center(
+                            child: Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                shape: BoxShape.circle,
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  voucher['title'],
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF17252A),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                // const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.access_time_outlined,
-                                      size: 16,
-                                      color: Colors.grey[600],
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        voucher['expiry'],
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey[600],
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6), // Increased by 3px
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.local_offer_outlined,
-                                      size: 16,
-                                      color: Colors.grey[600],
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        voucher['detail'],
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey[600],
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                        Positioned(
+                          right: -6,
+                          top: 0,
+                          bottom: 0,
+                          child: Center(
+                            child: Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                shape: BoxShape.circle,
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    Positioned(
-                      left: -6,
-                      top: 0,
-                      bottom: 0,
-                      child: Center(
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: -6,
-                      top: 0,
-                      bottom: 0,
-                      child: Center(
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
+                  ),
+                );
+              }).toList(),
+            );
+          }),
         ],
       ),
     );
   }
-}
 
+  // Thêm các phương thức mới vào HomeView để hiển thị bottom sheet
+  void _showCouponsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CouponsBottomSheet(coupons: controller.coupons),
+    );
+  }
+
+  void _showCouponDetailBottomSheet(BuildContext context, Coupon coupon) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CouponDetailBottomSheet(coupon: coupon),
+    );
+  }
+}

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../core/utilities/app_utils.dart';
 import '../../core/utilities/db_keys.dart';
 import '../../core/utilities/encry_data.dart';
+export 'coupon.dart';
 part 'in_chat.dart';
 part 'message.dart';
 part 'message_model.dart';

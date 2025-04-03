@@ -23,6 +23,9 @@ abstract class Routes {
   static const bookingPrice = _Paths.bookingPrice;
   static const payment = _Paths.payment;
   static const chat = _Paths.chat;
+  static const coupon = '/coupon';
+  static const couponDetail = '/coupon-detail';
+  static const weather = _Paths.weather;
 }
 
 abstract class _Paths {
@@ -45,4 +48,5 @@ abstract class _Paths {
   static const bookingPrice = '/booking-price';
   static const payment = '/payment';
   static const chat = '/chat';
+  static const weather = '/weather';
 }
