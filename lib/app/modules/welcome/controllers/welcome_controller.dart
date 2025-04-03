@@ -1,9 +1,4 @@
-import 'dart:async';
-import 'package:get/get.dart';
 
-import '../../../core/styles/style.dart';
-import '../../../core/utilities/utilities.dart';
-import '../../../routes/app_pages.dart';
 
 // Welcome screen is no longer used - navigating directly to login
 // class WelcomeController extends GetxController {
