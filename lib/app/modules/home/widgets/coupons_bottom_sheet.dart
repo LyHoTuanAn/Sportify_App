@@ -20,9 +20,16 @@ class CouponsBottomSheet extends StatelessWidget {
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+          topLeft: Radius.circular(25),
+          topRight: Radius.circular(25),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            spreadRadius: 0,
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -31,12 +38,12 @@ class CouponsBottomSheet extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withOpacity(0.05),
                   blurRadius: 5,
                   offset: const Offset(0, 3),
                 ),
@@ -46,20 +53,57 @@ class CouponsBottomSheet extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 40,
-                  height: 4,
+                  width: 50,
+                  height: 5,
                   decoration: BoxDecoration(
                     color: Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 const SizedBox(height: 15),
-                const Text(
-                  'Tất cả Voucher',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF17252A),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.card_giftcard,
+                      color: Color(0xFF2B7A78),
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Tất cả Voucher',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF17252A),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Color(0xFFDEF2F1),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Color(0xFF3AAFA9).withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: Color(0xFF2B7A78), size: 18),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Nhấn vào voucher để xem chi tiết và sao chép mã',
+                    style: TextStyle(
+                      color: Color(0xFF2B7A78),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],
@@ -67,10 +111,33 @@ class CouponsBottomSheet extends StatelessWidget {
           ),
           Expanded(
             child: coupons.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Không có voucher nào',
-                      style: TextStyle(color: Colors.grey),
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.receipt_long,
+                          size: 60,
+                          color: Colors.grey.withOpacity(0.3),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Không có voucher nào',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Các voucher sẽ hiển thị ở đây khi có',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
                   )
                 : ListView.builder(
@@ -82,181 +149,254 @@ class CouponsBottomSheet extends StatelessWidget {
                           ? const Color(0xFFFF6B6B)
                           : const Color(0xFF5E60CE);
 
-                      return GestureDetector(
-                        onTap: () {
-                          // Đóng bottom sheet hiện tại
-                          Navigator.pop(context);
-                          // Hiển thị chi tiết coupon
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (context) =>
-                                CouponDetailBottomSheet(coupon: coupon),
-                          );
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          // Tăng chiều cao đủ để chứa nội dung
-                          height: 110,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                spreadRadius: 1,
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: Stack(
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 100,
-                                    color: voucherColor,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          coupon.displayAmount,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 32,
-                                            fontWeight: FontWeight.bold,
-                                            height: 1,
-                                          ),
-                                        ),
-                                        if (coupon.discountType != 'fixed')
-                                          const Text(
-                                            '%',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              height: 1,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
+                      return Hero(
+                        tag: 'coupon_${coupon.id}',
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              // Đóng bottom sheet hiện tại
+                              Navigator.pop(context);
+                              // Hiển thị chi tiết coupon
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (context) =>
+                                    CouponDetailBottomSheet(coupon: coupon),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(15),
+                            splashColor: voucherColor.withOpacity(0.1),
+                            highlightColor: voucherColor.withOpacity(0.05),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              // Tăng chiều cao đủ để chứa nội dung
+                              height: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(15),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: voucherColor.withOpacity(0.15),
+                                    spreadRadius: 1,
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
                                   ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 12),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            coupon.name,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: Color(0xFF17252A),
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.access_time_outlined,
-                                                size: 16,
-                                                color: Colors.grey,
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Text(
-                                                  "Hết hạn: ${DateFormat('dd/M/yyyy').format(DateTime.parse(coupon.endDate))}",
-                                                  style: const TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey,
-                                                  ),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
+                                ],
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: Stack(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 100,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              voucherColor,
+                                              voucherColor.withOpacity(0.8),
                                             ],
                                           ),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              coupon.displayAmount,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                                height: 1,
+                                              ),
+                                            ),
+                                            if (coupon.discountType != 'fixed')
+                                              const Text(
+                                                '%',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                  height: 1,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 12),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
                                             children: [
+                                              Text(
+                                                coupon.name,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Color(0xFF17252A),
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 8),
                                               Row(
                                                 children: [
-                                                  const Icon(
-                                                    Icons.local_offer_outlined,
-                                                    size: 16,
-                                                    color: Colors.grey,
+                                                  Container(
+                                                    padding: EdgeInsets.all(4),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[100],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4),
+                                                    ),
+                                                    child: Icon(
+                                                      Icons
+                                                          .access_time_outlined,
+                                                      size: 14,
+                                                      color: Colors.grey[700],
+                                                    ),
                                                   ),
                                                   const SizedBox(width: 8),
-                                                  Text(
-                                                    coupon.code,
-                                                    style: const TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Color(0xFF2B7A78),
+                                                  Expanded(
+                                                    child: Text(
+                                                      "Hết hạn: ${DateFormat('dd/M/yyyy').format(DateTime.parse(coupon.endDate))}",
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.grey[700],
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                              const Icon(
-                                                Icons.arrow_forward_ios,
-                                                size: 14,
-                                                color: Color(0xFF2B7A78),
-                                              )
+                                              const SizedBox(height: 8),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Container(
+                                                        padding:
+                                                            EdgeInsets.all(4),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: voucherColor
+                                                              .withOpacity(0.1),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(4),
+                                                        ),
+                                                        child: Icon(
+                                                          Icons
+                                                              .local_offer_outlined,
+                                                          size: 14,
+                                                          color: voucherColor,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      Text(
+                                                        coupon.code,
+                                                        style: TextStyle(
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: voucherColor,
+                                                          letterSpacing: 0.5,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 4),
+                                                    decoration: BoxDecoration(
+                                                      color: voucherColor
+                                                          .withOpacity(0.1),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          'Chi tiết',
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: voucherColor,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                        SizedBox(width: 4),
+                                                        Icon(
+                                                          Icons
+                                                              .arrow_forward_ios,
+                                                          size: 10,
+                                                          color: voucherColor,
+                                                        )
+                                                      ],
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
                                             ],
                                           ),
-                                        ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Positioned(
+                                    left: -6,
+                                    top: 0,
+                                    bottom: 0,
+                                    child: Center(
+                                      child: Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .scaffoldBackgroundColor,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: -6,
+                                    top: 0,
+                                    bottom: 0,
+                                    child: Center(
+                                      child: Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .scaffoldBackgroundColor,
+                                          shape: BoxShape.circle,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
-                              Positioned(
-                                left: -6,
-                                top: 0,
-                                bottom: 0,
-                                child: Center(
-                                  child: Container(
-                                    width: 12,
-                                    height: 12,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .scaffoldBackgroundColor,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                right: -6,
-                                top: 0,
-                                bottom: 0,
-                                child: Center(
-                                  child: Container(
-                                    width: 12,
-                                    height: 12,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .scaffoldBackgroundColor,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       );

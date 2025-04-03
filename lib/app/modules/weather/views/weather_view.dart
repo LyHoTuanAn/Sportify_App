@@ -241,121 +241,172 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildCurrentWeather(final weather) {
-    return Center(
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.location_on,
-                color: Colors.white,
-                size: 20,
-              ),
-              SizedBox(width: 5),
-              Obx(() {
-                String displayLocation = controller.getDisplayLocation();
-                return Container(
-                  constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(Get.context!).size.width * 0.7),
-                  child: Text(
-                    displayLocation,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+    return Obx(() {
+      // Kiểm tra xem có forecast đang được chọn không
+      final selectedForecast = controller.selectedForecast.value;
+
+      // Dùng dữ liệu từ forecast nếu được chọn
+      final String iconToShow =
+          selectedForecast != null ? selectedForecast.icon : weather.icon;
+
+      final String descriptionToShow = selectedForecast != null
+          ? selectedForecast.description
+          : weather.description;
+
+      final double tempToShow = selectedForecast != null
+          ? selectedForecast.tempDay
+          : weather.temperature;
+
+      final double feelsLikeToShow = selectedForecast != null
+          ? selectedForecast.tempNight // Dùng tempNight nếu không có feelsLike
+          : weather.feelsLike;
+
+      return Center(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.location_on,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                SizedBox(width: 5),
+                Obx(() {
+                  String displayLocation = controller.getDisplayLocation();
+                  return Container(
+                    constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(Get.context!).size.width * 0.7),
+                    child: Text(
+                      displayLocation,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                );
-              }),
-            ],
-          ),
-          SizedBox(height: 5),
-          Text(
-            DateFormat('EEEE, dd MMMM yyyy', 'vi_VN').format(DateTime.now()),
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 14,
+                  );
+                }),
+              ],
             ),
-          ),
-          SizedBox(height: 20),
-          CachedNetworkImage(
-            imageUrl: controller.getWeatherIconUrl(weather.icon),
-            width: 120,
-            height: 120,
-            placeholder: (context, url) => CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 2,
+            SizedBox(height: 5),
+            Text(
+              DateFormat('EEEE, dd MMMM yyyy', 'vi_VN').format(DateTime.now()),
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: 14,
+              ),
             ),
-            errorWidget: (context, url, error) => Icon(
-              Icons.cloud,
-              size: 120,
-              color: Colors.white,
+            SizedBox(height: 20),
+            CachedNetworkImage(
+              imageUrl: controller.getWeatherIconUrl(iconToShow),
+              width: 150,
+              height: 150,
+              fit: BoxFit.contain,
+              placeholder: (context, url) => CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+              errorWidget: (context, url, error) => Icon(
+                Icons.cloud,
+                size: 120,
+                color: Colors.white,
+              ),
             ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            '${weather.temperature.round()}°C',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 60,
-              fontWeight: FontWeight.bold,
+            SizedBox(height: 10),
+            Text(
+              '${tempToShow.round()}°C',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 60,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          Text(
-            _capitalizeFirst(weather.description),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
+            Text(
+              _capitalizeFirst(descriptionToShow),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              ),
             ),
-          ),
-          SizedBox(height: 5),
-          Text(
-            'Cảm giác như ${weather.feelsLike.round()}°C',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 16,
+            SizedBox(height: 5),
+            Text(
+              selectedForecast != null
+                  ? 'Nhiệt độ ban đêm ${feelsLikeToShow.round()}°C'
+                  : 'Cảm giác như ${feelsLikeToShow.round()}°C',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: 16,
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildWeatherDetails(final weather) {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildDetailItem(
-                icon: Icons.water_drop_outlined,
-                value: '${weather.humidity}%',
-                label: 'Độ ẩm',
+    return Obx(() {
+      // Kiểm tra xem có forecast đang được chọn không
+      final selectedForecast = controller.selectedForecast.value;
+
+      // Chỉ hiển thị dữ liệu hiện tại từ weather vì DailyForecast không có các thuộc tính này
+      final int humidity = weather.humidity;
+      final double windSpeed = weather.windSpeed;
+      final int pressure = weather.pressure;
+
+      // Hiển thị một thông báo nếu đang xem dự báo
+      final String infoText = selectedForecast != null
+          ? '(Dữ liệu chi tiết chỉ có cho thời tiết hiện tại)'
+          : '';
+
+      return Container(
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          children: [
+            if (selectedForecast != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  infoText,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ),
-              _buildDetailItem(
-                icon: Icons.air,
-                value: '${weather.windSpeed} km/h',
-                label: 'Tốc độ gió',
-              ),
-              _buildDetailItem(
-                icon: Icons.compress,
-                value: '${weather.pressure} hPa',
-                label: 'Áp suất',
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildDetailItem(
+                  icon: Icons.water_drop_outlined,
+                  value: '${humidity}%',
+                  label: 'Độ ẩm',
+                ),
+                _buildDetailItem(
+                  icon: Icons.air,
+                  value: '${windSpeed} km/h',
+                  label: 'Tốc độ gió',
+                ),
+                _buildDetailItem(
+                  icon: Icons.compress,
+                  value: '${pressure} hPa',
+                  label: 'Áp suất',
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildDetailItem({
@@ -435,65 +486,89 @@ class WeatherView extends GetView<WeatherController> {
         itemCount: weather.dailyForecast.length,
         itemBuilder: (context, index) {
           final forecast = weather.dailyForecast[index];
-          return Container(
-            width: 120,
-            margin: EdgeInsets.only(right: 15),
-            padding: EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  controller.formatDate(forecast.dt),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
+
+          return Obx(() {
+            // Kiểm tra xem forecast này có đang được chọn không
+            bool isSelected =
+                controller.selectedForecast.value?.dt == forecast.dt;
+
+            return GestureDetector(
+              onTap: () {
+                // Nếu đã chọn, bỏ chọn; nếu chưa, chọn nó
+                if (isSelected) {
+                  controller.clearSelectedForecast();
+                } else {
+                  controller.selectForecast(forecast);
+                }
+              },
+              child: Container(
+                width: 120,
+                margin: EdgeInsets.only(right: 15),
+                padding: EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.white.withOpacity(0.3) // Màu nền khi được chọn
+                      : Colors.white.withOpacity(0.2), // Màu nền mặc định
+                  borderRadius: BorderRadius.circular(20),
+                  border: isSelected
+                      ? Border.all(
+                          color: Colors.white, width: 2) // Viền khi được chọn
+                      : null,
                 ),
-                CachedNetworkImage(
-                  imageUrl: controller.getWeatherIconUrl(forecast.icon),
-                  width: 50,
-                  height: 50,
-                  placeholder: (context, url) => CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                  errorWidget: (context, url, error) => Icon(
-                    Icons.cloud,
-                    size: 50,
-                    color: Colors.white,
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '${forecast.tempDay.round()}°',
+                      controller.formatDate(forecast.dt),
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Text(
-                      '${forecast.tempNight.round()}°',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 14,
+                    CachedNetworkImage(
+                      imageUrl: controller.getWeatherIconUrl(forecast.icon),
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) => CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
                       ),
+                      errorWidget: (context, url, error) => Icon(
+                        Icons.cloud,
+                        size: 50,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${forecast.tempDay.round()}°',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          '${forecast.tempNight.round()}°',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          );
+              ),
+            );
+          });
         },
       ),
     );
@@ -513,58 +588,8 @@ class WeatherView extends GetView<WeatherController> {
         );
       }
 
-      if (controller.dailySummary.isEmpty) {
-        return Container(
-          margin: EdgeInsets.only(top: 20, bottom: 10),
-          padding: EdgeInsets.all(15),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 3,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    'Thông tin bổ sung',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Thông tin chi tiết hơn về dự báo thời tiết cần API cao cấp hơn. Các thông tin hiện tại đã được cung cấp từ OpenWeatherMap API miễn phí.',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  height: 1.5,
-                ),
-              ),
-              SizedBox(height: 16),
-              _buildWeatherApiCredit(),
-            ],
-          ),
-        );
-      }
-
-      // Handle potential missing data with default values
-      final summary = controller.dailySummary;
-      final String overviewText =
-          summary['overview'] ?? 'Không có thông tin tổng quan';
+      // Thay đổi ở đây: Dùng summary tự tạo thay vì từ API
+      final String summaryText = controller.generateWeatherSummary();
 
       return Container(
         margin: EdgeInsets.only(top: 20, bottom: 10),
@@ -599,7 +624,7 @@ class WeatherView extends GetView<WeatherController> {
             ),
             SizedBox(height: 16),
             Text(
-              overviewText,
+              summaryText,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 15,
@@ -607,11 +632,9 @@ class WeatherView extends GetView<WeatherController> {
               ),
             ),
 
-            // Show additional statistics if available
-            if (summary.containsKey('statistics')) ...[
-              SizedBox(height: 20),
-              _buildSummaryStatistics(summary['statistics']),
-            ],
+            // Hiển thị thêm các thống kê weather
+            SizedBox(height: 20),
+            _buildAdditionalInfo(controller.weatherData.value!),
 
             SizedBox(height: 16),
             _buildWeatherApiCredit(),
@@ -619,6 +642,40 @@ class WeatherView extends GetView<WeatherController> {
         ),
       );
     });
+  }
+
+  // Thêm widget mới để hiển thị thông tin bổ sung
+  Widget _buildAdditionalInfo(final weather) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildStatItem(
+          'Thời tiết hiện tại',
+          _capitalizeFirst(weather.description),
+          Icons.wb_twilight,
+        ),
+        _buildStatItem(
+          'Nhiệt độ',
+          '${weather.temperature.round()}°C (cảm giác ${weather.feelsLike.round()}°C)',
+          Icons.thermostat_outlined,
+        ),
+        _buildStatItem(
+          'Độ ẩm',
+          '${weather.humidity}%',
+          Icons.water_drop_outlined,
+        ),
+        _buildStatItem(
+          'Áp suất',
+          '${weather.pressure} hPa',
+          Icons.compress,
+        ),
+        _buildStatItem(
+          'Tốc độ gió',
+          '${weather.windSpeed} km/h',
+          Icons.air,
+        ),
+      ],
+    );
   }
 
   Widget _buildWeatherApiCredit() {
@@ -646,48 +703,6 @@ class WeatherView extends GetView<WeatherController> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSummaryStatistics(Map<String, dynamic> statistics) {
-    List<Widget> statWidgets = [];
-
-    if (statistics.containsKey('temperature')) {
-      final temp = statistics['temperature'];
-      statWidgets.add(
-        _buildStatItem(
-          'Nhiệt độ',
-          'Cao: ${temp['max']?.toStringAsFixed(1)}°C, Thấp: ${temp['min']?.toStringAsFixed(1)}°C',
-          Icons.thermostat,
-        ),
-      );
-    }
-
-    if (statistics.containsKey('precipitation')) {
-      final precip = statistics['precipitation'];
-      statWidgets.add(
-        _buildStatItem(
-          'Lượng mưa',
-          '${precip['total'] ?? 0} mm',
-          Icons.water_drop,
-        ),
-      );
-    }
-
-    if (statistics.containsKey('humidity')) {
-      final humidity = statistics['humidity'];
-      statWidgets.add(
-        _buildStatItem(
-          'Độ ẩm',
-          'Trung bình: ${humidity['mean'] ?? 0}%',
-          Icons.water,
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: statWidgets,
     );
   }
 

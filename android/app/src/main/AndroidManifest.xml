@@ -49,10 +49,15 @@
     </application>
     <!-- Provide required visibility configuration for API level 30 and above -->
     <queries>
-        <!-- If your app checks for Email support -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="mailto" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="http" />
         </intent>
     </queries>
 </manifest>

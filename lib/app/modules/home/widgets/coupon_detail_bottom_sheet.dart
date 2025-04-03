@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../data/models/coupon.dart';
+import 'dart:math' as math;
 
-class CouponDetailBottomSheet extends StatelessWidget {
+class CouponDetailBottomSheet extends StatefulWidget {
   final Coupon coupon;
 
   const CouponDetailBottomSheet({
@@ -13,25 +14,70 @@ class CouponDetailBottomSheet extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<CouponDetailBottomSheet> createState() =>
+      _CouponDetailBottomSheetState();
+}
+
+class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  bool _isCopied = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Format dates for display
-    final DateTime endDate = DateTime.parse(coupon.endDate);
-    final createDate = DateTime.parse(coupon.createdAt);
+    final DateTime endDate = DateTime.parse(widget.coupon.endDate);
+    final createDate = DateTime.parse(widget.coupon.createdAt);
     final formattedEndDate = DateFormat('dd/MM/yyyy').format(endDate);
     final formattedCreateDate = DateFormat('dd/MM/yyyy').format(createDate);
 
-    Color voucherColor = coupon.discountType == 'fixed'
+    Color voucherColor = widget.coupon.discountType == 'fixed'
         ? const Color(0xFFFF6B6B)
         : const Color(0xFF5E60CE);
 
+    // Gradient for background
+    List<Color> gradientColors = widget.coupon.discountType == 'fixed'
+        ? [Color(0xFFFF6B6B), Color(0xFFFF8E8E)]
+        : [Color(0xFF5E60CE), Color(0xFF6A75E0)];
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+          topLeft: Radius.circular(25),
+          topRight: Radius.circular(25),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: Offset(0, -3),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -40,35 +86,29 @@ class CouponDetailBottomSheet extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
-                ),
-              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 40,
-                  height: 4,
+                  width: 50,
+                  height: 5,
                   decoration: BoxDecoration(
                     color: Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 const SizedBox(height: 15),
-                const Text(
+                Text(
                   'Chi Tiết Mã Giảm Giá',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF17252A),
+                    letterSpacing: 0.5,
                   ),
                 ),
               ],
@@ -76,138 +116,214 @@ class CouponDetailBottomSheet extends StatelessWidget {
           ),
           Expanded(
             child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Coupon Card
+                    // Coupon Hero Card
                     Container(
                       width: double.infinity,
                       margin: const EdgeInsets.only(bottom: 24),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
-                            spreadRadius: 1,
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
+                            color: voucherColor.withOpacity(0.2),
+                            spreadRadius: 2,
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
                       child: Column(
                         children: [
+                          // Banner with gradient
                           Container(
-                            padding: const EdgeInsets.all(20),
+                            height: 110,
+                            padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: voucherColor,
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(16),
+                              gradient: LinearGradient(
+                                colors: gradientColors,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
                               ),
                             ),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    coupon.discountType == 'fixed'
-                                        ? '${NumberFormat('#,###').format(coupon.amount)}đ'
-                                        : '${coupon.amount}%',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      widget.coupon.discountType == 'fixed'
+                                          ? '${NumberFormat('#,###').format(widget.coupon.amount)}đ'
+                                          : '${widget.coupon.amount}%',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    'GIẢM GIÁ',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                    SizedBox(height: 6),
+                                    Text(
+                                      'GIẢM GIÁ',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 1.5,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
+                                _buildDecorativeElement(),
+                              ],
                             ),
                           ),
-                          Padding(
+                          // Coupon details
+                          Container(
                             padding: const EdgeInsets.all(20),
                             child: Column(
                               children: [
                                 Text(
-                                  coupon.name,
-                                  style: const TextStyle(
-                                    fontSize: 22,
+                                  widget.coupon.name,
+                                  style: TextStyle(
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF17252A),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 20),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                    horizontal: 24,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: Colors.grey[300]!,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        'Mã Coupon:',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                SizedBox(height: 20),
+                                AnimatedBuilder(
+                                  animation: _animationController,
+                                  builder: (context, child) {
+                                    return Transform.scale(
+                                      scale: _scaleAnimation.value,
+                                      child: child,
+                                    );
+                                  },
+                                  child: GestureDetector(
+                                    onTapDown: (_) =>
+                                        _animationController.forward(),
+                                    onTapUp: (_) {
+                                      _animationController.reverse();
+                                      _copyCode();
+                                    },
+                                    onTapCancel: () =>
+                                        _animationController.reverse(),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 15,
+                                        horizontal: 24,
                                       ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            coupon.code,
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Color(0xFF2B7A78),
-                                            ),
-                                          ),
-                                          IconButton(
-                                            onPressed: () {
-                                              Clipboard.setData(
-                                                ClipboardData(
-                                                    text: coupon.code),
-                                              );
-                                              Get.snackbar(
-                                                'Thành công',
-                                                'Đã sao chép mã giảm giá',
-                                                backgroundColor:
-                                                    Colors.green[100],
-                                                colorText: Colors.green[800],
-                                                snackPosition:
-                                                    SnackPosition.TOP,
-                                                duration:
-                                                    const Duration(seconds: 1),
-                                              );
-                                            },
-                                            icon: const Icon(
-                                              Icons.copy,
-                                              color: Color(0xFF2B7A78),
-                                              size: 20,
-                                            ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(15),
+                                        border: Border.all(
+                                          color: Colors.grey[300]!,
+                                          width: 1.5,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.1),
+                                            spreadRadius: 1,
+                                            blurRadius: 3,
+                                            offset: Offset(0, 1),
                                           ),
                                         ],
                                       ),
-                                    ],
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Mã Coupon:',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                widget.coupon.code,
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: voucherColor,
+                                                  letterSpacing: 1,
+                                                ),
+                                              ),
+                                              SizedBox(width: 8),
+                                              AnimatedSwitcher(
+                                                duration:
+                                                    Duration(milliseconds: 300),
+                                                child: _isCopied
+                                                    ? Icon(
+                                                        Icons.check_circle,
+                                                        color: Colors.green,
+                                                        size: 22,
+                                                        key: ValueKey('check'),
+                                                      )
+                                                    : Icon(
+                                                        Icons.copy,
+                                                        color: voucherColor,
+                                                        size: 22,
+                                                        key: ValueKey('copy'),
+                                                      ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Dotted line separator
+                          Container(
+                            height: 2,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: 150,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  width: 5,
+                                  color: index % 2 == 0
+                                      ? Colors.transparent
+                                      : Colors.grey[300],
+                                );
+                              },
+                            ),
+                          ),
+                          // Expiration info
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 20),
+                            child: Row(
+                              children: [
+                                Icon(Icons.access_time,
+                                    color: Colors.grey[700], size: 16),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Hết hạn: $formattedEndDate",
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],
@@ -217,70 +333,96 @@ class CouponDetailBottomSheet extends StatelessWidget {
                       ),
                     ),
 
-                    // Coupon Details
-                    const Text(
-                      'Thông tin chi tiết',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF17252A),
+                    // Coupon Details Section
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.08),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Thông tin chi tiết',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF17252A),
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          _buildDetailItem(
+                              'Loại giảm giá',
+                              widget.coupon.discountType == 'fixed'
+                                  ? 'Giảm số tiền cố định'
+                                  : 'Giảm theo phần trăm',
+                              Icons.card_giftcard),
+                          _buildDetailItem(
+                              'Mức giảm',
+                              widget.coupon.discountType == 'fixed'
+                                  ? '${NumberFormat('#,###').format(widget.coupon.amount)}đ'
+                                  : '${widget.coupon.amount}%',
+                              Icons.money),
+                          _buildDetailItem('Ngày hết hạn', formattedEndDate,
+                              Icons.event_busy),
+                          if (widget.coupon.minTotal != null)
+                            _buildDetailItem(
+                                'Giá trị đơn hàng tối thiểu',
+                                '${NumberFormat('#,###').format(widget.coupon.minTotal)}đ',
+                                Icons.shopping_basket),
+                          if (widget.coupon.maxTotal != null)
+                            _buildDetailItem(
+                                'Giá trị giảm tối đa',
+                                '${NumberFormat('#,###').format(widget.coupon.maxTotal)}đ',
+                                Icons.trending_down),
+                          if (widget.coupon.quantityLimit != null)
+                            _buildDetailItem(
+                                'Số lượng mã',
+                                '${widget.coupon.quantityLimit}',
+                                Icons.confirmation_number),
+                          if (widget.coupon.limitPerUser != null)
+                            _buildDetailItem('Số lần sử dụng tối đa/người',
+                                '${widget.coupon.limitPerUser}', Icons.person),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    _buildDetailItem(
-                        'Loại giảm giá',
-                        coupon.discountType == 'fixed'
-                            ? 'Giảm số tiền cố định'
-                            : 'Giảm theo phần trăm'),
-                    _buildDetailItem(
-                        'Mức giảm',
-                        coupon.discountType == 'fixed'
-                            ? '${NumberFormat('#,###').format(coupon.amount)}đ'
-                            : '${coupon.amount}%'),
-                    _buildDetailItem('Ngày tạo', formattedCreateDate),
-                    _buildDetailItem('Ngày hết hạn', formattedEndDate),
-                    if (coupon.minTotal != null)
-                      _buildDetailItem('Giá trị đơn hàng tối thiểu',
-                          '${NumberFormat('#,###').format(coupon.minTotal)}đ'),
-                    if (coupon.maxTotal != null)
-                      _buildDetailItem('Giá trị giảm tối đa',
-                          '${NumberFormat('#,###').format(coupon.maxTotal)}đ'),
-                    if (coupon.quantityLimit != null)
-                      _buildDetailItem(
-                          'Số lượng mã', '${coupon.quantityLimit}'),
-                    if (coupon.limitPerUser != null)
-                      _buildDetailItem('Số lần sử dụng tối đa/người',
-                          '${coupon.limitPerUser}'),
 
                     const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: coupon.code));
-                          Get.snackbar(
-                            'Thành công',
-                            'Đã sao chép mã giảm giá',
-                            backgroundColor: Colors.green[100],
-                            colorText: Colors.green[800],
-                            snackPosition: SnackPosition.TOP,
-                            duration: const Duration(seconds: 1),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2B7A78),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                    ElevatedButton(
+                      onPressed: _copyCode,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: voucherColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
                         ),
-                        child: const Text(
-                          'Sao chép mã',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        elevation: 4,
+                        shadowColor: voucherColor.withOpacity(0.4),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.content_copy, size: 20),
+                          SizedBox(width: 10),
+                          Text(
+                            'Sao chép mã',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ],
@@ -293,34 +435,109 @@ class CouponDetailBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailItem(String label, String value) {
+  Widget _buildDetailItem(String label, String value, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 170,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.grey[700],
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 18,
+              color: Colors.grey[700],
+            ),
+          ),
+          SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF17252A),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDecorativeElement() {
+    return Container(
+      width: 60,
+      height: 60,
+      child: Stack(
+        children: [
+          Transform.rotate(
+            angle: math.pi / 8,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border:
+                    Border.all(color: Colors.white.withOpacity(0.5), width: 4),
               ),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF17252A),
+          Transform.rotate(
+            angle: -math.pi / 8,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border:
+                    Border.all(color: Colors.white.withOpacity(0.3), width: 4),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _copyCode() {
+    Clipboard.setData(ClipboardData(text: widget.coupon.code));
+    setState(() {
+      _isCopied = true;
+    });
+
+    Get.snackbar(
+      'Thành công',
+      'Đã sao chép mã giảm giá',
+      backgroundColor: Colors.green[100],
+      colorText: Colors.green[800],
+      snackPosition: SnackPosition.TOP,
+      duration: const Duration(seconds: 1),
+      margin: EdgeInsets.all(10),
+      borderRadius: 10,
+      icon: Icon(Icons.check_circle, color: Colors.green[800]),
+    );
+
+    // Reset the copied state after 2 seconds
+    Future.delayed(Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _isCopied = false;
+        });
+      }
+    });
   }
 }

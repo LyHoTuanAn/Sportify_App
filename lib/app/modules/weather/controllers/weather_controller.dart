@@ -33,6 +33,9 @@ class WeatherController extends GetxController {
   final RxBool hasLocationPermission = false.obs;
   final RxBool isFirstLaunch = true.obs;
 
+  // Thêm biến để theo dõi forecast được chọn
+  final Rx<DailyForecast?> selectedForecast = Rx<DailyForecast?>(null);
+
   @override
   void onInit() {
     super.onInit();
@@ -574,7 +577,60 @@ class WeatherController extends GetxController {
 
   // Get weather icon URL
   String getWeatherIconUrl(String iconCode) {
-    return 'https://openweathermap.org/img/wn/$iconCode@2x.png';
+    // Xác định nếu là icon ban đêm (thường có chữ "n" ở cuối)
+    bool isNight = iconCode.endsWith('n');
+
+    // Ánh xạ mã icon của OpenWeatherMap sang icon từ bộ mới
+    String mappedIcon;
+
+    switch (iconCode) {
+      // Ban đêm - trời quang/trăng
+      case '01n':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084486.png';
+      // Ban đêm - trăng với mây
+      case '02n':
+      case '03n':
+      case '04n':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084497.png';
+      // Ban đêm - mưa
+      case '09n':
+      case '10n':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084494.png';
+      // Ban đêm - sấm sét
+      case '11n':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084490.png';
+      // Ban đêm - tuyết
+      case '13n':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084488.png';
+      // Ban đêm - sương mù
+      case '50n':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084496.png';
+
+      // Ban ngày - nắng
+      case '01d':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084498.png';
+      // Ban ngày - mây
+      case '02d':
+      case '03d':
+      case '04d':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084504.png';
+      // Ban ngày - mưa
+      case '09d':
+      case '10d':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084495.png';
+      // Ban ngày - sấm sét
+      case '11d':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084499.png';
+      // Ban ngày - tuyết
+      case '13d':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084493.png';
+      // Ban ngày - sương mù
+      case '50d':
+        return 'https://cdn-icons-png.flaticon.com/512/7084/7084492.png';
+      default:
+        // Nếu không tìm thấy mapping, dùng lại icon gốc từ OpenWeatherMap
+        return 'https://openweathermap.org/img/wn/$iconCode@2x.png';
+    }
   }
 
   // Lấy địa chỉ hiển thị - ưu tiên địa chỉ chi tiết nếu có
@@ -599,5 +655,168 @@ class WeatherController extends GetxController {
       margin: EdgeInsets.only(top: 10, left: 10, right: 10),
       borderRadius: 10,
     );
+  }
+
+  // Thêm phương thức tạo tóm tắt thời tiết dựa trên dữ liệu hiện có
+  String generateWeatherSummary() {
+    // Nếu có forecast đã chọn, hiển thị tóm tắt cho forecast đó
+    if (selectedForecast.value != null) {
+      return generateForecastSummary(selectedForecast.value!);
+    }
+
+    // Nếu không, hiển thị tóm tắt cho thời tiết hiện tại (code hiện tại)
+    if (weatherData.value == null) return 'Không có dữ liệu thời tiết';
+
+    final weather = weatherData.value!;
+    final temp = weather.temperature.round();
+    final description = weather.description;
+    final feels = weather.feelsLike.round();
+    final isNight = weather.icon.endsWith('n');
+    final humidity = weather.humidity;
+    final wind = weather.windSpeed;
+
+    // Tạo tóm tắt thời tiết dựa vào điều kiện thời tiết
+    String summary = '';
+
+    // Phần mở đầu tùy thuộc vào ngày/đêm
+    if (isNight) {
+      summary += 'Đêm nay ';
+    } else {
+      summary += 'Hôm nay ';
+    }
+
+    // Thêm mô tả thời tiết
+    summary += _getWeatherConditionDescription(description);
+
+    // Thông tin nhiệt độ
+    summary += ' với nhiệt độ khoảng ${temp}°C (cảm giác như ${feels}°C). ';
+
+    // Thêm thông tin về độ ẩm
+    if (humidity > 80) {
+      summary += 'Độ ẩm rất cao (${humidity}%), ';
+      if (description.contains('mưa') || description.contains('rào')) {
+        summary += 'có thể có mưa kéo dài. ';
+      } else {
+        summary += 'cảm giác sẽ khá bí bách. ';
+      }
+    } else if (humidity > 60) {
+      summary += 'Độ ẩm khá cao (${humidity}%). ';
+    } else if (humidity < 30) {
+      summary +=
+          'Không khí khá khô (độ ẩm ${humidity}%), nên uống nhiều nước. ';
+    }
+
+    // Thêm thông tin về gió
+    if (wind > 20) {
+      summary += 'Gió mạnh, tốc độ ${wind} km/h. ';
+    } else if (wind > 10) {
+      summary += 'Gió nhẹ đến vừa. ';
+    } else {
+      summary += 'Gió nhẹ. ';
+    }
+
+    // Lời khuyên tùy theo thời tiết
+    summary += _getWeatherAdvice(description, temp, isNight);
+
+    return summary;
+  }
+
+  String _getWeatherConditionDescription(String description) {
+    // Định dạng lại mô tả thời tiết để đọc tự nhiên hơn
+    if (description.contains('mưa nhỏ') || description.contains('mưa phùn')) {
+      return 'có mưa nhỏ';
+    } else if (description.contains('mưa vừa')) {
+      return 'có mưa vừa';
+    } else if (description.contains('mưa lớn') ||
+        description.contains('mưa rào')) {
+      return 'có mưa lớn';
+    } else if (description.contains('sấm sét') ||
+        description.contains('dông')) {
+      return 'có dông và sấm sét';
+    } else if (description.contains('tuyết')) {
+      return 'có tuyết';
+    } else if (description.contains('sương mù')) {
+      return 'có sương mù';
+    } else if (description.contains('mây đen') ||
+        description.contains('u ám')) {
+      return 'trời nhiều mây, u ám';
+    } else if (description.contains('mây')) {
+      return 'có mây rải rác';
+    } else if (description.contains('quang') || description.contains('trong')) {
+      return 'trời quang đãng';
+    } else {
+      // Mặc định nếu không khớp với các pattern trên
+      return description;
+    }
+  }
+
+  String _getWeatherAdvice(String description, int temp, bool isNight) {
+    String advice = '';
+
+    if (description.contains('mưa')) {
+      advice = 'Nên mang theo ô hoặc áo mưa khi ra ngoài.';
+    } else if (description.contains('sấm sét') ||
+        description.contains('dông')) {
+      advice = 'Hạn chế ra ngoài, đề phòng sấm sét.';
+    } else if (temp > 35) {
+      advice =
+          'Thời tiết rất nóng, hạn chế hoạt động ngoài trời và uống nhiều nước.';
+    } else if (temp > 30) {
+      advice = 'Thời tiết nóng, nên mặc quần áo mỏng và thoáng mát.';
+    } else if (temp < 15) {
+      advice = 'Thời tiết khá lạnh, nên mặc thêm áo ấm.';
+    } else if (description.contains('quang') && !isNight && temp > 25) {
+      advice =
+          'Thời tiết tốt cho các hoạt động ngoài trời, nhưng nên tránh ánh nắng trực tiếp.';
+    } else if (description.contains('quang') && !isNight) {
+      advice = 'Thời tiết lý tưởng cho các hoạt động ngoài trời.';
+    }
+
+    return advice;
+  }
+
+  // Thêm phương thức để tạo tóm tắt dựa trên forecast được chọn
+  String generateForecastSummary(DailyForecast forecast) {
+    final temp = forecast.tempDay.round();
+    final tempNight = forecast.tempNight.round();
+    final description = forecast.description;
+    final date = DateTime.fromMillisecondsSinceEpoch(forecast.dt * 1000);
+    final dateStr = DateFormat('EEEE, dd/MM', 'vi_VN').format(date);
+
+    String summary = 'Dự báo cho $dateStr: ';
+
+    // Thêm mô tả thời tiết
+    summary += _getWeatherConditionDescription(description);
+
+    // Thông tin nhiệt độ
+    summary += '. Nhiệt độ ban ngày ${temp}°C, ban đêm ${tempNight}°C. ';
+
+    // Lời khuyên tùy theo thời tiết (chỉ dựa trên mô tả và nhiệt độ)
+    if (description.contains('mưa')) {
+      summary += 'Có khả năng mưa, nên mang theo ô hoặc áo mưa khi ra ngoài. ';
+    }
+
+    if (temp > 30) {
+      summary += 'Thời tiết khá nóng, nên mặc quần áo mỏng và thoáng mát. ';
+    } else if (temp < 15) {
+      summary += 'Thời tiết khá lạnh, nên mặc thêm áo ấm. ';
+    }
+
+    // Thêm các khuyến nghị dựa trên description thay vì dùng windSpeed
+    if (description.contains('gió')) {
+      summary += 'Dự báo có gió, cần đề phòng khi ra ngoài. ';
+    }
+
+    return summary;
+  }
+
+  // Phương thức để chọn một forecast
+  void selectForecast(DailyForecast forecast) {
+    selectedForecast.value = forecast;
+  }
+
+  // Phương thức để xóa lựa chọn
+  void clearSelectedForecast() {
+    selectedForecast.value = null;
   }
 }

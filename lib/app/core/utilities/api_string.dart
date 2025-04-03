@@ -63,4 +63,7 @@ class ApiUrl {
 
   // Add media store endpoint
   static const String mediaStore = '$receipt/media/store';
+
+  static String affiliateLinks(int categoryId) =>
+      '$receipt/affiliate/categories/$categoryId/links';
 }

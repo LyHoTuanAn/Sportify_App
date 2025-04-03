@@ -4,11 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../data/models/coupon.dart';
 import '../../../data/models/weather_model.dart';
 
-class HomeController extends GetxController {
+class HomeController extends GetxController with WidgetsBindingObserver {
   final String userName = 'LyHoTuanAn';
   final String userInitial = 'A';
 
@@ -22,6 +23,9 @@ class HomeController extends GetxController {
   final RxBool isLoadingLocation = false.obs;
   final Rx<Position?> currentPosition = Rx<Position?>(null);
   final Rx<WeatherModel?> currentWeather = Rx<WeatherModel?>(null);
+
+  // Store affiliate URLs for each category
+  final RxMap<String, String?> categoryUrls = <String, String?>{}.obs;
 
   String getCurrentDate() {
     return DateFormat('dd/MM/yyyy').format(DateTime.now());
@@ -133,10 +137,27 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     fetchCoupons();
-
-    // Lấy vị trí người dùng khi khởi động trang Home
     getUserLocation();
+
+    // Fetch the equipment category link (ID: 1)
+    fetchCategoryLink('Thiết bị', 1);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached ||
+        state == AppLifecycleState.paused) {
+      print('App entering background, clearing cached URLs');
+      categoryUrls.clear();
+    }
+
+    if (state == AppLifecycleState.resumed) {
+      print('App resumed, refreshing URLs');
+      // Refresh URLs when app comes back to foreground
+      fetchCategoryLink('Thiết bị', 1);
+    }
   }
 
   Future<void> fetchCoupons() async {
@@ -391,6 +412,93 @@ class HomeController extends GetxController {
     }
   }
 
+  // Function to fetch category links
+  Future<void> fetchCategoryLink(String categoryName, int categoryId) async {
+    try {
+      final url = await Repo.affiliate.getCategoryLink(categoryId);
+      print('Fetched URL for $categoryName: $url');
+      if (url != null) {
+        categoryUrls[categoryName] = url;
+        print('Stored URL in categoryUrls: ${categoryUrls[categoryName]}');
+      } else {
+        print('No URL returned for category $categoryName');
+      }
+    } catch (e) {
+      print('Error fetching category link: $e');
+    }
+  }
+
+  // Function to launch URLs
+  Future<void> launchCategoryUrl(String categoryName) async {
+    final url = categoryUrls[categoryName];
+    print('Attempting to launch URL for $categoryName: $url');
+
+    if (url != null) {
+      try {
+        final Uri uri = Uri.parse(url);
+
+        // More reliable approach for Android
+        if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
+          print('Could not launch $url with inAppWebView, trying external');
+
+          // Try external as fallback
+          if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+            print('Could not launch $url with any method');
+            // Show a snackbar or toast to inform the user
+            Get.snackbar(
+              'Không thể mở trang web',
+              'Vui lòng cài đặt trình duyệt để mở liên kết này',
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          }
+        }
+      } catch (e) {
+        print('Error launching URL: $e');
+        Get.snackbar(
+          'Lỗi',
+          'Không thể mở liên kết: $url',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } else {
+      print('No URL found for category $categoryName');
+      Get.snackbar(
+        'Thông báo',
+        'Không tìm thấy liên kết cho danh mục này',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  // Phương thức để mở URL trực tiếp (không thông qua cache)
+  Future<void> launchUrlDirectly(String url) async {
+    print('Launching direct URL: $url');
+
+    try {
+      final Uri uri = Uri.parse(url);
+
+      // Thử mở trong app webview
+      if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
+        // Nếu không được, thử mở bằng trình duyệt bên ngoài
+        if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+          print('Could not launch $url with any method');
+          Get.snackbar(
+            'Không thể mở trang web',
+            'Vui lòng cài đặt trình duyệt để mở liên kết này',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
+      }
+    } catch (e) {
+      print('Error launching URL: $e');
+      Get.snackbar(
+        'Lỗi',
+        'Không thể mở liên kết: $url',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
   @override
   void onReady() {
     super.onReady();
@@ -398,6 +506,8 @@ class HomeController extends GetxController {
 
   @override
   void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    categoryUrls.clear(); // Clear URLs
     super.onClose();
   }
 }

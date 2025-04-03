@@ -7,6 +7,7 @@ import '../widgets/coupons_bottom_sheet.dart';
 import '../widgets/coupon_detail_bottom_sheet.dart';
 import '../../../data/models/coupon.dart';
 import '../../../routes/app_pages.dart';
+import '../../../data/repositories/repositories.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -246,26 +247,6 @@ class HomeView extends GetView<HomeController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildSectionTitle('Danh mục'),
-              TextButton(
-                onPressed: () {},
-                child: const Row(
-                  children: [
-                    Text(
-                      'Xem tất cả',
-                      style: TextStyle(
-                        color: Color(0xFF2B7A78),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right,
-                      size: 10,
-                      color: Color(0xFF2B7A78),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -315,10 +296,54 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildCategoryItem({required String icon, required String label}) {
     return GestureDetector(
-      onTap: () {
-        // Navigate to corresponding pages based on category
+      onTap: () async {
+        // Different actions based on category
         if (label == 'Thời tiết') {
           Get.toNamed(Routes.weather);
+        } else if (label == 'Thiết bị') {
+          // Hiển thị loading với thời gian mờ dần nhanh hơn
+          Get.dialog(
+            Center(
+              child: CircularProgressIndicator(
+                color: const Color(0xFF2B7A78),
+                strokeWidth: 3, // Đường viền mỏng hơn để hiệu ứng nhẹ nhàng hơn
+              ),
+            ),
+            barrierDismissible: false,
+            barrierColor: Colors.black38, // Làm mờ nhẹ hơn so với mặc định
+            transitionDuration:
+                Duration(milliseconds: 150), // Hiển thị nhanh hơn
+          );
+
+          try {
+            // Thêm timeout ngắn hơn để không đợi quá lâu nếu API chậm
+            final url = await Repo.affiliate
+                .getCategoryLink(1)
+                .timeout(Duration(seconds: 3));
+
+            // Đóng dialog càng sớm càng tốt
+            Get.back();
+
+            if (url != null) {
+              // Launch ngay lập tức
+              controller.launchUrlDirectly(url);
+            } else {
+              Get.snackbar(
+                'Thông báo',
+                'Không tìm thấy liên kết cho danh mục này',
+                snackPosition: SnackPosition.BOTTOM,
+                duration: Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
+              );
+            }
+          } catch (e) {
+            Get.back();
+            Get.snackbar(
+              'Lỗi',
+              'Không thể kết nối đến máy chủ',
+              snackPosition: SnackPosition.BOTTOM,
+              duration: Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
+            );
+          }
         }
       },
       child: Column(
