@@ -8,8 +8,6 @@ import '../models/models.dart';
 // Remove this line because it's redundant
 // import '../models/coupon.dart';
 
-import '../models/models.dart';
-import '../models/weather_model.dart';
 import '../providers/providers.dart';
 import 'weather_repository.dart';
 

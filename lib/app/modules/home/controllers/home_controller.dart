@@ -167,26 +167,25 @@ class HomeController extends GetxController {
           timeLimit: const Duration(seconds: 5),
         ).catchError((error) {
           logger.e('Lỗi lấy vị trí: $error');
+          // ignore: invalid_return_type_for_catch_error
           return null;
         });
 
-        if (position != null) {
-          // Lưu vị trí hiện tại
-          currentPosition.value = position;
+        // Lưu vị trí hiện tại
+        currentPosition.value = position;
 
-          // Lưu vào GetStorage để các màn hình khác có thể sử dụng
-          locationPrefs.write('last_latitude', position.latitude);
-          locationPrefs.write('last_longitude', position.longitude);
-          locationPrefs.write(
-              'location_timestamp', DateTime.now().millisecondsSinceEpoch);
+        // Lưu vào GetStorage để các màn hình khác có thể sử dụng
+        locationPrefs.write('last_latitude', position.latitude);
+        locationPrefs.write('last_longitude', position.longitude);
+        locationPrefs.write(
+            'location_timestamp', DateTime.now().millisecondsSinceEpoch);
 
-          // Lấy địa chỉ chi tiết từ tọa độ
-          await _getDetailedAddress(position.latitude, position.longitude);
+        // Lấy địa chỉ chi tiết từ tọa độ
+        await _getDetailedAddress(position.latitude, position.longitude);
 
-          // Tải thông tin thời tiết dựa trên vị trí
-          _loadWeatherData(position.latitude, position.longitude);
-        }
-      } else {
+        // Tải thông tin thời tiết dựa trên vị trí
+        _loadWeatherData(position.latitude, position.longitude);
+            } else {
         // Nếu không có quyền truy cập vị trí, dùng địa điểm mặc định
         currentLocation.value = 'Vị trí không xác định';
         locationInitial.value = 'V';

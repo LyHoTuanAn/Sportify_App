@@ -3,9 +3,6 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/styles/style.dart';
-import '../../../core/utilities/screen.dart';
-import '../../../routes/app_pages.dart';
-import '../../../widgets/app_button.dart';
 import '../controllers/booking_price_controller.dart';
 
 class BookingPriceView extends GetView<BookingPriceController> {

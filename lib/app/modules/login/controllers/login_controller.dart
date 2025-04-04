@@ -137,7 +137,7 @@ class LoginController extends GetxController {
           );
 
           // Navigate to home
-          var result = Get.offAllNamed(Routes.dashboard);
+          Get.offAllNamed(Routes.dashboard);
           // Wait for navigation to complete, then set the tab
           Future.delayed(const Duration(milliseconds: 100), () {
             if (Get.isRegistered<DashboardController>()) {
@@ -185,7 +185,7 @@ class LoginController extends GetxController {
         // Show success message
         Get.snackbar(
           'Đăng nhập thành công',
-          'Chào mừng ${user.fullName ?? 'bạn'} đã trở lại với Sportify!',
+          'Chào mừng ${user.fullName} đã trở lại với Sportify!',
           backgroundColor: const Color(0xFF2B7A78),
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,
@@ -195,7 +195,7 @@ class LoginController extends GetxController {
         );
 
         // Navigate to home
-        var result = Get.offAllNamed(Routes.dashboard);
+        Get.offAllNamed(Routes.dashboard);
         // Wait for navigation to complete, then set the tab
         Future.delayed(const Duration(milliseconds: 100), () {
           if (Get.isRegistered<DashboardController>()) {
@@ -235,15 +235,8 @@ class LoginController extends GetxController {
 extension UserModelExtension on UserModel {
   String? get fullName {
     // Use only firstName and lastName which appear to exist in UserModel
-    if (firstName != null && lastName != null) {
-      return '$firstName $lastName';
-    } else if (firstName != null) {
-      return firstName;
-    } else if (lastName != null) {
-      return lastName;
-    }
-    // Fall back to empty string if no name components available
-    return '';
+    return '$firstName $lastName';
+      // Fall back to empty string if no name components available
   }
 }
 

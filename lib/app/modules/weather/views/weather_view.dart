@@ -428,7 +428,7 @@ class WeatherView extends GetView<WeatherController> {
       );
     }
 
-    return Container(
+    return SizedBox(
       height: 170,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -702,6 +702,7 @@ class WeatherView extends GetView<WeatherController> {
         children: [
           Icon(
             icon,
+            // ignore: deprecated_member_use
             color: Colors.white.withOpacity(0.9),
             size: 20,
           ),
@@ -712,6 +713,7 @@ class WeatherView extends GetView<WeatherController> {
               Text(
                 title,
                 style: TextStyle(
+                  // ignore: deprecated_member_use
                   color: Colors.white.withOpacity(0.8),
                   fontSize: 13,
                 ),

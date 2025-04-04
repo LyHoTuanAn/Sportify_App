@@ -17,7 +17,6 @@ class ChangePasswordWidget extends StatefulWidget {
 
 class _ChangePasswordWidgetState extends State<ChangePasswordWidget> {
   final _formKey = GlobalKey<FormState>();
-  final _stateObx = RxStatus.success().obs;
 
   // TextEditingControllers
   final _newPasswordController = TextEditingController();

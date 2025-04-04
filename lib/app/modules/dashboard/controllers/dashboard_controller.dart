@@ -1,15 +1,10 @@
 import 'dart:async';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/styles/style.dart';
 import '../../../core/utilities/utilities.dart';
-import '../../../data/http_client/http_client.dart';
-import '../../../data/providers/notification_provider.dart';
-import '../../../data/services/firebase_analytics_service.dart';
-import '../../profile/controllers/profile_controller.dart';
 import '../../home/views/home_view.dart';
 import '../../list/views/list_view.dart';
 import '../../outstanding/views/outstanding_view.dart';

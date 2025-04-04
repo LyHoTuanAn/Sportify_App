@@ -49,6 +49,7 @@ class AvatarCustom extends StatelessWidget {
           ? BoxDecoration(
               boxShadow: [
                 BoxShadow(
+                  // ignore: deprecated_member_use
                   color: Colors.black.withOpacity(.3),
                   blurRadius: 4,
                 )

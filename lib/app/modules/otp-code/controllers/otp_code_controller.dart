@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../data/models/models.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../routes/app_pages.dart';
 

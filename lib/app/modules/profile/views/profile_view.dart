@@ -1,10 +1,8 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:io';
 
 import '../../../core/styles/style.dart';
-import '../../../data/services/firebase_analytics_service.dart';
 
 import '../../../widgets/widgets.dart';
 import '../controllers/profile_controller.dart';
@@ -473,12 +471,12 @@ class ProfileView extends GetView<ProfileController> {
                         _buildGenderInfoItem(
                           controller.user.value?.gender ?? 'Chưa cập nhật',
                         ),
-                        if (controller.user.value?.address?.isNotEmpty ?? false)
+                        if (controller.user.value?.address.isNotEmpty ?? false)
                           _buildInfoItem(
                             icon: Icons.location_on_outlined,
                             label: 'Địa chỉ',
                             value: controller
-                                    .user.value?.address?.first.fullAddress ??
+                                    .user.value?.address.first.fullAddress ??
                                 'Chưa cập nhật',
                           ),
                       ],
@@ -597,10 +595,6 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  NetworkImage _getCachedAvatarImage(String url) {
-    debugPrint('Creating network image for: $url');
-    return NetworkImage(url);
-  }
 
   void _checkImageUrl(String url) {
     debugPrint('Checking image URL availability: $url');

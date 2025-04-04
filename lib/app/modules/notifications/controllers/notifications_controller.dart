@@ -7,7 +7,6 @@ import '../../../core/mixins/load_more_mixin.dart';
 import '../../../core/utilities/utilities.dart';
 import '../../../data/models/models.dart';
 import '../../../data/repositories/repositories.dart';
-import '../../../widgets/widgets.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
 
 

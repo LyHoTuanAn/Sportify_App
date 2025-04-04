@@ -225,7 +225,6 @@ class ListPageView extends GetView<ListController> {
 
   Widget _buildVenueItem(Venue venue, int index) {
     // Staggered animation timing
-    final animationDelay = Duration(milliseconds: 100 * (index + 1));
     
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),

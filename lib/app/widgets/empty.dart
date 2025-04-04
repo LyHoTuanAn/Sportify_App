@@ -15,6 +15,7 @@ class EmptyWidget extends StatelessWidget {
   final Widget? icon;
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     Color primary = Theme.of(context).primaryColor.withOpacity(.8);
     return LayoutBuilder(
       builder: (_, BoxConstraints constraints) {

@@ -1,9 +1,4 @@
-import 'package:get/get.dart' hide ContextExtensionss;
 
-import '../../../core/styles/style.dart';
-import '../../../widgets/app_button.dart';
-import '../../../widgets/page_indicators.dart';
-import '../controllers/welcome_controller.dart';
 
 // Welcome screen is no longer used - navigating directly to login
 // class WelcomeView extends GetView<WelcomeController> {

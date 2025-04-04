@@ -288,7 +288,7 @@ class PaymentView extends GetView<PaymentController> {
     );
   }
 
-  Widget _buildBankDetailItem(String label, String value, {bool hasImage = false, Widget? icon}) {
+  Widget _buildBankDetailItem(String label, String value, {bool hasImage = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(

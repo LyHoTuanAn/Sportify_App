@@ -374,7 +374,7 @@ class WeatherController extends GetxController {
       // Kiểm tra xem có dữ liệu vị trí đã lưu không từ HomeController
       double? lastLat = locationPrefs.read<double>('last_latitude');
       double? lastLon = locationPrefs.read<double>('last_longitude');
-      String? lastCity = locationPrefs.read<String>('last_city');
+      locationPrefs.read<String>('last_city');
       String? savedDetailedAddress =
           locationPrefs.read<String>('last_detailed_address');
 

@@ -7,15 +7,12 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http_parser/http_parser.dart';
 
 import '../../../core/utilities/utilities.dart';
 import '../../../data/models/models.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../data/services/firebase_analytics_service.dart';
 import '../../../routes/app_pages.dart';
-import '../../../data/providers/providers.dart';
-import '../../../data/http_client/http_client.dart';
 import '../widgets/widgets.dart';
 
 class ProfileController extends GetxController with ScrollMixin {
@@ -72,7 +69,6 @@ class ProfileController extends GetxController with ScrollMixin {
 
         // Hiển thị trước ảnh ngay lập tức
         final oldAvatarUrl = user.value?.avatar;
-        final oldImage = user.value;
 
         // Tạo một URL tạm để hiển thị ảnh đã chọn ngay lập tức
         final tempUrl = await _createLocalAvatarFromBytes(bytes);

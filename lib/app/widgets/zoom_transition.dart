@@ -130,6 +130,7 @@ class _ZoomEnterTransition extends StatelessWidget {
       animation: animation,
       builder: (BuildContext context, Widget? child) {
         return Container(
+          // ignore: deprecated_member_use
           color: Colors.black.withOpacity(opacity),
           child: child,
         );

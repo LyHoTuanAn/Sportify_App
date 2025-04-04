@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../controllers/home_controller.dart';
-import '../../../widgets/widgets.dart';
 import '../widgets/coupons_bottom_sheet.dart';
 import '../widgets/coupon_detail_bottom_sheet.dart';
 import '../../../data/models/coupon.dart';

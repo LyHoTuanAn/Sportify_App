@@ -211,7 +211,7 @@ class RegisterController extends GetxController {
         // Show success message
         Get.snackbar(
           'Đăng ký thành công',
-          'Chào mừng ${user.fullName ?? 'bạn'} đến với Sportify!',
+          'Chào mừng ${user.fullName} đến với Sportify!',
           backgroundColor: const Color(0xFF2B7A78),
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,
@@ -255,15 +255,8 @@ class RegisterController extends GetxController {
 extension UserModelExtension on UserModel {
   String? get fullName {
     // Use only firstName and lastName which appear to exist in UserModel
-    if (firstName != null && lastName != null) {
-      return '$firstName $lastName';
-    } else if (firstName != null) {
-      return firstName;
-    } else if (lastName != null) {
-      return lastName;
-    }
-    // Fall back to empty string if no name components available
-    return '';
+    return '$firstName $lastName';
+      // Fall back to empty string if no name components available
   }
 }
 
