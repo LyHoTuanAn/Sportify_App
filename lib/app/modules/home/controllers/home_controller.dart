@@ -7,6 +7,7 @@ import 'package:get_storage/get_storage.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../data/models/coupon.dart';
 import '../../../data/models/weather_model.dart';
+import 'package:logger/logger.dart';
 
 class HomeController extends GetxController {
   final String userName = 'LyHoTuanAn';
@@ -22,6 +23,7 @@ class HomeController extends GetxController {
   final RxBool isLoadingLocation = false.obs;
   final Rx<Position?> currentPosition = Rx<Position?>(null);
   final Rx<WeatherModel?> currentWeather = Rx<WeatherModel?>(null);
+  final logger = Logger();
 
   String getCurrentDate() {
     return DateFormat('dd/MM/yyyy').format(DateTime.now());
@@ -145,7 +147,7 @@ class HomeController extends GetxController {
       final result = await Repo.coupon.getCoupons();
       coupons.value = result;
     } catch (e) {
-      print('Error fetching coupons: $e');
+      logger.e('Error fetching coupons: $e');
     } finally {
       isLoadingCoupons.value = false;
     }
@@ -162,9 +164,9 @@ class HomeController extends GetxController {
         // Nếu có quyền, lấy vị trí hiện tại
         final position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 5),
+          timeLimit: const Duration(seconds: 5),
         ).catchError((error) {
-          print('Lỗi lấy vị trí: $error');
+          logger.e('Lỗi lấy vị trí: $error');
           return null;
         });
 
@@ -190,7 +192,7 @@ class HomeController extends GetxController {
         locationInitial.value = 'V';
       }
     } catch (e) {
-      print('Lỗi xử lý vị trí: $e');
+      logger.e('Lỗi xử lý vị trí: $e');
       currentLocation.value = 'Lỗi xác định vị trí';
       locationInitial.value = 'L';
     } finally {
@@ -208,14 +210,14 @@ class HomeController extends GetxController {
         Placemark place = placemarks.first;
 
         // In ra tất cả thông tin Placemark để debug
-        print('PLACEMARK DATA:');
-        print('name: ${place.name}');
-        print('thoroughfare: ${place.thoroughfare}');
-        print('subThoroughfare: ${place.subThoroughfare}');
-        print('street: ${place.street}');
-        print('subLocality: ${place.subLocality}');
-        print('locality: ${place.locality}');
-        print('administrativeArea: ${place.administrativeArea}');
+        logger.e('PLACEMARK DATA:');
+        logger.e('name: ${place.name}');
+        logger.e('thoroughfare: ${place.thoroughfare}');
+        logger.e('subThoroughfare: ${place.subThoroughfare}');
+        logger.e('street: ${place.street}');
+        logger.e('subLocality: ${place.subLocality}');
+        logger.e('locality: ${place.locality}');
+        logger.e('administrativeArea: ${place.administrativeArea}');
 
         // Tạo địa chỉ chi tiết
         List<String> addressParts = [];
@@ -294,7 +296,7 @@ class HomeController extends GetxController {
         }
 
         // In ra địa chỉ được tạo để debug
-        print('Địa chỉ được tạo: $detailedAddress');
+        logger.e('Địa chỉ được tạo: $detailedAddress');
 
         if (detailedAddress.isEmpty) {
           // Tạo địa chỉ thay thế từ các thành phần khác
@@ -332,7 +334,7 @@ class HomeController extends GetxController {
         }
       }
     } catch (e) {
-      print('Lỗi lấy địa chỉ chi tiết: $e');
+      logger.e('Lỗi lấy địa chỉ chi tiết: $e');
       // Nếu có lỗi, sẽ giữ nguyên địa chỉ hiện tại
     }
   }
@@ -384,20 +386,22 @@ class HomeController extends GetxController {
         locationPrefs.write('last_city', weather.cityName);
       }
     } catch (e) {
-      print('Lỗi tải dữ liệu thời tiết: $e');
+      logger.e('Lỗi tải dữ liệu thời tiết: $e');
       if (currentLocation.value == 'Đang xác định...') {
         currentLocation.value = 'Không thể xác định vị trí';
       }
     }
   }
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
+// Remove these overrides since they are not required
+// @override
+// void onReady() {
+//   super.onReady();  // No custom logic needed, remove it
+// }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
+// @override
+// void onClose() {
+//   super.onClose();  // No custom logic needed, remove it
+// }
+
 }

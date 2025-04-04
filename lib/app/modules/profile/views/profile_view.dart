@@ -12,7 +12,7 @@ import '../widgets/widgets.dart';
 import '../../../widgets/loading.dart';
 
 class ProfileView extends GetView<ProfileController> {
-  const ProfileView({Key? key}) : super(key: key);
+  const ProfileView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +72,7 @@ class ProfileView extends GetView<ProfileController> {
                 ),
               ),
               const PopupMenuDivider(height: 1),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'logout',
                 height: 48,
                 child: Center(
@@ -87,7 +87,7 @@ class ProfileView extends GetView<ProfileController> {
                 ),
               ),
               const PopupMenuDivider(height: 1),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 enabled: false,
                 height: 48,
                 child: Center(
@@ -244,12 +244,12 @@ class ProfileView extends GetView<ProfileController> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 8, horizontal: 15),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF3AAFA9).withOpacity(0.4),
+                            color: const Color(0xFF3AAFA9).withValues(alpha: (0.4 * 255).toInt() /255),
                             borderRadius: BorderRadius.circular(50),
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
+                            children: [
                               Icon(Icons.phone, color: Colors.white, size: 18),
                               SizedBox(width: 5),
                               Flexible(
@@ -291,7 +291,7 @@ class ProfileView extends GetView<ProfileController> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 15),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF3AAFA9).withOpacity(0.4),
+                        color: const Color(0xFF3AAFA9).withValues(alpha: (0.4 * 255).toInt() /255),
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Row(
@@ -550,7 +550,7 @@ class ProfileView extends GetView<ProfileController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.people_outline, size: 20, color: const Color(0xFF2B7A78)),
+          const Icon(Icons.people_outline, size: 20, color: Color(0xFF2B7A78)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -568,11 +568,11 @@ class ProfileView extends GetView<ProfileController> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: genderColor.withOpacity(0.1),
+                    color: genderColor.withValues(alpha: (0.1 * 255).toInt() /255),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                        color: genderColor.withOpacity(0.5), width: 1),
-                  ),
+                      color: genderColor.withValues(alpha: (0.5 * 255).toInt() /255), width: 1),
+                    ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

@@ -4,7 +4,7 @@ import 'dart:math';
 import '../controllers/successful_payment_controller.dart';
 
 class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
-  const SuccessfulPaymentView({Key? key}) : super(key: key);
+  const SuccessfulPaymentView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -64,16 +64,16 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: (0.05 * 255).toInt() /255),
         shape: BoxShape.circle,
       ),
     );
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: const Text(
+    return const Padding(
+      padding:  EdgeInsets.symmetric(vertical: 16),
+      child:  Text(
         'Thanh toán',
         style: TextStyle(
           color: Colors.white,
@@ -127,7 +127,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
       borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.15),
+          color: Colors.black.withValues(alpha: (0.15 * 255).toInt() /255),
           blurRadius: 40,
           offset: const Offset(0, 20),
         ),
@@ -156,7 +156,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Colors.green.withOpacity(0.3),
+                      color: Colors.green.withValues(alpha: (0.3 * 255).toInt()/255),
                       width: 2,
                     ),
                   ),
@@ -178,7 +178,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.green.withOpacity(0.3),
+                        color: Colors.green.withValues(alpha: (0.3 * 255).toInt()/255),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -306,7 +306,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2B7A78).withOpacity(0.25),
+            color: const Color(0xFF2B7A78).withValues(alpha: (0.25 * 255).toInt() /255),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -371,7 +371,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
       child: Text(
         'Cảm ơn quý khách đã sử dụng dịch vụ của Sportify!',
         style: TextStyle(
-          color: Colors.white.withOpacity(0.8),
+          color: Colors.white.withValues(alpha: (0.8 * 255).toInt()/255),
           fontSize: 13,
         ),
         textAlign: TextAlign.center,

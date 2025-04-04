@@ -22,8 +22,8 @@ class BookingPriceView extends GetView<BookingPriceController> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
         ),
-        title: Column(
-          children: const [
+        title: const Column(
+          children: [
             Text(
               'Giá Đặt lịch',
               style: TextStyle(
@@ -58,7 +58,7 @@ class BookingPriceView extends GetView<BookingPriceController> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
             ),
@@ -70,7 +70,7 @@ class BookingPriceView extends GetView<BookingPriceController> {
               width: 180,
               height: 180,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
             ),
@@ -88,7 +88,7 @@ class BookingPriceView extends GetView<BookingPriceController> {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 40,
                       offset: const Offset(0, 20),
                     ),
@@ -512,7 +512,7 @@ class BookingPriceView extends GetView<BookingPriceController> {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF2B7A78).withOpacity(0.2),
+              color: const Color(0xFF2B7A78).withValues(alpha: 0.2),
               offset: const Offset(0, 4),
               blurRadius: 10,
             ),
@@ -528,12 +528,12 @@ class BookingPriceView extends GetView<BookingPriceController> {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-          child: Row(
+          child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Stack(
                 alignment: Alignment.center,
-                children: const [
+                children: [
                   Icon(
                     Icons.circle,
                     size: 18,
@@ -541,13 +541,13 @@ class BookingPriceView extends GetView<BookingPriceController> {
                   ),
                   Icon(
                     Icons.check,
-                    size: 15, 
+                    size: 15,
                     color: Color(0xFF2B7A78),
                   ),
                 ],
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 'XÁC NHẬN VÀ THANH TOÁN',
                 style: TextStyle(
                   fontSize: 14,

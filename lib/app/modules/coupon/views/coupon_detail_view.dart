@@ -5,7 +5,7 @@ import '../controllers/coupon_controller.dart';
 import 'package:intl/intl.dart';
 
 class CouponDetailView extends GetView<CouponController> {
-  const CouponDetailView({Key? key}) : super(key: key);
+  const CouponDetailView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +88,7 @@ class CouponDetailView extends GetView<CouponController> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withValues(alpha: 0.1),
                         spreadRadius: 1,
                         blurRadius: 10,
                         offset: const Offset(0, 2),

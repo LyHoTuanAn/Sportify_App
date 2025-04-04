@@ -51,19 +51,17 @@ class AppTheme {
       primaryContainer: primaryVariant,
       secondary: secondary,
       secondaryContainer: Color(0xffc75b39),
-      surface: Color(0xfff2f2f2),
-      background: background,
+      surface: Colors.white,
       error: Colors.red,
       onPrimary: Colors.white,
       onSecondary: Colors.black,
       onSurface: Colors.black,
-      onBackground: Colors.black,
       onError: Colors.white,
       brightness: Brightness.light,
     );
 
     final bool dark = colorScheme.brightness == Brightness.dark;
-    final appBarColor = dark ? colorScheme.surface : colorScheme.background;
+    final appBarColor = colorScheme.surface;
     final indicatorColor = dark ? colorScheme.onSurface : colorScheme.primary;
     return ThemeData(
       brightness: colorScheme.brightness,
@@ -83,11 +81,13 @@ class AppTheme {
           fontWeight: FontWeight.w500,
         ),
       ),
-      canvasColor: colorScheme.background,
-      scaffoldBackgroundColor: colorScheme.background,
+      canvasColor: colorScheme.surface,
+      scaffoldBackgroundColor: colorScheme.surface,
       cardColor: colorScheme.surface,
-      dividerColor: colorScheme.onSurface.withOpacity(0.12),
-      dialogBackgroundColor: colorScheme.surface,
+      dividerColor: colorScheme.onSurface.withValues(alpha: (0.12 * 255).round() / 255),
+      dialogTheme: DialogThemeData(
+        backgroundColor: colorScheme.surface,
+      ),
       indicatorColor: indicatorColor,
       applyElevationOverlayColor: dark,
       bottomSheetTheme: BottomSheetThemeData(
@@ -104,7 +104,7 @@ class AppTheme {
       fontFamily: 'Inter',
       colorScheme: colorScheme
           .copyWith(error: colorScheme.error)
-          .copyWith(background: colorScheme.background),
+          .copyWith(surface: colorScheme.surface),
       bottomAppBarTheme: BottomAppBarTheme(color: colorScheme.surface),
     );
   }

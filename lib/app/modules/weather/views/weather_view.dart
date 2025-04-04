@@ -5,7 +5,7 @@ import '../controllers/weather_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class WeatherView extends GetView<WeatherController> {
-  const WeatherView({Key? key}) : super(key: key);
+  const WeatherView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,14 +18,14 @@ class WeatherView extends GetView<WeatherController> {
             colors: [
               const Color(0xFF2B7A78),
               const Color(0xFF3AAFA9),
-              const Color(0xFF3AAFA9).withOpacity(0.8),
+              const Color(0xFF3AAFA9).withValues(alpha: (0.8 * 255).toInt()/255),
             ],
           ),
         ),
         child: SafeArea(
           child: Obx(() {
             if (controller.isLoading.value) {
-              return Center(
+              return const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -54,10 +54,10 @@ class WeatherView extends GetView<WeatherController> {
                     Icon(
                       Icons.cloud_off,
                       size: 64,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: (0.7 * 255).toInt()/255),
                     ),
-                    SizedBox(height: 16),
-                    Text(
+                    const SizedBox(height: 16),
+                   const  Text(
                       'Không thể lấy dữ liệu thời tiết',
                       style: TextStyle(
                         color: Colors.white,
@@ -65,33 +65,33 @@ class WeatherView extends GetView<WeatherController> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
                         'Có thể API thời tiết đang gặp sự cố hoặc bị giới hạn lượt truy cập. Vui lòng thử lại sau.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: (0.9 * 255).toInt()/255),
                           fontSize: 14,
                         ),
                       ),
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: controller.fetchWeatherForDefaultCity,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        foregroundColor: Color(0xFF2B7A78),
+                        foregroundColor: const Color(0xFF2B7A78),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 10,
                         ),
                       ),
-                      child: Text('Thử lại'),
+                      child: const Text('Thử lại'),
                     ),
                   ],
                 ),
@@ -112,30 +112,30 @@ class WeatherView extends GetView<WeatherController> {
                       }
                     },
                     color: Colors.white,
-                    backgroundColor: Color(0xFF2B7A78),
+                    backgroundColor: const Color(0xFF2B7A78),
                     displacement: 40,
                     strokeWidth: 3,
                     child: SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(
+                      physics: const AlwaysScrollableScrollPhysics(
                           parent: BouncingScrollPhysics()),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             _buildSearchBar(),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             _buildCurrentWeather(weather),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             _buildWeatherDetails(weather),
-                            SizedBox(height: 30),
+                            const SizedBox(height: 30),
                             _buildForecastLabel(),
-                            SizedBox(height: 15),
+                            const SizedBox(height: 15),
                             _buildForecast(weather),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             _buildDailySummary(),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                           ],
                         ),
                       ),
@@ -159,19 +159,19 @@ class WeatherView extends GetView<WeatherController> {
           GestureDetector(
             onTap: () => Get.back(),
             child: Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: (0.2 * 255).toInt()/255),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.arrow_back_ios_new,
                 color: Colors.white,
                 size: 20,
               ),
             ),
           ),
-          Text(
+          const Text(
             'Dự báo thời tiết',
             style: TextStyle(
               color: Colors.white,
@@ -182,9 +182,9 @@ class WeatherView extends GetView<WeatherController> {
           Obx(() => GestureDetector(
                 onTap: controller.getWeatherByCurrentLocation,
                 child: Container(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: (0.2 * 255).toInt()/255),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -208,26 +208,26 @@ class WeatherView extends GetView<WeatherController> {
       height: 50,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: (0.2 * 255).toInt()/255),
         borderRadius: BorderRadius.circular(25),
       ),
       child: TextField(
         controller: searchController,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           hintText: 'Tìm kiếm thành phố...',
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-          prefixIcon: Padding(
+          hintStyle: TextStyle(color: Colors.white.withValues(alpha: (0.7 * 255).toInt()/255),),
+          prefixIcon: const Padding(
             padding: EdgeInsets.only(left: 10, right: 5),
             child: Icon(Icons.search, color: Colors.white),
           ),
-          prefixIconConstraints: BoxConstraints(minWidth: 40),
+          prefixIconConstraints: const BoxConstraints(minWidth: 40),
           alignLabelWithHint: true,
           isDense: false,
           border: InputBorder.none,
           suffixIcon: IconButton(
-            icon: Icon(Icons.clear, color: Colors.white.withOpacity(0.7)),
+            icon: Icon(Icons.clear, color: Colors.white.withValues(alpha: (0.7 * 255).toInt()/255),),
             onPressed: () => searchController.clear(),
           ),
         ),
@@ -247,12 +247,12 @@ class WeatherView extends GetView<WeatherController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.location_on,
                 color: Colors.white,
                 size: 20,
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               Obx(() {
                 String displayLocation = controller.getDisplayLocation();
                 return Container(
@@ -262,7 +262,7 @@ class WeatherView extends GetView<WeatherController> {
                     displayLocation,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -272,33 +272,33 @@ class WeatherView extends GetView<WeatherController> {
               }),
             ],
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Text(
             DateFormat('EEEE, dd MMMM yyyy', 'vi_VN').format(DateTime.now()),
             style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: (0.9 * 255).toInt()/255),
               fontSize: 14,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           CachedNetworkImage(
             imageUrl: controller.getWeatherIconUrl(weather.icon),
             width: 120,
             height: 120,
-            placeholder: (context, url) => CircularProgressIndicator(
+            placeholder: (context, url) => const CircularProgressIndicator(
               color: Colors.white,
               strokeWidth: 2,
             ),
-            errorWidget: (context, url, error) => Icon(
+            errorWidget: (context, url, error) => const Icon(
               Icons.cloud,
               size: 120,
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 10),
+         const SizedBox(height: 10),
           Text(
             '${weather.temperature.round()}°C',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 60,
               fontWeight: FontWeight.bold,
@@ -306,16 +306,16 @@ class WeatherView extends GetView<WeatherController> {
           ),
           Text(
             _capitalizeFirst(weather.description),
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
             ),
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Text(
             'Cảm giác như ${weather.feelsLike.round()}°C',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: (0.9 * 255).toInt()/255),
               fontSize: 16,
             ),
           ),
@@ -326,9 +326,9 @@ class WeatherView extends GetView<WeatherController> {
 
   Widget _buildWeatherDetails(final weather) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: (0.2 * 255).toInt()/255),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -370,20 +370,20 @@ class WeatherView extends GetView<WeatherController> {
           color: Colors.white,
           size: 28,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(
+          style:const  TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: (0.7 * 255).toInt()/255),
             fontSize: 12,
           ),
         ),
@@ -402,8 +402,8 @@ class WeatherView extends GetView<WeatherController> {
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        SizedBox(width: 12),
-        Text(
+        const SizedBox(width: 12),
+        const Text(
           'Dự báo 5 ngày tới',
           style: TextStyle(
             fontSize: 18,
@@ -417,7 +417,7 @@ class WeatherView extends GetView<WeatherController> {
 
   Widget _buildForecast(final weather) {
     if (weather.dailyForecast.isEmpty) {
-      return Center(
+      return const Center(
         child: Text(
           'Không có dữ liệu dự báo',
           style: TextStyle(
@@ -437,10 +437,8 @@ class WeatherView extends GetView<WeatherController> {
           final forecast = weather.dailyForecast[index];
           return Container(
             width: 120,
-            margin: EdgeInsets.only(right: 15),
-            padding: EdgeInsets.all(15),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -448,63 +446,69 @@ class WeatherView extends GetView<WeatherController> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
+                const SizedBox(height: 15), // Space at the top
                 Text(
                   controller.formatDate(forecast.dt),
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                const SizedBox(height: 10), // Space between date and icon
                 CachedNetworkImage(
                   imageUrl: controller.getWeatherIconUrl(forecast.icon),
                   width: 50,
                   height: 50,
-                  placeholder: (context, url) => CircularProgressIndicator(
+                  placeholder: (context, url) => const CircularProgressIndicator(
                     color: Colors.white,
                     strokeWidth: 2,
                   ),
-                  errorWidget: (context, url, error) => Icon(
+                  errorWidget: (context, url, error) => const Icon(
                     Icons.cloud,
                     size: 50,
                     color: Colors.white,
                   ),
                 ),
+                const SizedBox(height: 10), // Space between icon and temperature
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       '${forecast.tempDay.round()}°',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       '${forecast.tempNight.round()}°',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 14,
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 15), // Space at the bottom
               ],
             ),
           );
         },
       ),
     );
+
+
   }
 
   Widget _buildDailySummary() {
     return Obx(() {
       if (controller.isLoadingDailySummary.value) {
-        return Center(
+        return const Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            padding: EdgeInsets.symmetric(vertical: 20.0),
             child: CircularProgressIndicator(
               color: Colors.white,
               strokeWidth: 2,
@@ -515,10 +519,10 @@ class WeatherView extends GetView<WeatherController> {
 
       if (controller.dailySummary.isEmpty) {
         return Container(
-          margin: EdgeInsets.only(top: 20, bottom: 10),
-          padding: EdgeInsets.all(15),
+          margin: const EdgeInsets.only(top: 20, bottom: 10),
+          padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -534,8 +538,8 @@ class WeatherView extends GetView<WeatherController> {
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  SizedBox(width: 12),
-                  Text(
+                  const SizedBox(width: 12),
+                 const Text(
                     'Thông tin bổ sung',
                     style: TextStyle(
                       fontSize: 18,
@@ -545,8 +549,8 @@ class WeatherView extends GetView<WeatherController> {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 'Thông tin chi tiết hơn về dự báo thời tiết cần API cao cấp hơn. Các thông tin hiện tại đã được cung cấp từ OpenWeatherMap API miễn phí.',
                 style: TextStyle(
                   color: Colors.white,
@@ -554,7 +558,7 @@ class WeatherView extends GetView<WeatherController> {
                   height: 1.5,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _buildWeatherApiCredit(),
             ],
           ),
@@ -567,10 +571,10 @@ class WeatherView extends GetView<WeatherController> {
           summary['overview'] ?? 'Không có thông tin tổng quan';
 
       return Container(
-        margin: EdgeInsets.only(top: 20, bottom: 10),
-        padding: EdgeInsets.all(15),
+        margin: const EdgeInsets.only(top: 20, bottom: 10),
+        padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -586,8 +590,8 @@ class WeatherView extends GetView<WeatherController> {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                SizedBox(width: 12),
-                Text(
+                const SizedBox(width: 12),
+                const Text(
                   'Tóm tắt thời tiết',
                   style: TextStyle(
                     fontSize: 18,
@@ -597,10 +601,10 @@ class WeatherView extends GetView<WeatherController> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               overviewText,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 15,
                 height: 1.5,
@@ -609,11 +613,11 @@ class WeatherView extends GetView<WeatherController> {
 
             // Show additional statistics if available
             if (summary.containsKey('statistics')) ...[
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildSummaryStatistics(summary['statistics']),
             ],
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildWeatherApiCredit(),
           ],
         ),
@@ -631,9 +635,9 @@ class WeatherView extends GetView<WeatherController> {
           text: TextSpan(
             style: TextStyle(
               fontSize: 12,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
             ),
-            children: [
+            children: const [
               TextSpan(text: 'Dữ liệu được cung cấp bởi '),
               TextSpan(
                 text: 'OpenWeatherMap',
@@ -701,7 +705,7 @@ class WeatherView extends GetView<WeatherController> {
             color: Colors.white.withOpacity(0.9),
             size: 20,
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -714,7 +718,7 @@ class WeatherView extends GetView<WeatherController> {
               ),
               Text(
                 value,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,

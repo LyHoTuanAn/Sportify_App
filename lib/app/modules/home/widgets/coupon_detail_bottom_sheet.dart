@@ -8,9 +8,9 @@ class CouponDetailBottomSheet extends StatelessWidget {
   final Coupon coupon;
 
   const CouponDetailBottomSheet({
-    Key? key,
     required this.coupon,
-  }) : super(key: key);
+  }) : super(key: const Key('couponDetailBottomSheet'));
+
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class CouponDetailBottomSheet extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: const Color(0xFF808080).withValues(alpha: (0.1 * 255).toInt() /255),
                   blurRadius: 5,
                   offset: const Offset(0, 3),
                 ),
@@ -90,7 +90,7 @@ class CouponDetailBottomSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
+                            color: const Color(0xFF808080).withValues(alpha: (0.1 * 255).toInt() /255),
                             spreadRadius: 1,
                             blurRadius: 10,
                             offset: const Offset(0, 2),

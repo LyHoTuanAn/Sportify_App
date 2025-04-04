@@ -96,7 +96,7 @@ class BookingPriceController extends GetxController {
     String priceString = amount.toInt().toString();
     final pattern = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
     priceString = priceString.replaceAllMapped(pattern, (Match m) => '${m[1]}.');
-    return '${priceString}đ';
+    return '$priceStringđ';
   }
   
   void selectVoucher(Voucher voucher) {
@@ -239,7 +239,7 @@ class BookingPriceController extends GetxController {
                           ],
                         ),
                       ),
-                    )).toList(),
+                    )),
                   ],
                 ),
               ),

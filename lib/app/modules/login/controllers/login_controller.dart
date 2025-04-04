@@ -235,14 +235,15 @@ class LoginController extends GetxController {
 extension UserModelExtension on UserModel {
   String? get fullName {
     // Use only firstName and lastName which appear to exist in UserModel
-    if (this.firstName != null && this.lastName != null) {
-      return '${this.firstName} ${this.lastName}';
-    } else if (this.firstName != null) {
-      return this.firstName;
-    } else if (this.lastName != null) {
-      return this.lastName;
+    if (firstName != null && lastName != null) {
+      return '$firstName $lastName';
+    } else if (firstName != null) {
+      return firstName;
+    } else if (lastName != null) {
+      return lastName;
     }
     // Fall back to empty string if no name components available
     return '';
   }
 }
+

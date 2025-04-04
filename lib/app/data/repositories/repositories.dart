@@ -1,11 +1,14 @@
 library repositories;
 
-import 'dart:developer' as AppUtils;
+import 'dart:developer' as app_utils;
 import 'dart:typed_data';
 
 import '../models/dashboard_model.dart';
 import '../models/models.dart';
-import '../models/coupon.dart';
+// Remove this line because it's redundant
+// import '../models/coupon.dart';
+
+import '../models/models.dart';
 import '../models/weather_model.dart';
 import '../providers/providers.dart';
 import 'weather_repository.dart';

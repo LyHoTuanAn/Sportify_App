@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../../../data/models/coupon.dart';
 import '../../../data/repositories/repositories.dart';
+import 'package:logger/logger.dart';
 
 class CouponController extends GetxController {
   final RxList<Coupon> coupons = <Coupon>[].obs;
@@ -8,6 +9,7 @@ class CouponController extends GetxController {
   final RxBool hasError = false.obs;
   final RxString errorMessage = ''.obs;
   final Rx<Coupon?> selectedCoupon = Rx<Coupon?>(null);
+  final logger = Logger();
 
   @override
   void onInit() {
@@ -26,7 +28,7 @@ class CouponController extends GetxController {
     } catch (e) {
       hasError.value = true;
       errorMessage.value = 'Không thể tải danh sách mã giảm giá: $e';
-      print('Error fetching coupons: $e');
+      logger.e('Error fetching coupons: $e');
     } finally {
       isLoading.value = false;
     }
@@ -48,7 +50,7 @@ class CouponController extends GetxController {
     } catch (e) {
       hasError.value = true;
       errorMessage.value = 'Không thể tải chi tiết mã giảm giá: $e';
-      print('Error fetching coupon detail: $e');
+      logger.e('Error fetching coupon detail: $e');
     } finally {
       isLoading.value = false;
     }

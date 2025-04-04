@@ -52,7 +52,7 @@ class SplashView extends GetView<SplashController> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: (0.1 * 255).toInt() /255),
                               blurRadius: 20,
                               spreadRadius: 5,
                             ),
@@ -88,7 +88,7 @@ class SplashView extends GetView<SplashController> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: (0.2 * 255).toInt() /255),
                               blurRadius: 30,
                               spreadRadius: 5,
                             ),
@@ -123,7 +123,7 @@ class SplashView extends GetView<SplashController> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: (0.15 * 255).toInt() /255),
                               blurRadius: 25,
                               spreadRadius: 3,
                             ),
@@ -203,7 +203,7 @@ class SplashView extends GetView<SplashController> {
                       return LinearGradient(
                         colors: [
                           Colors.white,
-                          Colors.white.withOpacity(0.8),
+                          Colors.white.withValues(alpha: (0.8 * 255).toInt() /255),
                           Colors.white,
                         ],
                         stops: [
@@ -242,7 +242,7 @@ class SplashView extends GetView<SplashController> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: (0.9 * 255).toInt() /255),
                               letterSpacing: 4 + (controller.letterSpacingAnimation.value * 2),
                             ),
                           );
@@ -301,11 +301,11 @@ class SplashView extends GetView<SplashController> {
                     width: 200,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: (0.2 * 255).toInt() /255),
                       borderRadius: BorderRadius.circular(2),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withValues(alpha: (0.2 * 255).toInt() /255),
                           blurRadius: 4,
                           spreadRadius: 0,
                         ),
@@ -331,7 +331,7 @@ class SplashView extends GetView<SplashController> {
                                   borderRadius: BorderRadius.circular(2),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.white.withOpacity(0.5),
+                                      color: Colors.white.withValues(alpha: (0.5 * 255).toInt() /255),
                                       blurRadius: 8,
                                       spreadRadius: 0,
                                     ),
@@ -351,11 +351,11 @@ class SplashView extends GetView<SplashController> {
                                     width: 20,
                                     height: 10,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.3 + (controller.pulseAnimation.value * 0.2)),
+                                      color: Colors.white.withValues(alpha: ((0.3 + (controller.pulseAnimation.value * 0.2)) * 255).toInt() /255),
                                       borderRadius: BorderRadius.circular(5),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.white.withOpacity(0.5),
+                                          color: Colors.white.withValues(alpha: (0.5 * 255).toInt() /255),
                                           blurRadius: 10,
                                           spreadRadius: 2,
                                         ),

@@ -30,7 +30,7 @@ class AppUtils {
   static void toast(String message) {
     Fluttertoast.showToast(
       msg: message,
-      backgroundColor: const Color(0xFF1E1E1E).withOpacity(0.95),
+      backgroundColor: const Color(0xFF1E1E1E).withValues(alpha: (0.95 * 255).round() / 255),
       textColor: Colors.white,
     );
   }

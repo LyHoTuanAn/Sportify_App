@@ -1,11 +1,12 @@
-part of repositories;
+part of 'repositories.dart';
+
 
 class CouponRepository {
   Future<List<Coupon>> getCoupons() async {
     try {
       return await ApiProvider.getCoupons();
     } catch (e) {
-      AppUtils.log('Error in CouponRepository.getCoupons: $e');
+      app_utils.log('Error in CouponRepository.getCoupons: $e');
       return [];
     }
   }
@@ -14,7 +15,7 @@ class CouponRepository {
     try {
       return await ApiProvider.getCouponDetail(id);
     } catch (e) {
-      AppUtils.log('Error in CouponRepository.getCouponDetail: $e');
+      app_utils.log('Error in CouponRepository.getCouponDetail: $e');
       return null;
     }
   }

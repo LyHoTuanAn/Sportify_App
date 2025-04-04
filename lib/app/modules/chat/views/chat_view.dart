@@ -4,7 +4,7 @@ import 'dart:async';
 import '../controllers/chat_controller.dart';
 
 class ChatView extends GetView<ChatController> {
-  const ChatView({Key? key}) : super(key: key);
+  const ChatView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +89,7 @@ class ChatView extends GetView<ChatController> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -151,7 +151,7 @@ class ChatView extends GetView<ChatController> {
 }
 
 class TypingIndicator extends StatefulWidget {
-  const TypingIndicator({Key? key}) : super(key: key);
+  const TypingIndicator({super.key});
 
   @override
   State<TypingIndicator> createState() => _TypingIndicatorState();
@@ -193,14 +193,14 @@ class _TypingIndicatorState extends State<TypingIndicator>
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE3F2F0),
-          borderRadius: BorderRadius.circular(12),
+        decoration: const BoxDecoration(
+          color: Color(0xFFE3F2F0),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            const Text(
               "AI đang trả lời ",
               style: TextStyle(
                 color: Colors.black87,
@@ -220,7 +220,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
                       decoration: BoxDecoration(
                         color: index == _currentIndex
                             ? const Color(0xFF2B7A78)
-                            : const Color(0xFF2B7A78).withOpacity(0.5),
+                            : const Color(0xFF2B7A78).withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                       ),
                     );

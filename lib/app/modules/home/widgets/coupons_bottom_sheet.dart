@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../data/models/coupon.dart';
@@ -9,9 +8,9 @@ class CouponsBottomSheet extends StatelessWidget {
   final List<Coupon> coupons;
 
   const CouponsBottomSheet({
-    Key? key,
     required this.coupons,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +35,7 @@ class CouponsBottomSheet extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: const Color(0xFF808080).withValues(alpha: (0.1 * 255).toInt() /255),
                   blurRadius: 5,
                   offset: const Offset(0, 3),
                 ),
@@ -104,7 +103,7 @@ class CouponsBottomSheet extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
+                                color: const Color(0xFF808080).withValues(alpha: (0.1 * 255).toInt() /255),
                                 spreadRadius: 1,
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),

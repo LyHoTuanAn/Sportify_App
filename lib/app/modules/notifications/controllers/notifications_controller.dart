@@ -9,7 +9,7 @@ import '../../../data/models/models.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../widgets/widgets.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
-import '../../../core/utilities/snackbar_util.dart';
+
 
 class NotificationsController extends GetxController
     with

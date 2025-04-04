@@ -103,7 +103,7 @@ class AuthRepository implements AuthBase {
       }
       return null;
     } catch (e) {
-      AppUtils.log('Error in signInWithGoogle: $e');
+      app_utils.log('Error in signInWithGoogle: $e');
       return null;
     }
   }
