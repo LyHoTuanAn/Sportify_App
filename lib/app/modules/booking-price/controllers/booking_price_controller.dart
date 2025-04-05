@@ -43,7 +43,7 @@ class BookingPriceController extends GetxController {
   // User input controllers
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  
+  final TextEditingController emailController = TextEditingController();
   // Reactive variables
   final Rx<BookingInfo> bookingInfo = BookingInfo(
     venueName: 'Badminton Ngọc Anh',
@@ -90,6 +90,7 @@ class BookingPriceController extends GetxController {
   double get courtFee => bookingInfo.value.totalPrice;
   double get voucherDiscount => selectedVoucher.value?.discount ?? 0;
   double get finalTotal => courtFee - voucherDiscount;
+
   
   String formatCurrency(double amount) {
     // Convert to thousands format with dot separator
@@ -254,7 +255,7 @@ class BookingPriceController extends GetxController {
   
   void confirmAndPay() {
     // Validate inputs
-    if (nameController.text.isEmpty || phoneController.text.isEmpty) {
+    if (nameController.text.isEmpty || phoneController.text.isEmpty || emailController.text.isEmpty) {
       Get.snackbar(
         'Thông báo', 
         'Vui lòng nhập đầy đủ thông tin',
@@ -279,6 +280,7 @@ class BookingPriceController extends GetxController {
   void onClose() {
     nameController.dispose();
     phoneController.dispose();
+    emailController.dispose();
     super.onClose();
   }
 }

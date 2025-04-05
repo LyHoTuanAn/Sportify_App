@@ -137,6 +137,15 @@ class BookingPriceView extends GetView<BookingPriceController> {
                           ),
                           
                           const SizedBox(height: 20),
+
+                          _buildTextField(
+                            label: 'Email',
+                            icon: Icons.email_outlined,
+                            hint: 'Nhập email của bạn',
+                            controller: controller.emailController,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                          const SizedBox(height: 20),
                           _buildConfirmButton(),
                         ],
                       ),
