@@ -256,6 +256,8 @@ class ProfileView extends GetView<ProfileController> {
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 12),
                                   overflow: TextOverflow.ellipsis,
+                                  maxLines: 1, // Giới hạn chỉ hiển thị 1 dòng
+                                  softWrap: false, // Không tự xuống dòng
                                 ),
                               ),
                             ],
