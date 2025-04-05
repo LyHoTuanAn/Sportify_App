@@ -434,21 +434,16 @@ class ListPageView extends GetView<ListController> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: const BoxDecoration(
-                    color: Color(0xFF2B7A78),
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(10),
                       topRight: Radius.circular(16),
                     ),
                   ),
-              child: const Text(
-                    "Mở cửa",
-                style: TextStyle(
-                  color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Poppins',
-                ),
-              ),
+                  child: const Icon(
+                    Icons.favorite, // biểu tượng trái tim
+                    color: Colors.grey,
+                    size: 20, // có thể điều chỉnh kích thước tùy ý
+                  ),
             ),
         ),
           ],
