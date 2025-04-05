@@ -26,6 +26,7 @@ abstract class Routes {
   static const coupon = '/coupon';
   static const couponDetail = '/coupon-detail';
   static const weather = _Paths.weather;
+  static const interfaceBooking = _Paths.interfaceBooking;
 }
 
 abstract class _Paths {
@@ -49,4 +50,5 @@ abstract class _Paths {
   static const payment = '/payment';
   static const chat = '/chat';
   static const weather = '/weather';
+  static const interfaceBooking = '/interface-booking';
 }

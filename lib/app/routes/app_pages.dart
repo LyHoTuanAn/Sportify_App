@@ -9,6 +9,8 @@ import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/interface-booking/bindings/interface_booking.dart';
+import '../modules/interface-booking/views/interface_booking.dart';
 import '../modules/list/bindings/list_binding.dart';
 import '../modules/list/views/list_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -150,6 +152,11 @@ class AppPages {
       page: () => const WeatherView(),
       binding: WeatherBinding(),
     ),
+  GetPage(
+  name: _Paths.interfaceBooking,
+  page: () => const InterfaceBookingView(),
+  binding: InterfaceBookingBinding(),
+  ),
   ];
 }
 
