@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../data/models/coupon.dart';
 import '../../../data/models/weather_model.dart';
+import '../../../data/models/yard_featured.dart';
 
 class HomeController extends GetxController with WidgetsBindingObserver {
   final String userName = 'LyHoTuanAn';
@@ -76,37 +77,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     },
   ];
 
-  final List<Map<String, dynamic>> featuredCourts = [
-    {
-      'name': 'Sân cầu lông Hà Đông',
-      'location': 'Quận Hà Đông',
-      'rating': 4.8,
-      'image':
-          'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YmFkbWludG9uJTIwY291cnR8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80',
-    },
-    {
-      'name': 'Elite Sports Thanh Xuân',
-      'location': 'Quận Thanh Xuân',
-      'rating': 4.6,
-      'image':
-          'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YmFkbWludG9uJTIwY291cnR8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80',
-    },
-    {
-      'name': 'Elite Sports Thanh Xuân',
-      'location': 'Quận Thanh Xuân',
-      'rating': 4.6,
-      'image':
-          'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YmFkbWludG9uJTIwY291cnR8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80',
-    },
-    {
-      'name': 'Trung tâm thể thao Đống Đa',
-      'location': 'Quận Đống Đa',
-      'rating': 4.7,
-      'image':
-          'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YmFkbWludG9uJTIwY291cnR8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80',
-    },
-  ];
-
   final List<Map<String, dynamic>> vouchers = [
     {
       'discount': '30',
@@ -134,12 +104,17 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   final RxList<Coupon> coupons = <Coupon>[].obs;
   final RxBool isLoadingCoupons = false.obs;
 
+  // For featured yards/courts
+  final RxList<YardFeatured> featuredYards = <YardFeatured>[].obs;
+  final RxBool isLoadingFeaturedYards = false.obs;
+
   @override
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
     fetchCoupons();
     getUserLocation();
+    fetchFeaturedYards(); // Fetch featured yards
 
     // Fetch the equipment category link (ID: 1)
     fetchCategoryLink('Thiết bị', 1);
@@ -496,6 +471,18 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         'Không thể mở liên kết: $url',
         snackPosition: SnackPosition.BOTTOM,
       );
+    }
+  }
+
+  Future<void> fetchFeaturedYards() async {
+    try {
+      isLoadingFeaturedYards.value = true;
+      final results = await Repo.yard.getFeaturedYards();
+      featuredYards.value = results;
+    } catch (e) {
+      print('Error fetching featured yards: $e');
+    } finally {
+      isLoadingFeaturedYards.value = false;
     }
   }
 

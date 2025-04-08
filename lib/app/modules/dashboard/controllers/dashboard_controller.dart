@@ -11,7 +11,7 @@ import '../../../data/providers/notification_provider.dart';
 import '../../../data/services/firebase_analytics_service.dart';
 import '../../profile/controllers/profile_controller.dart';
 import '../../home/views/home_view.dart';
-import '../../list/views/list_view.dart';
+import '../../list/views/yard_list_view.dart';
 import '../../outstanding/views/outstanding_view.dart';
 import '../../profile/views/profile_view.dart';
 
@@ -32,7 +32,7 @@ class DashboardController extends GetxController {
 
   final pages = [
     const HomeView(),
-    const ListPageView(),
+    const YardListView(),
     const OutstandingView(),
     const ProfileView(),
   ];

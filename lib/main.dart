@@ -50,10 +50,10 @@ void main() async {
   final flavor = await getFlavorSettings();
   switch (flavor) {
     case 'dev':
-      ApiClient.setBaseUrl('https://b175-103-199-40-106.ngrok-free.app');
+      ApiClient.setBaseUrl('https://8c22-1-53-156-89.ngrok-free.app');
       break;
     default:
-      ApiClient.setBaseUrl('https://b175-103-199-40-106.ngrok-free.app');
+      ApiClient.setBaseUrl('https://8c22-1-53-156-89.ngrok-free.app');
   }
 
   // Run the app after setting up Preferences

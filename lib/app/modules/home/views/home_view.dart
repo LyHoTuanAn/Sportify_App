@@ -6,6 +6,7 @@ import '../../../widgets/widgets.dart';
 import '../widgets/coupons_bottom_sheet.dart';
 import '../widgets/coupon_detail_bottom_sheet.dart';
 import '../../../data/models/coupon.dart';
+import '../../../data/models/yard_featured.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/repositories/repositories.dart';
 
@@ -415,117 +416,151 @@ class HomeView extends GetView<HomeController> {
           ),
           const SizedBox(height: 18),
           SizedBox(
-            height: 205, // Fixed container height
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: controller.featuredCourts.length,
-              itemBuilder: (context, index) {
-                final court = controller.featuredCourts[index];
-                return Container(
-                  width: 220,
-                  margin: const EdgeInsets.only(right: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200, width: 1),
+            height: 220, // Increased height from 205 to 220 to fix overflow
+            child: Obx(() {
+              if (controller.isLoadingFeaturedYards.value) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF2B7A78),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(12),
-                        ),
-                        child: SizedBox(
-                          height: 130,
-                          width: double.infinity,
-                          child: Image.network(
-                            'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YmFkbWludG9uJTIwY291cnR8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.grey[200],
-                                child: const Center(
-                                  child: Icon(Icons.broken_image,
-                                      color: Colors.grey),
-                                ),
-                              );
-                            },
+                );
+              }
+
+              if (controller.featuredYards.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No featured courts available at the moment.',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: controller.featuredYards.length,
+                itemBuilder: (context, index) {
+                  final yard = controller.featuredYards[index];
+                  return Container(
+                    width: 220,
+                    margin: const EdgeInsets.only(right: 15),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade200, width: 1),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12),
+                          ),
+                          child: SizedBox(
+                            height: 130,
+                            width: double.infinity,
+                            child: Image.network(
+                              yard.image,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: Icon(Icons.broken_image,
+                                        color: Colors.grey),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              court['name'],
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF17252A),
-                                height: 1.2,
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                yard.title,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF17252A),
+                                  height: 1.2,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.location_on,
-                                        size: 14,
-                                        color: Colors.grey,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Expanded(
-                                        child: Text(
-                                          court['location'],
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.grey,
-                                            height: 1.2,
+                              const SizedBox(height: 4),
+                              Text(
+                                yard.formattedPrice,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF2B7A78),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.location_on,
+                                          size: 14,
+                                          color: Colors.grey,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            yard.location.name,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey,
+                                              height: 1.2,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      if (yard.reviewScore.reviewText !=
+                                          "Not rated")
+                                        const Icon(
+                                          Icons.star,
+                                          size: 14,
+                                          color: Colors.amber,
+                                        ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        yard.reviewScore.reviewText,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF333333),
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.star,
-                                      size: 14,
-                                      color: Colors.amber,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      court['rating'].toString(),
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF333333),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }),
           ),
         ],
       ),

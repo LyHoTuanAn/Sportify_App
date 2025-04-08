@@ -25,6 +25,15 @@ class ApiUrl {
 
   static const String resetPassword = '/api/reset-password';
 
+  // Yard (boat) API endpoint
+  static const String yardSearch = '/api/boat/search';
+  static const String availabilityCalendar = '/api/availability-calendar';
+  static const String addToCart = '/api/booking/addToCart';
+
+  // Wishlist endpoints
+  static const String userWishlist = '/api/user/wishlist';
+  static String toggleWishlist = userWishlist;
+
   static String detailRecipient(id) => '$receipt/recipients/$id';
   static String notifications = '$receipt/notifications';
   static String stores = '$receipt/stores';

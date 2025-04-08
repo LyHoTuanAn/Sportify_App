@@ -9,10 +9,10 @@ import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
-import '../modules/interface-booking/bindings/interface_booking.dart';
-import '../modules/interface-booking/views/interface_booking.dart';
+import '../modules/interface-booking/bindings/interface_booking_binding.dart';
+import '../modules/interface-booking/views/interface_booking_view.dart';
 import '../modules/list/bindings/list_binding.dart';
-import '../modules/list/views/list_view.dart';
+import '../modules/list/views/yard_list_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/notifications/views/notifications_view.dart';
@@ -94,7 +94,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.list,
-      page: () => const ListPageView(),
+      page: () => const YardListView(),
       binding: ListBinding(),
     ),
     GetPage(
@@ -152,11 +152,11 @@ class AppPages {
       page: () => const WeatherView(),
       binding: WeatherBinding(),
     ),
-  GetPage(
-  name: _Paths.interfaceBooking,
-  page: () => const InterfaceBookingView(),
-  binding: InterfaceBookingBinding(),
-  ),
+    GetPage(
+      name: _Paths.interfaceBooking,
+      page: () => const InterfaceBookingView(),
+      binding: InterfaceBookingBinding(),
+    ),
   ];
 }
 

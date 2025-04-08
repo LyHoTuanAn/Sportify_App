@@ -11,10 +11,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http_parser/http_parser.dart';
 
 import '../../core/utilities/utilities.dart';
+import '../../core/utilities/app_utils.dart';
+import '../../core/utilities/api_string.dart';
 import '../../routes/app_pages.dart';
 import '../http_client/http_client.dart';
 import '../models/dashboard_model.dart';
 import '../models/models.dart';
+
+part 'yard_provider.dart';
 
 class ApiProvider {
   factory ApiProvider() => _instance;
@@ -829,13 +833,18 @@ class ApiProvider {
   static Future<List<Coupon>> getCoupons() async {
     try {
       final res = await ApiClient.connect(ApiUrl.coupons);
-      if (res.statusCode == 200 && res.data['status'] == 'success') {
-        final couponsData = res.data['data'] as List;
-        return couponsData.map((e) => Coupon.fromMap(e)).toList();
+      if (res.statusCode == 200) {
+        final responseData = res.data;
+        if (responseData['status'] == 'success' &&
+            responseData['data'] is List) {
+          return (responseData['data'] as List)
+              .map((item) => Coupon.fromMap(item))
+              .toList();
+        }
       }
       return [];
     } catch (e) {
-      AppUtils.log('Error fetching coupons: $e');
+      AppUtils.log('Error in ApiProvider.getCoupons: $e');
       return [];
     }
   }
@@ -843,13 +852,165 @@ class ApiProvider {
   static Future<Coupon?> getCouponDetail(String id) async {
     try {
       final res = await ApiClient.connect(ApiUrl.couponDetail(id));
-      if (res.statusCode == 200 && res.data['status'] == 'success') {
-        return Coupon.fromMap(res.data['data']);
+      if (res.statusCode == 200) {
+        final responseData = res.data;
+        if (responseData['status'] == 'success' &&
+            responseData['data'] != null) {
+          return Coupon.fromMap(responseData['data']);
+        }
       }
       return null;
     } catch (e) {
-      AppUtils.log('Error fetching coupon detail: $e');
+      AppUtils.log('Error in ApiProvider.getCouponDetail: $e');
       return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>> getFeaturedYards() async {
+    try {
+      final res = await ApiClient.connect(
+        ApiUrl.yardSearch,
+        query: {"is_featured": "1"},
+      );
+
+      if (res.statusCode == 200) {
+        return res.data;
+      }
+      return {"status": 0, "data": []};
+    } catch (e) {
+      AppUtils.log('Error fetching featured yards: $e');
+      return {"status": 0, "data": []};
+    }
+  }
+
+  // Yard search with location and filters
+  static Future<Map<String, dynamic>> searchYards({
+    double? userLat,
+    double? userLng,
+    String? orderBy,
+    int? authorId,
+  }) async {
+    try {
+      Map<String, dynamic> query = {};
+
+      // Add location parameters if available
+      if (userLat != null && userLng != null) {
+        query["user_lat"] = userLat.toString();
+        query["user_lng"] = userLng.toString();
+      }
+
+      // Add author_id filter if provided
+      if (authorId != null) {
+        query["author_id"] = authorId.toString();
+      }
+
+      // Add order parameter if specified
+      if (orderBy != null && orderBy.isNotEmpty) {
+        query["orderby"] = orderBy;
+      }
+
+      final res = await ApiClient.connect(
+        ApiUrl.yardSearch,
+        query: query,
+      );
+
+      if (res.statusCode == 200) {
+        return res.data;
+      }
+      return {"status": 0, "data": []};
+    } catch (e) {
+      AppUtils.log('Error searching yards: $e');
+      return {"status": 0, "data": []};
+    }
+  }
+
+  // Get user's wishlist
+  static Future<Map<String, dynamic>> getUserWishlist() async {
+    try {
+      final res = await ApiClient.connect(ApiUrl.userWishlist);
+
+      if (res.statusCode == 200) {
+        return res.data;
+      }
+      return {"status": 0, "data": []};
+    } catch (e) {
+      AppUtils.log('Error fetching user wishlist: $e');
+      return {"status": 0, "data": []};
+    }
+  }
+
+  // Toggle wishlist item (add/remove)
+  static Future<Map<String, dynamic>> toggleWishlistItem(
+      int objectId, String objectModel) async {
+    try {
+      final res = await ApiClient.connect(
+        ApiUrl.toggleWishlist,
+        method: ApiMethod.post,
+        data: {"object_id": objectId, "object_model": objectModel},
+      );
+
+      if (res.statusCode == 200) {
+        return res.data;
+      }
+      return {"status": 0, "message": "Failed to toggle wishlist item"};
+    } catch (e) {
+      AppUtils.log('Error toggling wishlist item: $e');
+      return {"status": 0, "message": "Error: ${e.toString()}"};
+    }
+  }
+
+  static Future<Map<String, dynamic>> getAvailabilityCalendar({
+    required String date,
+    required List<int> yardIds,
+  }) async {
+    try {
+      final query = {
+        "start_date": date,
+        "yard_ids": yardIds.join(','),
+      };
+
+      final res = await ApiClient.connect(
+        ApiUrl.availabilityCalendar,
+        query: query,
+      );
+
+      if (res.statusCode == 200) {
+        return res.data;
+      }
+      return {"status": "error", "data": []};
+    } catch (e) {
+      AppUtils.log('Error getting availability calendar: $e');
+      return {"status": "error", "data": []};
+    }
+  }
+
+  static Future<Map<String, dynamic>> addBookingToCart({
+    required int serviceId,
+    required String startDate,
+    required int hour,
+    required String startTime,
+  }) async {
+    try {
+      final requestData = {
+        "service_id": serviceId,
+        "start_date": startDate,
+        "hour": hour,
+        "start_time": startTime
+      };
+
+      final res = await ApiClient.connect(
+        ApiUrl.addToCart,
+        method: ApiMethod.post,
+        data: requestData,
+      );
+
+      if (res.statusCode == 200) {
+        return res.data;
+      }
+      return {"status": "error", "message": "Failed to add booking to cart"};
+    } catch (e) {
+      AppUtils.log('Error adding booking to cart: $e');
+      return {"status": "error", "message": e.toString()};
     }
   }
 }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
-
+import '../../../data/models/models.dart';
 import '../controllers/list_controller.dart';
+import '../../../routes/app_pages.dart';
 
-class ListPageView extends GetView<ListController> {
-  const ListPageView({Key? key}) : super(key: key);
+class ListViewPage extends GetView<ListController> {
+  const ListViewPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class ListPageView extends GetView<ListController> {
         statusBarIconBrightness: Brightness.dark,
       ),
     );
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       body: SafeArea(
@@ -29,22 +30,23 @@ class ListPageView extends GetView<ListController> {
               Row(
                 children: [
                   Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: Color(0xFF2B7A78),
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF2B7A78).withOpacity(0.2),
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Image.asset('assets/images/logo.png', width: 20, height: 20, color: Colors.white)
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2B7A78),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF2B7A78).withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Image.asset('assets/images/logo.png',
+                        width: 20, height: 20, color: Colors.white),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -69,9 +71,9 @@ class ListPageView extends GetView<ListController> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Search Box
               Container(
                 decoration: BoxDecoration(
@@ -85,7 +87,8 @@ class ListPageView extends GetView<ListController> {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
                     const Icon(
@@ -96,7 +99,7 @@ class ListPageView extends GetView<ListController> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: TextField(
-                        onChanged: controller.searchVenues,
+                        onChanged: controller.searchYards,
                         decoration: const InputDecoration(
                           hintText: 'Tìm kiếm sân thể thao...',
                           hintStyle: TextStyle(
@@ -113,31 +116,32 @@ class ListPageView extends GetView<ListController> {
                           fontSize: 15,
                           fontFamily: 'Poppins',
                         ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Filter buttons
               _buildFilterButtons(),
-              
+
               const SizedBox(height: 20),
-              
-              // Venue List
+
+              // Yard List
               Expanded(
                 child: Obx(() {
-                  if (controller.isLoading.value && controller.filteredVenues.isEmpty) {
+                  if (controller.isLoading.value &&
+                      controller.filteredYards.isEmpty) {
                     return const Center(
                       child: CircularProgressIndicator(
                         color: Color(0xFF2B7A78),
                       ),
                     );
                   }
-                  
-                  if (controller.filteredVenues.isEmpty) {
+
+                  if (controller.filteredYards.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -155,18 +159,18 @@ class ListPageView extends GetView<ListController> {
                               color: Colors.grey[600],
                               fontFamily: 'Poppins',
                             ),
-          ),
-        ],
-      ),
-    );
+                          ),
+                        ],
+                      ),
+                    );
                   }
-                  
+
                   return ListView.builder(
                     padding: EdgeInsets.zero,
-                    itemCount: controller.filteredVenues.length,
+                    itemCount: controller.filteredYards.length,
                     itemBuilder: (context, index) {
-                      final venue = controller.filteredVenues[index];
-                      return _buildVenueItem(venue, index);
+                      final yard = controller.filteredYards[index];
+                      return _buildYardItem(yard, index);
                     },
                   );
                 }),
@@ -182,37 +186,41 @@ class ListPageView extends GetView<ListController> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
-      child: Obx(() => Row(
-        children: List.generate(
-          controller.filters.length,
-          (index) => Padding(
-            padding: EdgeInsets.only(right: index < controller.filters.length - 1 ? 10 : 0),
-            child: _buildFilterButton(
-              controller.filters[index],
-              isActive: index == controller.selectedFilterIndex.value,
-              onTap: () => controller.setFilter(index),
+      child: Obx(() {
+        return Row(
+          children: List.generate(
+            controller.filters.length,
+            (index) => Padding(
+              padding: EdgeInsets.only(
+                  right: index < controller.filters.length - 1 ? 10 : 0),
+              child: _buildFilterButton(
+                controller.filters[index],
+                isActive: index == controller.selectedFilterIndex.value,
+                onTap: () => controller.setFilter(index),
+              ),
             ),
           ),
-        ),
-      )),
+        );
+      }),
     );
   }
 
-  Widget _buildFilterButton(String text, {bool isActive = false, VoidCallback? onTap}) {
+  Widget _buildFilterButton(String text,
+      {bool isActive = false, VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
+        decoration: BoxDecoration(
           color: isActive ? const Color(0xFF2B7A78) : Colors.white,
           borderRadius: BorderRadius.circular(50),
           border: Border.all(
             color: isActive ? const Color(0xFF2B7A78) : const Color(0xFFE0E0E0),
           ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
             color: isActive ? Colors.white : const Color(0xFF333333),
             fontSize: 14,
             fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
@@ -223,10 +231,10 @@ class ListPageView extends GetView<ListController> {
     );
   }
 
-  Widget _buildVenueItem(Venue venue, int index) {
+  Widget _buildYardItem(Yard yard, int index) {
     // Staggered animation timing
     final animationDelay = Duration(milliseconds: 100 * (index + 1));
-    
+
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: const Duration(milliseconds: 400),
@@ -257,25 +265,42 @@ class ListPageView extends GetView<ListController> {
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   // Court header
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Text(
-                      venue.name,
-                  style: const TextStyle(
-                    fontSize: 16,
+                      yard.title,
+                      style: const TextStyle(
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF333333),
                         fontFamily: 'Poppins',
                       ),
                     ),
                   ),
-                  
+
+                  const SizedBox(height: 6),
+
+                  // Court price
+                  if (yard.price.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text(
+                        yard.formattedPrice,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2B7A78),
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+
                   const SizedBox(height: 10),
-                  
+
                   // Court details
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
@@ -293,124 +318,142 @@ class ListPageView extends GetView<ListController> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                venue.address,
+                                yard.location.name,
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: Color(0xFF777777),
                                   fontFamily: 'Poppins',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-                        
-                        const SizedBox(height: 6),
-                        
-                        // Distance
-            Row(
-              children: [
-                            const Icon(
-                              Icons.route,
-                              size: 14,
-                              color: Color(0xFF2B7A78),
-                            ),
-                const SizedBox(width: 8),
-                Text(
-                              venue.distance,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF777777),
-                                fontFamily: 'Poppins',
+                                ),
                               ),
-                ),
-              ],
-            ),
-                        
-                        const SizedBox(height: 10),
-                        
-                        // Badges
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            ...venue.features.map((feature) => _buildBadge(feature)),
-                            if (venue.discount != null) 
-                              _buildPromoBadge(venue.discount!),
+                            ),
                           ],
                         ),
-                        
+
+                        const SizedBox(height: 6),
+
+                        // Distance
+                        if (yard.distanceInKm != null)
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.route,
+                                size: 14,
+                                color: Color(0xFF2B7A78),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                yard.formattedDistance,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF777777),
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ],
+                          ),
+
+                        const SizedBox(height: 10),
+
+                        // Badges
+                        SizedBox(
+                          height: 30,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: _buildFeaturesList(yard),
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
                         // Rating and booking
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Stars
-            Row(
-              children: [
-                                Row(
-                                  children: List.generate(5, (i) {
-                                    if (i < venue.rating.floor()) {
-                                      return const Icon(Icons.star, size: 14, color: Color(0xFFffc107));
-                                    } else if (i < venue.rating) {
-                                      return const Icon(Icons.star_half, size: 14, color: Color(0xFFffc107));
-                                    } else {
-                                      return const Icon(Icons.star_border, size: 14, color: Color(0xFFffc107));
-                                    }
-                                  }),
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  "(${venue.reviewCount})",
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFF777777),
-                                    fontFamily: 'Poppins',
+                            // Stars and reviews
+                            Row(
+                              children: [
+                                if (yard.reviewScore.score != null)
+                                  Row(
+                                    children: List.generate(5, (i) {
+                                      final score = yard.reviewScore.score ?? 0;
+                                      if (i < score.floor()) {
+                                        return const Icon(Icons.star,
+                                            size: 14, color: Color(0xFFffc107));
+                                      } else if (i < score) {
+                                        return const Icon(Icons.star_half,
+                                            size: 14, color: Color(0xFFffc107));
+                                      } else {
+                                        return const Icon(Icons.star_border,
+                                            size: 14, color: Color(0xFFffc107));
+                                      }
+                                    }),
                                   ),
-                                ),
+                                const SizedBox(width: 5),
+                                if (yard.reviewScore.totalReview != null)
+                                  Text(
+                                    "(${yard.reviewScore.totalReview})",
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Color(0xFF777777),
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  )
+                                else
+                                  Text(
+                                    yard.reviewScore.reviewText,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Color(0xFF777777),
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
                               ],
                             ),
-                            
+
                             // Book button
-        Container(
+                            Container(
                               height: 36,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
                                   colors: [
                                     Color(0xFF2B7A78),
                                     Color(0xFF17252A),
                                   ],
-            ),
+                                ),
                                 borderRadius: BorderRadius.circular(25),
-          ),
+                              ),
                               child: ElevatedButton(
-              onPressed: () {
-                                  // Handle booking
-              },
-              style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-                                  minimumSize: Size.zero, // No minimum size
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduce tap target
+                                onPressed: () {
+                                  Get.toNamed(Routes.interfaceBooking,
+                                      arguments: {'yard_id': yard.id});
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 2),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                   textStyle: const TextStyle(
-                                    fontSize: 12, // Smaller font
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Poppins',
                                   ),
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   backgroundColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25)
-                                  ),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25)),
                                 ),
                                 child: const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text("Đặt lịch"),
-                                    SizedBox(width: 6), // Smaller gap
+                                    SizedBox(width: 6),
                                     Icon(
                                       Icons.arrow_forward,
-                                      size: 13, // Smaller icon
+                                      size: 13,
                                       color: Color(0xFFFFFFFF),
                                     ),
                                   ],
@@ -425,31 +468,58 @@ class ListPageView extends GetView<ListController> {
                 ],
               ),
             ),
-            
-            // Status badge
-            if (venue.isOpen)
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      topRight: Radius.circular(16),
-                    ),
+
+            // Favorite button
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => controller.toggleFavorite(yard.id),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    topRight: Radius.circular(16),
                   ),
-                  child: const Icon(
-                    Icons.favorite, // biểu tượng trái tim
-                    color: Colors.grey,
-                    size: 20, // có thể điều chỉnh kích thước tùy ý
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Obx(() {
+                      return Icon(
+                        Icons.favorite,
+                        color: controller.isYardInWishlist(yard.id)
+                            ? Colors.red
+                            : Colors.grey,
+                        size: 22,
+                      );
+                    }),
                   ),
+                ),
+              ),
             ),
-        ),
           ],
         ),
       ),
     );
+  }
+
+  // Helper method to build features list
+  List<Widget> _buildFeaturesList(Yard yard) {
+    List<Widget> widgetList = [];
+
+    // Add all features
+    for (var i = 0; i < yard.features.length; i++) {
+      widgetList.add(Padding(
+        padding: const EdgeInsets.only(right: 6),
+        child: _buildBadge(yard.features[i]),
+      ));
+    }
+
+    // Add discount badge if available
+    if (yard.discount != null) {
+      widgetList.add(_buildPromoBadge(yard.discount!));
+    }
+
+    return widgetList;
   }
 
   Widget _buildBadge(String text) {
@@ -489,4 +559,4 @@ class ListPageView extends GetView<ListController> {
       ),
     );
   }
-  }
+}

@@ -107,23 +107,17 @@ class BookingPriceView extends GetView<BookingPriceController> {
                             title: 'Thông tin đặt lịch',
                           ),
                           const SizedBox(height: 12),
-                          
                           _buildVenueInfo(),
                           const SizedBox(height: 16),
-                          
                           _buildBookingInfoGrid(),
                           const SizedBox(height: 12),
-                          
                           _buildVoucherSelector(),
-                          
                           _buildPriceBreakdown(),
-                          
                           _buildSectionHeader(
                             icon: Icons.person_outline,
                             title: 'Thông tin người đặt',
                           ),
                           const SizedBox(height: 12),
-                          
                           _buildTextField(
                             label: 'Tên của bạn',
                             icon: Icons.person_outline,
@@ -138,9 +132,7 @@ class BookingPriceView extends GetView<BookingPriceController> {
                             controller: controller.phoneController,
                             keyboardType: TextInputType.phone,
                           ),
-
                           const SizedBox(height: 20),
-
                           _buildTextField(
                             label: 'Email',
                             icon: Icons.email_outlined,
@@ -191,82 +183,84 @@ class BookingPriceView extends GetView<BookingPriceController> {
   }
 
   Widget _buildVenueInfo() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFDEF2F1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            controller.bookingInfo.value.venueName,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-              fontFamily: 'Poppins',
-              color: Color(0xFF17252A),
-            ),
+    return Obx(() => Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFDEF2F1),
+            borderRadius: BorderRadius.circular(8),
           ),
-          const SizedBox(height: 4),
-          Text(
-            controller.bookingInfo.value.venueAddress,
-            style: const TextStyle(
-              fontSize: 12,
-              fontFamily: 'Poppins',
-              color: Color(0xFF333333),
-              height: 1.4,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                controller.bookingInfo.value.venueName,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                  color: Color(0xFF17252A),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                controller.bookingInfo.value.venueAddress,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Poppins',
+                  color: Color(0xFF333333),
+                  height: 1.4,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 
   Widget _buildBookingInfoGrid() {
-    return Column(
-      children: [
-        Row(
+    return Obx(() => Column(
           children: [
-            Expanded(
-              child: _buildInfoItem(
-                'Ngày',
-                controller.bookingInfo.value.date,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildInfoItem(
+                    'Ngày',
+                    controller.bookingInfo.value.date,
+                  ),
+                ),
+                Expanded(
+                  child: _buildInfoItem(
+                    'Đối tượng',
+                    controller.bookingInfo.value.customerType,
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: _buildInfoItem(
-                'Đối tượng',
-                controller.bookingInfo.value.customerType,
-              ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildInfoItem(
+                    'Tổng giờ',
+                    controller.bookingInfo.value.totalHours,
+                  ),
+                ),
+                Expanded(
+                  child: _buildInfoItem(
+                    'Tổng tiền',
+                    controller.formatCurrency(
+                        controller.bookingInfo.value.totalPrice),
+                    isHighlighted: true,
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildInfoItem(
-                'Tổng giờ',
-                controller.bookingInfo.value.totalHours,
-              ),
-            ),
-            Expanded(
-              child: _buildInfoItem(
-                'Tổng tiền',
-                controller.formatCurrency(controller.bookingInfo.value.totalPrice),
-                isHighlighted: true,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
+        ));
   }
 
-  Widget _buildInfoItem(String label, String value, {bool isHighlighted = false}) {
+  Widget _buildInfoItem(String label, String value,
+      {bool isHighlighted = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -285,7 +279,9 @@ class BookingPriceView extends GetView<BookingPriceController> {
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontFamily: 'Poppins',
-            color: isHighlighted ? const Color(0xFF2B7A78) : const Color(0xFF333333),
+            color: isHighlighted
+                ? const Color(0xFF2B7A78)
+                : const Color(0xFF333333),
           ),
         ),
       ],
@@ -294,119 +290,119 @@ class BookingPriceView extends GetView<BookingPriceController> {
 
   Widget _buildVoucherSelector() {
     return Obx(() => GestureDetector(
-      onTap: () => controller.showVoucherSelectionModal(),
-      child: Container(
-        margin: const EdgeInsets.only(top: 12),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: const Color(0xFF3AAFA9),
-            width: 1,
-            style: BorderStyle.solid,
-          ),
-          borderRadius: BorderRadius.circular(8),
-          color: const Color(0xFFF9F9F9),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.confirmation_number_outlined,
-              size: 16,
-              color: Color(0xFF2B7A78),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    controller.hasSelectedVoucher.value
-                        ? controller.selectedVoucher.value!.code
-                        : 'Chọn voucher giảm giá',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Poppins',
-                      color: Color(0xFF333333),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    controller.hasSelectedVoucher.value
-                        ? 'Giảm ${controller.formatCurrency(controller.voucherDiscount)}'
-                        : 'Nhập mã giảm giá hoặc chọn voucher có sẵn',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontFamily: 'Poppins',
-                      color: controller.hasSelectedVoucher.value
-                          ? const Color(0xFFE74C3C)
-                          : const Color(0xFF777777),
-                    ),
-                  ),
-                ],
+          onTap: () => controller.showVoucherSelectionModal(),
+          child: Container(
+            margin: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: const Color(0xFF3AAFA9),
+                width: 1,
+                style: BorderStyle.solid,
               ),
+              borderRadius: BorderRadius.circular(8),
+              color: const Color(0xFFF9F9F9),
             ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 15,
-              color: Color(0xFF2B7A78),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.confirmation_number_outlined,
+                  size: 16,
+                  color: Color(0xFF2B7A78),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.hasSelectedVoucher.value
+                            ? controller.selectedVoucher.value!.code
+                            : 'Chọn voucher giảm giá',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Poppins',
+                          color: Color(0xFF333333),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        controller.hasSelectedVoucher.value
+                            ? 'Giảm ${controller.formatCurrency(controller.voucherDiscount)}'
+                            : 'Nhập mã giảm giá hoặc chọn voucher có sẵn',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontFamily: 'Poppins',
+                          color: controller.hasSelectedVoucher.value
+                              ? const Color(0xFFE74C3C)
+                              : const Color(0xFF777777),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 15,
+                  color: Color(0xFF2B7A78),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    ));
+          ),
+        ));
   }
 
   Widget _buildPriceBreakdown() {
     return Obx(() => Container(
-      margin: const EdgeInsets.only(top: 16),
-      child: Column(
-        children: [
-          Container(
-            height: 1,
-            color: const Color(0xFFE0E0E0),
-          ),
-          if (controller.hasSelectedVoucher.value) ...[
-            const SizedBox(height: 8),
-            _buildPriceRow(
-              'Giảm giá',
-              '-${controller.formatCurrency(controller.voucherDiscount)}',
-              isDiscount: true,
-            ),
-            const SizedBox(height: 8),
-            Container(
-              height: 1,
-              color: const Color(0xFFE0E0E0),
-            ),
-          ],
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          margin: const EdgeInsets.only(top: 16),
+          child: Column(
             children: [
-              const Text(
-                'Tổng thanh toán',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Poppins',
-                  color: Color(0xFF333333),
-                ),
+              Container(
+                height: 1,
+                color: const Color(0xFFE0E0E0),
               ),
-              Text(
-                controller.formatCurrency(controller.finalTotal),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Poppins',
-                  color: Color(0xFF2B7A78),
+              if (controller.hasSelectedVoucher.value) ...[
+                const SizedBox(height: 8),
+                _buildPriceRow(
+                  'Giảm giá',
+                  '-${controller.formatCurrency(controller.voucherDiscount)}',
+                  isDiscount: true,
                 ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 1,
+                  color: const Color(0xFFE0E0E0),
+                ),
+              ],
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Tổng thanh toán',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF333333),
+                    ),
+                  ),
+                  Text(
+                    controller.formatCurrency(controller.finalTotal),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF2B7A78),
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 25),
             ],
           ),
-          const SizedBox(height: 25),
-        ],
-      ),
-    ));
+        ));
   }
 
   Widget _buildPriceRow(String label, String value, {bool isDiscount = false}) {
@@ -427,7 +423,8 @@ class BookingPriceView extends GetView<BookingPriceController> {
             fontSize: 13,
             fontWeight: FontWeight.w500,
             fontFamily: 'Poppins',
-            color: isDiscount ? const Color(0xFFE74C3C) : const Color(0xFF333333),
+            color:
+                isDiscount ? const Color(0xFFE74C3C) : const Color(0xFF333333),
           ),
         ),
       ],
@@ -490,7 +487,8 @@ class BookingPriceView extends GetView<BookingPriceController> {
                   fontFamily: 'Poppins',
                   color: Color(0xFF777777),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 border: InputBorder.none,
                 suffixIcon: GestureDetector(
                   onTap: () => controller.clear(),
@@ -550,7 +548,7 @@ class BookingPriceView extends GetView<BookingPriceController> {
                   ),
                   Icon(
                     Icons.check,
-                    size: 15, 
+                    size: 15,
                     color: Color(0xFF2B7A78),
                   ),
                 ],
