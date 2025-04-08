@@ -7,6 +7,12 @@ class PaymentView extends GetView<PaymentController> {
 
   @override
   Widget build(BuildContext context) {
+    // Get booking info from arguments
+    final Map<String, dynamic>? bookingInfo =
+        Get.arguments != null && Get.arguments is Map
+            ? Get.arguments['bookingInfo'] as Map<String, dynamic>
+            : null;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -22,8 +28,10 @@ class PaymentView extends GetView<PaymentController> {
               style: const TextStyle(
                 color: Color(0xFF2B7A78), // Đổi màu thành #2B7A78
                 fontSize: 20,
-                fontWeight: FontWeight.w700, // Font-weight 700 tương ứng FontWeight.bold
-                fontFamily: 'Poppins', // Thêm font Poppins (đảm bảo font đã được khai báo)
+                fontWeight: FontWeight
+                    .w700, // Font-weight 700 tương ứng FontWeight.bold
+                fontFamily:
+                    'Poppins', // Thêm font Poppins (đảm bảo font đã được khai báo)
                 fontStyle: FontStyle.normal,
                 height: 1.0, // line-height: normal
               ),
@@ -51,7 +59,7 @@ class PaymentView extends GetView<PaymentController> {
                 const SizedBox(height: 16),
 
                 // Content - Order info, bank info, QR code
-                _buildOrderInfo(),
+                _buildOrderInfo(bookingInfo),
                 const SizedBox(height: 16),
                 _buildBankInfo(),
                 const SizedBox(height: 16),
@@ -79,13 +87,13 @@ class PaymentView extends GetView<PaymentController> {
             ),
           ),
           Obx(() => Text(
-            controller.formattedTime,
-            style: const TextStyle(
-              color: Color(0xFF17252A),
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          )),
+                controller.formattedTime,
+                style: const TextStyle(
+                  color: Color(0xFF17252A),
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              )),
           const Text(
             " phút",
             style: TextStyle(
@@ -98,8 +106,7 @@ class PaymentView extends GetView<PaymentController> {
     );
   }
 
-
-  Widget _buildOrderInfo() {
+  Widget _buildOrderInfo(Map<String, dynamic>? bookingInfo) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -125,40 +132,40 @@ class PaymentView extends GetView<PaymentController> {
                 topRight: Radius.circular(10),
               ),
             ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Thông tin đơn hàng",
-            style: TextStyle(
-              color: Color(0xFF17252A), // Giữ nguyên mã màu
-              fontFamily: 'Poppins', // Thêm font Poppins
-              fontSize: 17, // Đổi thành 17px
-              fontStyle: FontStyle.normal,
-              fontWeight: FontWeight.w700, // Đổi thành 700
-              height: 1.0, // Line height normal tương đương với 1.0
-            ),
-          ),
-
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: const Color(0xFFDEF2F1), // Cập nhật màu nền
-          borderRadius: BorderRadius.circular(20), // Giữ nguyên border-radius 20px
-        ),
-        child: const Text(
-          "Chờ thanh toán",
-          style: TextStyle(
-            color: Color(0xFF2B7A78), // Giữ nguyên mã màu
-            fontFamily: 'Poppins', // Thêm font Poppins
-            fontSize: 12, // Giữ nguyên 12px
-            fontStyle: FontStyle.normal,
-            fontWeight: FontWeight.w500, // Giữ nguyên 500
-            height: 1.0, // Line height normal tương đương với 1.0
-          ),
-        ),
-
-      ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Thông tin đơn hàng",
+                  style: TextStyle(
+                    color: Color(0xFF17252A), // Giữ nguyên mã màu
+                    fontFamily: 'Poppins', // Thêm font Poppins
+                    fontSize: 17, // Đổi thành 17px
+                    fontStyle: FontStyle.normal,
+                    fontWeight: FontWeight.w700, // Đổi thành 700
+                    height: 1.0, // Line height normal tương đương với 1.0
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDEF2F1), // Cập nhật màu nền
+                    borderRadius: BorderRadius.circular(
+                        20), // Giữ nguyên border-radius 20px
+                  ),
+                  child: const Text(
+                    "Chờ thanh toán",
+                    style: TextStyle(
+                      color: Color(0xFF2B7A78), // Giữ nguyên mã màu
+                      fontFamily: 'Poppins', // Thêm font Poppins
+                      fontSize: 12, // Giữ nguyên 12px
+                      fontStyle: FontStyle.normal,
+                      fontWeight: FontWeight.w500, // Giữ nguyên 500
+                      height: 1.0, // Line height normal tương đương với 1.0
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -167,11 +174,33 @@ class PaymentView extends GetView<PaymentController> {
             child: Column(
               children: [
                 _buildInfoItem("Họ và tên", "Bảo Long"),
-                _buildInfoItem("Số điện thoại", "0868135350", isHighlighted: true),
-                _buildInfoItem("Mã đơn", "#21344", isOrderId: true,),
-                _buildInfoItem("Đối tượng", "Khách hàng"),
-                _buildInfoItem("Tổng tiền", "100.000 đ", isHighlighted: true),
-                _buildInfoItem("Thời gian đặt", "28/02/2025 15:48"),
+                _buildInfoItem("Số điện thoại", "0868135350",
+                    isHighlighted: true),
+                _buildInfoItem(
+                  "Mã đơn",
+                  bookingInfo?['booking_code'] ?? "#21344",
+                  isOrderId: true,
+                ),
+                _buildInfoItem(
+                    "Đối tượng", bookingInfo?['customerType'] ?? "Khách hàng"),
+                _buildInfoItem(
+                    "Tổng tiền",
+                    bookingInfo?['totalPrice'] != null
+                        ? "${bookingInfo!['totalPrice'].toString()} đ"
+                        : "100.000 đ",
+                    isHighlighted: true),
+                _buildInfoItem(
+                    "Thời gian đặt",
+                    bookingInfo?['date'] != null
+                        ? "${bookingInfo!['date']} ${bookingInfo['startTime'] ?? ''}"
+                        : "28/02/2025 15:48"),
+                // Add venue name and address
+                if (bookingInfo != null && bookingInfo['venueName'] != null)
+                  _buildInfoItem("Tên sân", bookingInfo['venueName']),
+                if (bookingInfo != null &&
+                    bookingInfo['venueAddress'] != null &&
+                    bookingInfo['venueAddress'].toString().isNotEmpty)
+                  _buildInfoItem("Địa chỉ sân", bookingInfo['venueAddress']),
               ],
             ),
           ),
@@ -196,39 +225,42 @@ class PaymentView extends GetView<PaymentController> {
           ),
           isOrderId
               ? Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: const Color(0xFFDEF2F1), // Cập nhật màu nền
-              borderRadius: BorderRadius.circular(6), // Bo góc 6px
-            ),
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: Color(0xFF17252A), // Màu chữ
-                fontFamily: "Poppins", // Font chữ
-                fontSize: 13, // Cỡ chữ
-                fontStyle: FontStyle.normal, // Kiểu chữ bình thường
-                fontWeight: FontWeight.w700, // Độ đậm 700
-                height: 1.0, // Line height mặc định
-              ),
-            ),
-          )
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDEF2F1), // Cập nhật màu nền
+                    borderRadius: BorderRadius.circular(6), // Bo góc 6px
+                  ),
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      color: Color(0xFF17252A), // Màu chữ
+                      fontFamily: "Poppins", // Font chữ
+                      fontSize: 13, // Cỡ chữ
+                      fontStyle: FontStyle.normal, // Kiểu chữ bình thường
+                      fontWeight: FontWeight.w700, // Độ đậm 700
+                      height: 1.0, // Line height mặc định
+                    ),
+                  ),
+                )
               : Text(
-            value,
-            style: TextStyle(
-              color: isHighlighted ? const Color(0xFF2B7A78) : const Color(0xFF17252A),
-              fontFamily: "Poppins",
-              fontSize: 14,
-              fontStyle: FontStyle.normal,
-              fontWeight: isHighlighted ? FontWeight.w700 : FontWeight.w400,
-              height: 1.0,
-            ),
-          ),
+                  value,
+                  style: TextStyle(
+                    color: isHighlighted
+                        ? const Color(0xFF2B7A78)
+                        : const Color(0xFF17252A),
+                    fontFamily: "Poppins",
+                    fontSize: 14,
+                    fontStyle: FontStyle.normal,
+                    fontWeight:
+                        isHighlighted ? FontWeight.w700 : FontWeight.w400,
+                    height: 1.0,
+                  ),
+                ),
         ],
       ),
     );
   }
-
 
   Widget _buildBankInfo() {
     return Container(
@@ -288,7 +320,8 @@ class PaymentView extends GetView<PaymentController> {
     );
   }
 
-  Widget _buildBankDetailItem(String label, String value, {bool hasImage = false, Widget? icon}) {
+  Widget _buildBankDetailItem(String label, String value,
+      {bool hasImage = false, Widget? icon}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -404,7 +437,8 @@ class PaymentView extends GetView<PaymentController> {
 
                 // Icon tải xuống
                 Icon(
-                  Icons.file_download_rounded, // Sử dụng icon tải xuống có viền tròn đẹp hơn
+                  Icons
+                      .file_download_rounded, // Sử dụng icon tải xuống có viền tròn đẹp hơn
                   size: 35,
                   color: Color(0xFF2B7A78), // Sử dụng màu chủ đạo của app
                 ),
@@ -412,20 +446,19 @@ class PaymentView extends GetView<PaymentController> {
             ),
           ),
 
-
           const SizedBox(height: 0),
 
-                // Instructions
-                const Text(
-                  "Sử dụng ứng dụng ngân hàng để quét mã QR code hoặc chuyển khoản theo thông tin bên trên",
-                  style: TextStyle(
-                    color: Color(0xFF777777),
-                    fontSize: 12,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+          // Instructions
+          const Text(
+            "Sử dụng ứng dụng ngân hàng để quét mã QR code hoặc chuyển khoản theo thông tin bên trên",
+            style: TextStyle(
+              color: Color(0xFF777777),
+              fontSize: 12,
             ),
-          );
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
   }
 }

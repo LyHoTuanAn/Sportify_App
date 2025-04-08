@@ -427,24 +427,20 @@ class InterfaceBookingController extends GetxController {
         throw Exception('Không tìm thấy thông tin sân');
       }
 
-      // Fetch full yard data to get complete location info
-      final fullYardData = await yardRepository.searchYards();
-      final yard =
-          fullYardData.firstWhereOrNull((y) => y.id == yardAvailability.boatId);
+      // Get the yard data from cache or arguments
+      final yardData = yardPricingData[yardAvailability.boatId] ??
+          (Get.arguments is Map &&
+                  Get.arguments['yard_data'] != null &&
+                  Get.arguments['yard_data']['id'] == yardAvailability.boatId
+              ? Get.arguments['yard_data']
+              : null);
 
-      // Get the venue address
-      String venueAddress = '';
-      if (yard != null && yard.location != null) {
-        // Try to get real address text from the location
-        if (yard.location.realAddressText.isNotEmpty) {
-          venueAddress = yard.location.realAddressText;
-        } else if (yard.location.name.isNotEmpty) {
-          venueAddress = yard.location.name;
-        }
-      }
-
-      print('Yard Full Data: $yard'); // Debug log
-      print('Venue Address: $venueAddress'); // Debug log
+      // Get the venue address from the yard data
+      final venueAddress = yardData != null && yardData['location'] != null
+          ? (yardData['location']['real_address'] != null
+              ? yardData['location']['real_address']['address']
+              : yardData['location']['name'])
+          : '';
 
       // Add booking to cart
       final response = await yardRepository.addBookingToCart(
@@ -458,29 +454,18 @@ class InterfaceBookingController extends GetxController {
 
       // Check if response is successful (either status is 'success' or 1)
       if (response['status'] == 'success' || response['status'] == 1) {
-        // Format the booking date
-        final formattedDate =
-            DateFormat('dd/MM/yyyy').format(selectedDate.value);
-
-        // Create booking info object
-        final bookingInfo = {
-          'venueName': courtName,
-          'venueAddress': venueAddress,
-          'date': formattedDate,
-          'customerType': 'Khách hàng',
-          'totalHours': '${selectedTimeSlots.length} giờ',
-          'totalPrice': totalPrice,
-          'startTime': startTime,
-          'booking_code': response['booking_code'],
-          'yard_id': yardAvailability.boatId,
-          'time_slots': selectedTimeSlots,
-        };
-
         // Navigate to booking price screen with booking info
         Get.toNamed(
           Routes.bookingPrice,
           arguments: {
-            'bookingInfo': bookingInfo,
+            'yard_id': yardAvailability.boatId,
+            'court_name': courtName,
+            'booking_date': selectedDate.value,
+            'time_slots': selectedTimeSlots,
+            'total_price': totalPrice,
+            'venue_address': venueAddress,
+            'booking_code':
+                response['booking_code'], // Add booking code if available
           },
         );
       } else {
