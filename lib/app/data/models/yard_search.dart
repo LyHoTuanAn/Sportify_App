@@ -13,12 +13,18 @@ class YardSearchResponse {
 
   factory YardSearchResponse.fromMap(Map<String, dynamic> json) {
     return YardSearchResponse(
-      total: json["total"] ?? 0,
-      totalPages: json["total_pages"] ?? 0,
+      total: json["total"] is String
+          ? int.tryParse(json["total"]) ?? 0
+          : json["total"] ?? 0,
+      totalPages: json["total_pages"] is String
+          ? int.tryParse(json["total_pages"]) ?? 0
+          : json["total_pages"] ?? 0,
       data: json["data"] == null
           ? []
           : List<Yard>.from(json["data"].map((x) => Yard.fromMap(x))),
-      status: json["status"] ?? 0,
+      status: json["status"] is String
+          ? int.tryParse(json["status"]) ?? 0
+          : json["status"] ?? 0,
     );
   }
 }
@@ -107,8 +113,20 @@ class Yard {
       salePricePerHour = json["sale_price_per_hour"].toString();
     }
 
+    // Convert is_featured to int if it's a string
+    int? isFeatured;
+    if (json["is_featured"] != null) {
+      if (json["is_featured"] is String) {
+        isFeatured = int.tryParse(json["is_featured"]);
+      } else {
+        isFeatured = json["is_featured"] as int?;
+      }
+    }
+
     return Yard(
-      id: json["id"] ?? 0,
+      id: json["id"] is String
+          ? int.tryParse(json["id"]) ?? 0
+          : json["id"] ?? 0,
       title: json["title"] ?? '',
       price: json["price"] ?? '0',
       salePricePerHour: salePricePerHour,
@@ -119,7 +137,7 @@ class Yard {
         "lng": json["location"] != null ? json["location"]["map_lng"] : null,
         "real_address": json["real_address"],
       }),
-      isFeatured: json["is_featured"],
+      isFeatured: isFeatured,
       reviewScore: YardReviewScore.fromMap(json["review_score"] ?? {}),
       features: extractFeatures,
       discount: discountText,

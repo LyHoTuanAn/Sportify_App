@@ -18,12 +18,14 @@ class YardFeatured {
   });
 
   factory YardFeatured.fromMap(Map<String, dynamic> json) => YardFeatured(
-        id: json["id"] ?? 0,
+        id: json["id"] is String ? int.tryParse(json["id"]) ?? 0 : json["id"] ?? 0,
         title: json["title"] ?? '',
         price: json["price"] ?? '0',
         image: json["image"] ?? '',
         location: LocationModel.fromMap(json["location"] ?? {}),
-        isFeatured: json["is_featured"] ?? 0,
+        isFeatured: json["is_featured"] is String 
+            ? int.tryParse(json["is_featured"]) ?? 0 
+            : json["is_featured"] ?? 0,
         reviewScore: ReviewScore.fromMap(json["review_score"] ?? {}),
       );
 

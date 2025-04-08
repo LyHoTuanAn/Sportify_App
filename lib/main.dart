@@ -50,10 +50,10 @@ void main() async {
   final flavor = await getFlavorSettings();
   switch (flavor) {
     case 'dev':
-      ApiClient.setBaseUrl('http://vnsportify.space');
+      ApiClient.setBaseUrl('https://vnsportify.space');
       break;
     default:
-      ApiClient.setBaseUrl('http://vnsportify.space');
+      ApiClient.setBaseUrl('https://vnsportify.space');
   }
 
   // Run the app after setting up Preferences
