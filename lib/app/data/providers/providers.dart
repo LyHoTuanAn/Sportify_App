@@ -1013,4 +1013,72 @@ class ApiProvider {
       return {"status": "error", "message": e.toString()};
     }
   }
+
+  // Apply coupon to booking
+  static Future<Map<String, dynamic>> applyCoupon({
+    required String couponCode,
+    required String bookingCode,
+  }) async {
+    try {
+      final requestData = {
+        "coupon_code": couponCode,
+        "booking_code": bookingCode,
+      };
+
+      final res = await ApiClient.connect(
+        ApiUrl.applyCoupon,
+        method: ApiMethod.post,
+        data: requestData,
+      );
+
+      if (res.statusCode == 200) {
+        return res.data;
+      }
+      return {"status": "error", "message": "Failed to apply coupon"};
+    } catch (e) {
+      AppUtils.log('Error applying coupon: $e');
+      return {"status": "error", "message": e.toString()};
+    }
+  }
+
+  // Add checkout method
+  static Future<Map<String, dynamic>> doCheckout({
+    required String code,
+    required String fullName,
+    required String phone,
+    required String email,
+  }) async {
+    try {
+      final requestData = {
+        "code": code,
+        "full_name": fullName,
+        "phone": phone,
+        "email": email
+      };
+
+      print('Checkout request data: $requestData');
+
+      final res = await ApiClient.connect(
+        ApiUrl.doCheckout,
+        method: ApiMethod.post,
+        data: requestData,
+      );
+
+      print('Checkout response: ${res.data}');
+
+      // Make sure the response contains the URL
+      if (res.statusCode == 200) {
+        if (res.data['url'] != null) {
+          print('URL in response: ${res.data['url']}');
+        } else {
+          print('No URL found in response data: ${res.data}');
+        }
+      }
+
+      return res.data;
+    } catch (e) {
+      print('Error during checkout: $e');
+      return {"status": "error", "message": e.toString()};
+    }
+  }
 }

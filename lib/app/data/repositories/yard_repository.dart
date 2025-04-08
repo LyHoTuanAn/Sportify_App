@@ -182,4 +182,23 @@ class YardRepository {
       };
     }
   }
+
+  Future<Map<String, dynamic>> doCheckout({
+    required String code,
+    required String fullName,
+    required String phone,
+    required String email,
+  }) async {
+    try {
+      return await ApiProvider.doCheckout(
+        code: code,
+        fullName: fullName,
+        phone: phone,
+        email: email,
+      );
+    } catch (e) {
+      print('Error in YardRepository.doCheckout: $e');
+      rethrow;
+    }
+  }
 }

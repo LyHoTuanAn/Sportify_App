@@ -65,6 +65,13 @@ class PaymentView extends GetView<PaymentController> {
                 const SizedBox(height: 16),
                 _buildQrCode(),
                 const SizedBox(height: 16),
+
+                // New code - User Information Form
+                _buildUserForm(),
+                const SizedBox(height: 16),
+
+                // New code - Checkout Button and Error Message
+                _buildCheckoutButton(),
               ],
             ),
           ),
@@ -459,6 +466,176 @@ class PaymentView extends GetView<PaymentController> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildUserForm() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF9F9F9),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+              ),
+            ),
+            child: const Row(
+              children: [
+                Text(
+                  "Thông tin người đặt",
+                  style: TextStyle(
+                    color: Color(0xFF17252A),
+                    fontFamily: 'Poppins',
+                    fontSize: 17,
+                    fontStyle: FontStyle.normal,
+                    fontWeight: FontWeight.w700,
+                    height: 1.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: controller.formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: controller.fullNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Họ và tên',
+                      hintText: 'Nhập họ và tên của bạn',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Vui lòng nhập họ và tên';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: controller.phoneController,
+                    decoration: const InputDecoration(
+                      labelText: 'Số điện thoại',
+                      hintText: 'Nhập số điện thoại của bạn',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Vui lòng nhập số điện thoại';
+                      }
+                      if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                        return 'Số điện thoại không hợp lệ';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: controller.emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      hintText: 'Nhập địa chỉ email của bạn',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Vui lòng nhập email';
+                      }
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                          .hasMatch(value)) {
+                        return 'Email không hợp lệ';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCheckoutButton() {
+    return Column(
+      children: [
+        Obx(() => controller.errorMessage.isNotEmpty
+            ? Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Text(
+                  controller.errorMessage.value,
+                  style: TextStyle(color: Colors.red.shade800),
+                ),
+              )
+            : const SizedBox.shrink()),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: Obx(() => ElevatedButton(
+                onPressed:
+                    controller.isLoading.value ? null : controller.doCheckout,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2B7A78),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: controller.isLoading.value
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'Xác nhận thanh toán',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              )),
+        ),
+
+        // Add a small text note at the bottom for manual redirection (optional)
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            'Nếu không tự động chuyển trang, vui lòng thử lại',
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 12,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
     );
   }
 }

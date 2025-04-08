@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:developer' as dev;
+import 'package:url_launcher/url_launcher.dart';
 import '../../../data/models/coupon.dart';
 import '../../../data/repositories/repositories.dart';
+import '../../../routes/app_pages.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class BookingInfo {
   final String venueName;
@@ -278,7 +281,7 @@ class BookingPriceController extends GetxController {
     );
   }
 
-  void confirmAndPay() {
+  Future<void> confirmAndPay() async {
     // Validate inputs
     if (nameController.text.isEmpty ||
         phoneController.text.isEmpty ||
@@ -293,14 +296,141 @@ class BookingPriceController extends GetxController {
       return;
     }
 
-    // Process payment
-    Get.snackbar(
-      'Thành công',
-      'Đặt lịch thành công',
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
+    try {
+      // Call checkout API
+      final result = await Repo.yard.doCheckout(
+        code: 'a5fa2a00e038d001480864b6436a2980',
+        fullName: nameController.text,
+        phone: phoneController.text,
+        email: emailController.text,
+      );
+
+      print('Checkout response: $result');
+
+      // Check if the response contains a URL directly
+      if (result != null &&
+          result['url'] != null &&
+          result['url'].toString().isNotEmpty) {
+        final paymentUrl = result['url'].toString();
+        print('URL in response: $paymentUrl');
+
+        // Navigate to WebView screen
+        Get.to(
+          () => Scaffold(
+            appBar: AppBar(
+              title: const Text('Thanh toán'),
+              backgroundColor: const Color(0xFF2B7A78),
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () async {
+                  final shouldClose = await showDialog<bool>(
+                    context: Get.context!,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Xác nhận'),
+                      content: const Text('Bạn có chắc muốn hủy thanh toán?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Không'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Có'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (shouldClose == true) {
+                    Get.back();
+                  }
+                },
+              ),
+            ),
+            body: WebViewWidget(
+              controller: WebViewController()
+                ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                ..setBackgroundColor(Colors.white)
+                ..enableZoom(true)
+                ..setNavigationDelegate(
+                  NavigationDelegate(
+                    onPageStarted: (String url) {
+                      print('WebView - Loading started: $url');
+                      // Check for payment completion
+                      if (url.contains('/api/booking/confirm-payment') ||
+                          url.contains('vnp_ResponseCode=00')) {
+                        print(
+                            'Payment successful, redirecting to success page');
+                        Get.offAllNamed(Routes.successfullPayment, arguments: {
+                          'bookingInfo': {
+                            'booking_code': 'a5fa2a00e038d001480864b6436a2980',
+                            'venueName': bookingInfo.value.venueName,
+                            'date': bookingInfo.value.date,
+                            'totalPrice': finalTotal,
+                          }
+                        });
+                      }
+                      // Check for payment cancellation
+                      else if (url.contains('vnp_ResponseCode=24')) {
+                        print('Payment cancelled by user');
+                        Get.back();
+                        Get.snackbar(
+                          'Thông báo',
+                          'Bạn đã hủy thanh toán',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.orange[100],
+                          colorText: Colors.orange[900],
+                        );
+                      }
+                      // Check for payment failure
+                      else if (url.contains('vnp_ResponseCode=') &&
+                          !url.contains('vnp_ResponseCode=00')) {
+                        print('Payment failed');
+                        Get.back();
+                        Get.snackbar(
+                          'Lỗi',
+                          'Thanh toán không thành công. Vui lòng thử lại',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.red[100],
+                          colorText: Colors.red[900],
+                        );
+                      }
+                    },
+                    onPageFinished: (String url) {
+                      print('WebView - Loading finished: $url');
+                    },
+                    onWebResourceError: (WebResourceError error) {
+                      print('WebView error: ${error.description}');
+                      print(
+                          'Error details: ${error.errorCode} - ${error.errorType}');
+                      Get.snackbar(
+                        'Lỗi',
+                        'Không thể tải trang thanh toán: ${error.description}',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.red[100],
+                        colorText: Colors.red[900],
+                      );
+                    },
+                  ),
+                )
+                ..loadRequest(Uri.parse(paymentUrl)),
+            ),
+          ),
+          fullscreenDialog: true,
+          preventDuplicates: true,
+        );
+      } else {
+        throw Exception('Không nhận được URL thanh toán');
+      }
+    } catch (e) {
+      print('Checkout error: $e');
+      Get.snackbar(
+        'Lỗi',
+        'Không thể tạo đơn thanh toán: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[900],
+      );
+    }
   }
 
   @override

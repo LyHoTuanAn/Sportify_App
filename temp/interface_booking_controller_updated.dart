@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:org_sportify/app/data/models/calendar_availability.dart';
+import 'package:org_sportify/app/data/repositories/repositories.dart';
+import 'package:org_sportify/app/routes/app_pages.dart';
 
-import '../../../data/models/calendar_availability.dart';
-import '../../../data/repositories/repositories.dart';
-import '../../../routes/app_pages.dart';
 
 class BookingInfo {
   final String venueName;

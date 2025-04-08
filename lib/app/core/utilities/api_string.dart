@@ -29,6 +29,13 @@ class ApiUrl {
   static const String yardSearch = '/api/boat/search';
   static const String availabilityCalendar = '/api/availability-calendar';
   static const String addToCart = '/api/booking/addToCart';
+  static const String doCheckout = '/api/booking/doCheckout';
+
+  // Coupon endpoints
+  static const String coupons = '/api/coupon';
+  static const String applyCoupon =
+      '/api/coupon'; // Same endpoint with POST method to apply voucher
+  static couponDetail(String id) => '$receipt/coupon/$id';
 
   // Wishlist endpoints
   static const String userWishlist = '/api/user/wishlist';
@@ -67,8 +74,6 @@ class ApiUrl {
   static deleteRecipient(id) => '$receipt/recipients/$id';
   static const String restoreRecipient = '$receipt/recipients/restore';
   static const String getDashboard = '$receipt/home';
-  static const String coupons = '$receipt/coupon';
-  static couponDetail(String id) => '$receipt/coupon/$id';
 
   // Add media store endpoint
   static const String mediaStore = '$receipt/media/store';

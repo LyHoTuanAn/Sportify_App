@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:math';
 import '../controllers/successful_payment_controller.dart';
+import '../../../routes/app_pages.dart';
 
 class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
-  const SuccessfulPaymentView({Key? key}) : super(key: key);
+  const SuccessfulPaymentView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +144,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
         builder: (context, child) {
           // Animate the confetti
           Future.delayed(Duration.zero, () => controller.updateConfetti());
-          
+
           return Stack(
             alignment: Alignment.center,
             children: [
@@ -241,37 +242,67 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
       ),
       child: Column(
         children: [
-          _buildOrderInfoItem('Mã đơn hàng:', '#21344', isOrderId: true),
-          _buildOrderInfoItem('Sân đã đặt:', 'Sân cầu lông Hà Đông'),
-          _buildOrderInfoItem('Thời gian:', '01/03/2025 - 17:00-19:00'),
-          _buildOrderInfoItem('Tổng tiền:', '100.000 đ'),
+          Obx(() => _buildOrderInfoItem(
+              'Mã đơn hàng:', controller.bookingCode.value,
+              isOrderId: true)),
+          Obx(() =>
+              _buildOrderInfoItem('Sân đã đặt:', controller.venueName.value)),
+          Obx(() =>
+              _buildOrderInfoItem('Thời gian:', controller.bookingTime.value)),
+          Obx(() =>
+              _buildOrderInfoItem('Tổng tiền:', controller.totalAmount.value)),
         ],
       ),
     );
   }
 
-  Widget _buildOrderInfoItem(String label, String value, {bool isOrderId = false}) {
+  Widget _buildOrderInfoItem(String label, String value,
+      {bool isOrderId = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF777777),
-              fontSize: 14,
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFF777777),
+                fontSize: 14,
+              ),
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: isOrderId
-                  ? const Color(0xFF2B7A78)
-                  : Colors.black87,
-              fontSize: 14,
-              fontWeight: isOrderId ? FontWeight.w600 : FontWeight.w500,
-            ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: isOrderId
+                ? Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDEF2F1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      value,
+                      style: const TextStyle(
+                        color: Color(0xFF17252A),
+                        fontFamily: "Poppins",
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )
+                : Text(
+                    value,
+                    style: TextStyle(
+                      color:
+                          isOrderId ? const Color(0xFF2B7A78) : Colors.black87,
+                      fontSize: 14,
+                      fontWeight: isOrderId ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
           ),
         ],
       ),
@@ -314,8 +345,8 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
       ),
       child: ElevatedButton.icon(
         onPressed: () {
-          // Navigate to home page
-          Get.offAllNamed('/home');
+          // Navigate to dashboard page
+          Get.offAllNamed(Routes.dashboard);
         },
         icon: const Icon(Icons.home, color: Colors.white),
         label: const Text(
@@ -340,8 +371,8 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
   Widget _buildViewBookingsButton() {
     return OutlinedButton.icon(
       onPressed: () {
-        // Navigate to bookings page
-        Get.toNamed('/bookings');
+        // Navigate to interface booking page
+        Get.toNamed(Routes.home);
       },
       icon: const Icon(
         Icons.remove_red_eye_outlined,
