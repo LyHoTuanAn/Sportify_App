@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 
 import '../models/dashboard_model.dart';
 import '../models/models.dart';
-import '../models/coupon.dart';
 import '../models/weather_model.dart';
 import '../models/yard_featured.dart';
 import '../models/yard_search.dart';

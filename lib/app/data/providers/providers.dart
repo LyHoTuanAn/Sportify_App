@@ -602,9 +602,9 @@ class ApiProvider {
     try {
       // Cài đặt package flutter_image_compress
       // Phụ thuộc vào kích thước ảnh gốc, điều chỉnh thông số phù hợp
-      final quality = 85; // Giảm chất lượng xuống 85%
-      final minWidth = 800; // Giảm kích thước xuống tối đa 800px
-      final minHeight = 600;
+      const quality = 85; // Giảm chất lượng xuống 85%
+      const minWidth = 800; // Giảm kích thước xuống tối đa 800px
+      const minHeight = 600;
 
       // Sử dụng flutter_image_compress để nén ảnh
       // Nếu bạn đã có package flutter_image_compress, uncomment dòng dưới

@@ -1,10 +1,8 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:io';
 
 import '../../../core/styles/style.dart';
-import '../../../data/services/firebase_analytics_service.dart';
 
 import '../../../widgets/widgets.dart';
 import '../controllers/profile_controller.dart';
@@ -247,9 +245,9 @@ class ProfileView extends GetView<ProfileController> {
                             color: const Color(0xFF3AAFA9).withOpacity(0.4),
                             borderRadius: BorderRadius.circular(50),
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
+                            children: [
                               Icon(Icons.phone, color: Colors.white, size: 18),
                               SizedBox(width: 5),
                               Flexible(

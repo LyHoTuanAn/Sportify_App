@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';import '../../list/views/yard_list_view.dart';
 import '../controllers/home_controller.dart';
 import '../../../widgets/widgets.dart';
 import '../widgets/coupons_bottom_sheet.dart';
@@ -9,6 +9,7 @@ import '../../../data/models/coupon.dart';
 import '../../../data/models/yard_featured.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/repositories/repositories.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -27,7 +28,7 @@ class HomeView extends GetView<HomeController> {
               _buildCategories(),
               _buildFeaturedCourts(),
               _buildVouchers(),
-              SizedBox(height: 9),
+              const SizedBox(height: 9),
             ],
           ),
         ),
@@ -37,7 +38,7 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildHeader() {
     return Container(
-      padding: EdgeInsets.all(15),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
@@ -53,19 +54,19 @@ class HomeView extends GetView<HomeController> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: Color(0xFF2B7A78),
+                    color: const Color(0xFF2B7A78),
                     borderRadius: BorderRadius.circular(8),
                     boxShadow: [
                       BoxShadow(
-                        color: Color(0xFF2B7A78).withOpacity(0.2),
+                        color: const Color(0xFF2B7A78).withOpacity(0.2),
                         blurRadius: 10,
-                        offset: Offset(0, 4),
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
                   child: Image.asset('assets/images/logo.png',
                       width: 20, height: 20, color: Colors.white)),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -91,24 +92,24 @@ class HomeView extends GetView<HomeController> {
             ],
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: Color(0xFFDEF2F1),
+              color: const Color(0xFFDEF2F1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.location_on,
                   size: 14,
                   color: Color(0xFF2B7A78),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Obx(() => Container(
-                      constraints: BoxConstraints(maxWidth: 150),
+                      constraints: const BoxConstraints(maxWidth: 150),
                       child: Text(
                         controller.currentLocation.value,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Color(0xFF2B7A78),
@@ -127,10 +128,10 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildBanner() {
     return Container(
-      margin: EdgeInsets.only(left: 16, right: 16, top: 16),
-      padding: EdgeInsets.all(20),
+      margin: const EdgeInsets.only(left: 16, right: 16, top: 16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [Color(0xFF2B7A78), Color(0xFF3AAFA9)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -169,7 +170,7 @@ class HomeView extends GetView<HomeController> {
               Align(
                 alignment: Alignment.topRight,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -177,18 +178,18 @@ class HomeView extends GetView<HomeController> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.calendar_today, color: Colors.white, size: 14),
-                      SizedBox(width: 5),
+                      const Icon(Icons.calendar_today, color: Colors.white, size: 14),
+                      const SizedBox(width: 5),
                       Text(
                         controller.getCurrentDate(),
-                        style: TextStyle(color: Colors.white, fontSize: 11),
+                        style: const TextStyle(color: Colors.white, fontSize: 11),
                       ),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Chào mừng đến Sportify',
                 style: TextStyle(
                   color: Colors.white,
@@ -196,7 +197,7 @@ class HomeView extends GetView<HomeController> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Đặt sân cầu lông dễ dàng, nhanh chóng',
                 style: TextStyle(
@@ -204,18 +205,20 @@ class HomeView extends GetView<HomeController> {
                   fontSize: 14,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
-                  foregroundColor: Color(0xFF2B7A78),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  foregroundColor: const Color(0xFF2B7A78),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
                 ),
-                onPressed: () {},
-                child: Row(
+                onPressed: () {
+                  Get.to(() => YardListView()); // Điều hướng đến màn hình danh sách sân
+                },
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.calendar_today_outlined,
@@ -304,23 +307,23 @@ class HomeView extends GetView<HomeController> {
         } else if (label == 'Thiết bị') {
           // Hiển thị loading với thời gian mờ dần nhanh hơn
           Get.dialog(
-            Center(
+            const Center(
               child: CircularProgressIndicator(
-                color: const Color(0xFF2B7A78),
+                color: Color(0xFF2B7A78),
                 strokeWidth: 3, // Đường viền mỏng hơn để hiệu ứng nhẹ nhàng hơn
               ),
             ),
             barrierDismissible: false,
             barrierColor: Colors.black38, // Làm mờ nhẹ hơn so với mặc định
             transitionDuration:
-                Duration(milliseconds: 150), // Hiển thị nhanh hơn
+                const Duration(milliseconds: 150), // Hiển thị nhanh hơn
           );
 
           try {
             // Thêm timeout ngắn hơn để không đợi quá lâu nếu API chậm
             final url = await Repo.affiliate
                 .getCategoryLink(1)
-                .timeout(Duration(seconds: 3));
+                .timeout(const Duration(seconds: 3));
 
             // Đóng dialog càng sớm càng tốt
             Get.back();
@@ -333,7 +336,7 @@ class HomeView extends GetView<HomeController> {
                 'Thông báo',
                 'Không tìm thấy liên kết cho danh mục này',
                 snackPosition: SnackPosition.BOTTOM,
-                duration: Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
+                duration: const Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
               );
             }
           } catch (e) {
@@ -342,7 +345,7 @@ class HomeView extends GetView<HomeController> {
               'Lỗi',
               'Không thể kết nối đến máy chủ',
               snackPosition: SnackPosition.BOTTOM,
-              duration: Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
+              duration: const Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
             );
           }
         }
@@ -356,7 +359,7 @@ class HomeView extends GetView<HomeController> {
             decoration: BoxDecoration(
               color: const Color(0xFFDEF2F1),
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [],
+              boxShadow: const [],
               border: Border.all(
                   color: const Color(0xFFDEF2F1).withOpacity(0.7), width: 1),
             ),
