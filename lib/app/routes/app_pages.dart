@@ -8,6 +8,7 @@ import '../modules/Payment/views/Payment_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
 import '../modules/home/bindings/home_binding.dart';
+// ignore: unused_import
 import '../modules/home/views/home_view.dart';
 import '../modules/interface-booking/bindings/interface_booking_binding.dart';
 import '../modules/interface-booking/views/interface_booking_view.dart';
@@ -18,6 +19,7 @@ import '../modules/login/views/login_view.dart';
 import '../modules/notifications/views/notifications_view.dart';
 import '../modules/outstanding/bindings/outstanding_binding.dart';
 import '../modules/outstanding/views/outstanding_view.dart';
+// ignore: unused_import
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/register/bindings/register_binding.dart';
@@ -28,7 +30,9 @@ import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 import '../modules/successful-payment/bindings/successful_payment_binding.dart';
 import '../modules/successful-payment/view/successful_payment_view.dart';
+// ignore: unused_import
 import '../modules/welcome/bindings/welcome_binding.dart';
+// ignore: unused_import
 import '../modules/welcome/views/welcome_view.dart';
 import '../modules/forgot-password/bindings/forgot_password_binding.dart';
 import '../modules/forgot-password/views/forgot_password_view.dart';

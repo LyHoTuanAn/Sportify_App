@@ -30,6 +30,7 @@ class AppUtils {
   static void toast(String message) {
     Fluttertoast.showToast(
       msg: message,
+      // ignore: deprecated_member_use
       backgroundColor: const Color(0xFF1E1E1E).withOpacity(0.95),
       textColor: Colors.white,
     );

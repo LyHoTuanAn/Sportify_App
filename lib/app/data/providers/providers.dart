@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable, unnecessary_import, avoid_print
+
 library providers;
 
 import 'dart:io';

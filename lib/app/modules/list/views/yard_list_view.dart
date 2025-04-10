@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
@@ -37,6 +39,7 @@ class YardListView extends GetView<ListController> {
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
+                          // ignore: deprecated_member_use
                           color: const Color(0xFF2B7A78).withOpacity(0.2),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
@@ -81,6 +84,7 @@ class YardListView extends GetView<ListController> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
+                      // ignore: deprecated_member_use
                       color: Colors.black.withOpacity(0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
@@ -255,6 +259,7 @@ class YardListView extends GetView<ListController> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
+              // ignore: deprecated_member_use
               color: Colors.black.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
@@ -329,6 +334,7 @@ class YardListView extends GetView<ListController> {
                         child: InkWell(
                           onTap: () => controller.toggleFavorite(yard.id),
                           borderRadius: BorderRadius.circular(20),
+                          // ignore: deprecated_member_use
                           splashColor: Colors.grey.withOpacity(0.3),
                           child: Padding(
                             padding: const EdgeInsets.all(5.0),
@@ -534,12 +540,12 @@ class YardListView extends GetView<ListController> {
                               borderRadius: BorderRadius.circular(25),
                             ),
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text("Đặt lịch"),
-                              const SizedBox(width: 3),
-                              const Icon(
+                              Text("Đặt lịch"),
+                              SizedBox(width: 3),
+                              Icon(
                                 Icons.arrow_forward_rounded,
                                 size: 14,
                               ),
@@ -559,6 +565,7 @@ class YardListView extends GetView<ListController> {
   }
 
   // Helper method to build features list
+  // ignore: unused_element
   List<Widget> _buildFeaturesList(Yard yard) {
     List<Widget> widgetList = [];
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+// ignore: unnecessary_import
 import 'package:flutter/services.dart';
+// ignore: unused_import
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../data/models/coupon.dart';
@@ -9,9 +11,9 @@ class CouponsBottomSheet extends StatelessWidget {
   final List<Coupon> coupons;
 
   const CouponsBottomSheet({
-    Key? key,
+    super.key,
     required this.coupons,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,7 @@ class CouponsBottomSheet extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
+                  // ignore: deprecated_member_use
                   color: Colors.grey.withOpacity(0.05),
                   blurRadius: 5,
                   offset: const Offset(0, 3),
@@ -61,7 +64,7 @@ class CouponsBottomSheet extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 15),
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
@@ -85,14 +88,15 @@ class CouponsBottomSheet extends StatelessWidget {
             ),
           ),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            padding: EdgeInsets.all(10),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Color(0xFFDEF2F1),
+              color: const Color(0xFFDEF2F1),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Color(0xFF3AAFA9).withOpacity(0.3)),
+              // ignore: deprecated_member_use
+              border: Border.all(color: const Color(0xFF3AAFA9).withOpacity(0.3)),
             ),
-            child: Row(
+            child: const Row(
               children: [
                 Icon(Icons.info_outline, color: Color(0xFF2B7A78), size: 18),
                 SizedBox(width: 10),
@@ -118,10 +122,11 @@ class CouponsBottomSheet extends StatelessWidget {
                         Icon(
                           Icons.receipt_long,
                           size: 60,
+                          // ignore: deprecated_member_use
                           color: Colors.grey.withOpacity(0.3),
                         ),
-                        SizedBox(height: 16),
-                        Text(
+                        const SizedBox(height: 16),
+                        const Text(
                           'Không có voucher nào',
                           style: TextStyle(
                             color: Colors.grey,
@@ -129,8 +134,8 @@ class CouponsBottomSheet extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        SizedBox(height: 8),
-                        Text(
+                        const SizedBox(height: 8),
+                        const Text(
                           'Các voucher sẽ hiển thị ở đây khi có',
                           style: TextStyle(
                             color: Colors.grey,
@@ -167,7 +172,9 @@ class CouponsBottomSheet extends StatelessWidget {
                               );
                             },
                             borderRadius: BorderRadius.circular(15),
+                            // ignore: deprecated_member_use
                             splashColor: voucherColor.withOpacity(0.1),
+                            // ignore: deprecated_member_use
                             highlightColor: voucherColor.withOpacity(0.05),
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 16),
@@ -178,6 +185,7 @@ class CouponsBottomSheet extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(15),
                                 boxShadow: [
                                   BoxShadow(
+                                    // ignore: deprecated_member_use
                                     color: voucherColor.withOpacity(0.15),
                                     spreadRadius: 1,
                                     blurRadius: 6,
@@ -198,6 +206,7 @@ class CouponsBottomSheet extends StatelessWidget {
                                             end: Alignment.bottomRight,
                                             colors: [
                                               voucherColor,
+                                              // ignore: deprecated_member_use
                                               voucherColor.withOpacity(0.8),
                                             ],
                                           ),
@@ -239,7 +248,7 @@ class CouponsBottomSheet extends StatelessWidget {
                                             children: [
                                               Text(
                                                 coupon.name,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
                                                   color: Color(0xFF17252A),
@@ -251,7 +260,7 @@ class CouponsBottomSheet extends StatelessWidget {
                                               Row(
                                                 children: [
                                                   Container(
-                                                    padding: EdgeInsets.all(4),
+                                                    padding: const EdgeInsets.all(4),
                                                     decoration: BoxDecoration(
                                                       color: Colors.grey[100],
                                                       borderRadius:
@@ -292,10 +301,11 @@ class CouponsBottomSheet extends StatelessWidget {
                                                     children: [
                                                       Container(
                                                         padding:
-                                                            EdgeInsets.all(4),
+                                                            const EdgeInsets.all(4),
                                                         decoration:
                                                             BoxDecoration(
                                                           color: voucherColor
+                                                              // ignore: deprecated_member_use
                                                               .withOpacity(0.1),
                                                           borderRadius:
                                                               BorderRadius
@@ -323,11 +333,12 @@ class CouponsBottomSheet extends StatelessWidget {
                                                   ),
                                                   Container(
                                                     padding:
-                                                        EdgeInsets.symmetric(
+                                                        const EdgeInsets.symmetric(
                                                             horizontal: 8,
                                                             vertical: 4),
                                                     decoration: BoxDecoration(
                                                       color: voucherColor
+                                                          // ignore: deprecated_member_use
                                                           .withOpacity(0.1),
                                                       borderRadius:
                                                           BorderRadius.circular(
@@ -344,7 +355,7 @@ class CouponsBottomSheet extends StatelessWidget {
                                                                 FontWeight.w500,
                                                           ),
                                                         ),
-                                                        SizedBox(width: 4),
+                                                        const SizedBox(width: 4),
                                                         Icon(
                                                           Icons
                                                               .arrow_forward_ios,

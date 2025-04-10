@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -9,9 +11,9 @@ class CouponDetailBottomSheet extends StatefulWidget {
   final Coupon coupon;
 
   const CouponDetailBottomSheet({
-    Key? key,
+    super.key,
     required this.coupon,
-  }) : super(key: key);
+  });
 
   @override
   State<CouponDetailBottomSheet> createState() =>
@@ -59,14 +61,14 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
 
     // Gradient for background
     List<Color> gradientColors = widget.coupon.discountType == 'fixed'
-        ? [Color(0xFFFF6B6B), Color(0xFFFF8E8E)]
-        : [Color(0xFF5E60CE), Color(0xFF6A75E0)];
+        ? [const Color(0xFFFF6B6B), const Color(0xFFFF8E8E)]
+        : [const Color(0xFF5E60CE), const Color(0xFF6A75E0)];
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(25),
           topRight: Radius.circular(25),
         ),
@@ -75,7 +77,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
             color: Colors.black.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 10,
-            offset: Offset(0, -3),
+            offset: const Offset(0, -3),
           ),
         ],
       ),
@@ -83,9 +85,9 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
         children: [
           Container(
             padding: const EdgeInsets.symmetric(vertical: 15),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: const BorderRadius.only(
+              borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(25),
                 topRight: Radius.circular(25),
               ),
@@ -102,7 +104,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                   ),
                 ),
                 const SizedBox(height: 15),
-                Text(
+                const Text(
                   'Chi Tiết Mã Giảm Giá',
                   style: TextStyle(
                     fontSize: 18,
@@ -116,7 +118,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
           ),
           Expanded(
             child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -131,6 +133,8 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
+                            // ignore: duplicate_ignore
+                            // ignore: deprecated_member_use
                             color: voucherColor.withOpacity(0.2),
                             spreadRadius: 2,
                             blurRadius: 15,
@@ -143,14 +147,14 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                           // Banner with gradient
                           Container(
                             height: 110,
-                            padding: EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: gradientColors,
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
-                              borderRadius: BorderRadius.vertical(
+                              borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(20),
                               ),
                             ),
@@ -166,15 +170,15 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                                       widget.coupon.discountType == 'fixed'
                                           ? '${NumberFormat('#,###').format(widget.coupon.amount)}đ'
                                           : '${widget.coupon.amount}%',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 36,
                                         fontWeight: FontWeight.bold,
                                         height: 1,
                                       ),
                                     ),
-                                    SizedBox(height: 6),
-                                    Text(
+                                    const SizedBox(height: 6),
+                                    const Text(
                                       'GIẢM GIÁ',
                                       style: TextStyle(
                                         color: Colors.white,
@@ -196,14 +200,14 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                               children: [
                                 Text(
                                   widget.coupon.name,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF17252A),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                                SizedBox(height: 20),
+                                const SizedBox(height: 20),
                                 AnimatedBuilder(
                                   animation: _animationController,
                                   builder: (context, child) {
@@ -222,7 +226,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                                     onTapCancel: () =>
                                         _animationController.reverse(),
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                         vertical: 15,
                                         horizontal: 24,
                                       ),
@@ -238,7 +242,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                                             color: Colors.grey.withOpacity(0.1),
                                             spreadRadius: 1,
                                             blurRadius: 3,
-                                            offset: Offset(0, 1),
+                                            offset: const Offset(0, 1),
                                           ),
                                         ],
                                       ),
@@ -265,12 +269,12 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                                                   letterSpacing: 1,
                                                 ),
                                               ),
-                                              SizedBox(width: 8),
+                                              const SizedBox(width: 8),
                                               AnimatedSwitcher(
                                                 duration:
-                                                    Duration(milliseconds: 300),
+                                                    const Duration(milliseconds: 300),
                                                 child: _isCopied
-                                                    ? Icon(
+                                                    ? const Icon(
                                                         Icons.check_circle,
                                                         color: Colors.green,
                                                         size: 22,
@@ -280,7 +284,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                                                         Icons.copy,
                                                         color: voucherColor,
                                                         size: 22,
-                                                        key: ValueKey('copy'),
+                                                        key: const ValueKey('copy'),
                                                       ),
                                               ),
                                             ],
@@ -294,7 +298,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                             ),
                           ),
                           // Dotted line separator
-                          Container(
+                          SizedBox(
                             height: 2,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
@@ -311,13 +315,13 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                           ),
                           // Expiration info
                           Padding(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 vertical: 15, horizontal: 20),
                             child: Row(
                               children: [
                                 Icon(Icons.access_time,
                                     color: Colors.grey[700], size: 16),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
                                   "Hết hạn: $formattedEndDate",
                                   style: TextStyle(
@@ -335,7 +339,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
 
                     // Coupon Details Section
                     Container(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -344,14 +348,14 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                             color: Colors.grey.withOpacity(0.08),
                             spreadRadius: 1,
                             blurRadius: 10,
-                            offset: Offset(0, 1),
+                            offset: const Offset(0, 1),
                           ),
                         ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Thông tin chi tiết',
                             style: TextStyle(
                               fontSize: 18,
@@ -359,7 +363,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                               color: Color(0xFF17252A),
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           _buildDetailItem(
                               'Loại giảm giá',
                               widget.coupon.discountType == 'fixed'
@@ -402,14 +406,14 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                       style: ElevatedButton.styleFrom(
                         backgroundColor: voucherColor,
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
                         elevation: 4,
                         shadowColor: voucherColor.withOpacity(0.4),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.content_copy, size: 20),
@@ -442,7 +446,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(10),
@@ -453,7 +457,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
               color: Colors.grey[700],
             ),
           ),
-          SizedBox(width: 15),
+          const SizedBox(width: 15),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -465,10 +469,10 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
                     color: Colors.grey[700],
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   value,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF17252A),
@@ -483,6 +487,7 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
   }
 
   Widget _buildDecorativeElement() {
+    // ignore: sized_box_for_whitespace
     return Container(
       width: 60,
       height: 60,
@@ -526,13 +531,13 @@ class _CouponDetailBottomSheetState extends State<CouponDetailBottomSheet>
       colorText: Colors.green[800],
       snackPosition: SnackPosition.TOP,
       duration: const Duration(seconds: 1),
-      margin: EdgeInsets.all(10),
+      margin: const EdgeInsets.all(10),
       borderRadius: 10,
       icon: Icon(Icons.check_circle, color: Colors.green[800]),
     );
 
     // Reset the copied state after 2 seconds
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         setState(() {
           _isCopied = false;

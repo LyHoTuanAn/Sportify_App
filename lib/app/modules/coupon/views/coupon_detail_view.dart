@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
 class CouponDetailView extends GetView<CouponController> {
-  const CouponDetailView({Key? key}) : super(key: key);
+  const CouponDetailView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class CouponDetailView extends GetView<CouponController> {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(20),
           ),
@@ -49,7 +49,7 @@ class CouponDetailView extends GetView<CouponController> {
                 ),
                 const SizedBox(height: 16),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32),
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Text(
                     controller.errorMessage.value,
                     style: const TextStyle(color: Colors.red),
@@ -61,7 +61,7 @@ class CouponDetailView extends GetView<CouponController> {
                   onPressed: () => controller.fetchCouponDetail(id),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2B7A78),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -87,6 +87,7 @@ class CouponDetailView extends GetView<CouponController> {
         final DateTime endDate = DateTime.parse(coupon.endDate);
         final createDate = DateTime.parse(coupon.createdAt);
         final formattedEndDate = DateFormat('dd/MM/yyyy').format(endDate);
+        // ignore: unused_local_variable
         final formattedCreateDate = DateFormat('dd/MM/yyyy').format(createDate);
 
         Color voucherColor = coupon.discountType == 'fixed'
@@ -94,11 +95,11 @@ class CouponDetailView extends GetView<CouponController> {
             : const Color(0xFF5E60CE);
 
         List<Color> gradientColors = coupon.discountType == 'fixed'
-            ? [Color(0xFFFF6B6B), Color(0xFFFF8E8E)]
-            : [Color(0xFF5E60CE), Color(0xFF6A75E0)];
+            ? [const Color(0xFFFF6B6B), const Color(0xFFFF8E8E)]
+            : [const Color(0xFF5E60CE), const Color(0xFF6A75E0)];
 
         return SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -113,6 +114,7 @@ class CouponDetailView extends GetView<CouponController> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
+                        // ignore: deprecated_member_use
                         color: voucherColor.withOpacity(0.2),
                         spreadRadius: 2,
                         blurRadius: 15,
@@ -125,14 +127,14 @@ class CouponDetailView extends GetView<CouponController> {
                       // Banner with gradient
                       Container(
                         height: 130,
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: gradientColors,
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.vertical(
+                          borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(20),
                           ),
                         ),
@@ -146,6 +148,7 @@ class CouponDetailView extends GetView<CouponController> {
                                 width: 80,
                                 height: 80,
                                 decoration: BoxDecoration(
+                                  // ignore: deprecated_member_use
                                   color: Colors.white.withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
@@ -158,6 +161,7 @@ class CouponDetailView extends GetView<CouponController> {
                                 width: 50,
                                 height: 50,
                                 decoration: BoxDecoration(
+                                  // ignore: deprecated_member_use
                                   color: Colors.white.withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
@@ -176,15 +180,15 @@ class CouponDetailView extends GetView<CouponController> {
                                       coupon.discountType == 'fixed'
                                           ? '${NumberFormat('#,###').format(coupon.amount)}đ'
                                           : '${coupon.amount}%',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 40,
                                         fontWeight: FontWeight.bold,
                                         height: 1,
                                       ),
                                     ),
-                                    SizedBox(height: 6),
-                                    Text(
+                                    const SizedBox(height: 6),
+                                    const Text(
                                       'GIẢM GIÁ',
                                       style: TextStyle(
                                         color: Colors.white,
@@ -209,16 +213,16 @@ class CouponDetailView extends GetView<CouponController> {
                           children: [
                             Text(
                               coupon.name,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF17252A),
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 vertical: 15,
                                 horizontal: 24,
                               ),
@@ -264,7 +268,7 @@ class CouponDetailView extends GetView<CouponController> {
                                             backgroundColor: Colors.green[100],
                                             colorText: Colors.green[800],
                                             snackPosition: SnackPosition.TOP,
-                                            margin: EdgeInsets.all(10),
+                                            margin: const EdgeInsets.all(10),
                                             borderRadius: 10,
                                             icon: Icon(Icons.check_circle,
                                                 color: Colors.green[800]),
@@ -286,7 +290,7 @@ class CouponDetailView extends GetView<CouponController> {
                       ),
 
                       // Dotted line separator
-                      Container(
+                      SizedBox(
                         height: 2,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -305,12 +309,12 @@ class CouponDetailView extends GetView<CouponController> {
                       // Expiration info
                       Padding(
                         padding:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                            const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                         child: Row(
                           children: [
                             Icon(Icons.access_time,
                                 color: Colors.grey[700], size: 16),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Text(
                               "Hết hạn: $formattedEndDate",
                               style: TextStyle(
@@ -328,16 +332,17 @@ class CouponDetailView extends GetView<CouponController> {
 
                 // Coupon Details Section
                 Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
+                        // ignore: deprecated_member_use
                         color: Colors.grey.withOpacity(0.08),
                         spreadRadius: 1,
                         blurRadius: 10,
-                        offset: Offset(0, 1),
+                        offset: const Offset(0, 1),
                       ),
                     ],
                   ),
@@ -347,19 +352,19 @@ class CouponDetailView extends GetView<CouponController> {
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Color(0xFFDEF2F1),
+                              color: const Color(0xFFDEF2F1),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.info_outline,
                               color: Color(0xFF2B7A78),
                               size: 20,
                             ),
                           ),
-                          SizedBox(width: 12),
-                          Text(
+                          const SizedBox(width: 12),
+                          const Text(
                             'Thông tin chi tiết',
                             style: TextStyle(
                               fontSize: 18,
@@ -430,7 +435,7 @@ class CouponDetailView extends GetView<CouponController> {
                         backgroundColor: Colors.green[100],
                         colorText: Colors.green[800],
                         snackPosition: SnackPosition.TOP,
-                        margin: EdgeInsets.all(10),
+                        margin: const EdgeInsets.all(10),
                         borderRadius: 10,
                         icon:
                             Icon(Icons.check_circle, color: Colors.green[800]),
@@ -443,9 +448,10 @@ class CouponDetailView extends GetView<CouponController> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                       elevation: 4,
+                      // ignore: deprecated_member_use
                       shadowColor: voucherColor.withOpacity(0.4),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.content_copy, size: 20),
@@ -477,7 +483,7 @@ class CouponDetailView extends GetView<CouponController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(10),
@@ -488,7 +494,7 @@ class CouponDetailView extends GetView<CouponController> {
               color: Colors.grey[700],
             ),
           ),
-          SizedBox(width: 15),
+          const SizedBox(width: 15),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -500,10 +506,10 @@ class CouponDetailView extends GetView<CouponController> {
                     color: Colors.grey[700],
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   value,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF17252A),
@@ -518,7 +524,7 @@ class CouponDetailView extends GetView<CouponController> {
   }
 
   Widget _buildDecorativeElement() {
-    return Container(
+    return SizedBox(
       width: 60,
       height: 60,
       child: Stack(
@@ -529,6 +535,7 @@ class CouponDetailView extends GetView<CouponController> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 border:
+                    // ignore: deprecated_member_use
                     Border.all(color: Colors.white.withOpacity(0.5), width: 4),
               ),
             ),
@@ -539,6 +546,7 @@ class CouponDetailView extends GetView<CouponController> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 border:
+                    // ignore: deprecated_member_use
                     Border.all(color: Colors.white.withOpacity(0.3), width: 4),
               ),
             ),

@@ -131,7 +131,7 @@ class WeatherController extends GetxController {
       // Nếu lần đầu mở app hoặc chưa có quyền được lưu
       if (!hasLaunchedBefore) {
         // Hiển thị dialog xin quyền cho lần đầu
-        await Future.delayed(Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 500));
         showLocationPermissionDialog();
       } else if (hasPermissionSaved) {
         // Đã lưu quyền trước đó, yêu cầu trực tiếp
@@ -173,19 +173,20 @@ class WeatherController extends GetxController {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
+        // ignore: deprecated_member_use
         backgroundColor: Colors.black.withOpacity(0.85),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 Icons.location_on,
                 color: Colors.white,
                 size: 48,
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Truy cập thông tin vị trí',
                 style: TextStyle(
                   color: Colors.white,
@@ -193,15 +194,15 @@ class WeatherController extends GetxController {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Các tùy chọn vị trí
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.blue, width: 2),
                   borderRadius: BorderRadius.circular(15),
                 ),
-                padding: EdgeInsets.all(10),
-                child: Row(
+                padding: const EdgeInsets.all(10),
+                child: const Row(
                   children: [
                     Icon(Icons.circle, color: Colors.blue, size: 14),
                     SizedBox(width: 10),
@@ -210,12 +211,12 @@ class WeatherController extends GetxController {
                   ],
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               // Các nút hành động
               TextButton(
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.grey[800],
-                  minimumSize: Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -227,13 +228,13 @@ class WeatherController extends GetxController {
                   Get.back();
                   fetchWeatherForDefaultCity();
                 },
-                child: Text('Từ chối', style: TextStyle(color: Colors.white)),
+                child: const Text('Từ chối', style: TextStyle(color: Colors.white)),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               TextButton(
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.grey[800],
-                  minimumSize: Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -245,14 +246,14 @@ class WeatherController extends GetxController {
                   Get.back();
                   handlePermissionRequest(onlyThisTime: true);
                 },
-                child: Text('Cho phép lần này',
+                child: const Text('Cho phép lần này',
                     style: TextStyle(color: Colors.white)),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               TextButton(
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  minimumSize: Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -264,7 +265,7 @@ class WeatherController extends GetxController {
                   Get.back();
                   handlePermissionRequest();
                 },
-                child: Text('Chỉ cho phép khi đang ứng dụng',
+                child: const Text('Chỉ cho phép khi đang ứng dụng',
                     style: TextStyle(color: Colors.white)),
               ),
             ],
@@ -340,9 +341,10 @@ class WeatherController extends GetxController {
           'Không tìm thấy',
           'Không tìm thấy thành phố $city hoặc có lỗi xảy ra. Vui lòng thử lại.',
           snackPosition: SnackPosition.BOTTOM,
+          // ignore: deprecated_member_use
           backgroundColor: Colors.red.withOpacity(0.7),
           colorText: Colors.white,
-          duration: Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
         );
       }
     } catch (e) {
@@ -351,9 +353,10 @@ class WeatherController extends GetxController {
         'Lỗi',
         'Không thể tìm kiếm thời tiết. Vui lòng thử lại sau.',
         snackPosition: SnackPosition.BOTTOM,
+        // ignore: deprecated_member_use
         backgroundColor: Colors.red.withOpacity(0.7),
         colorText: Colors.white,
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       );
     } finally {
       isLoading.value = false;
@@ -377,6 +380,7 @@ class WeatherController extends GetxController {
       // Kiểm tra xem có dữ liệu vị trí đã lưu không từ HomeController
       double? lastLat = locationPrefs.read<double>('last_latitude');
       double? lastLon = locationPrefs.read<double>('last_longitude');
+      // ignore: unused_local_variable
       String? lastCity = locationPrefs.read<String>('last_city');
       String? savedDetailedAddress =
           locationPrefs.read<String>('last_detailed_address');
@@ -419,8 +423,10 @@ class WeatherController extends GetxController {
 
       // Nếu không có dữ liệu vị trí đã lưu hoặc đã quá cũ, lấy vị trí mới
       final position = await Geolocator.getCurrentPosition(
+        // ignore: deprecated_member_use
         desiredAccuracy: LocationAccuracy.high,
-        timeLimit: Duration(seconds: 5),
+        // ignore: deprecated_member_use
+        timeLimit: const Duration(seconds: 5),
       ).catchError((error) {
         // Xử lý lỗi timeout
         printError(info: 'Timeout getting location: $error');
@@ -467,9 +473,10 @@ class WeatherController extends GetxController {
         'Lỗi vị trí',
         'Không thể lấy thông tin vị trí hiện tại. Đang hiển thị dữ liệu mặc định.',
         snackPosition: SnackPosition.BOTTOM,
+        // ignore: deprecated_member_use
         backgroundColor: Colors.orange.withOpacity(0.7),
         colorText: Colors.white,
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       );
       fetchWeatherForDefaultCity();
     } finally {
@@ -503,7 +510,7 @@ class WeatherController extends GetxController {
     if (weatherData.value == null) return;
 
     // Only get summary for dates within the past week
-    if (date.isAfter(DateTime.now().subtract(Duration(days: 7)))) {
+    if (date.isAfter(DateTime.now().subtract(const Duration(days: 7)))) {
       isLoadingDailySummary.value = true;
       try {
         // Extract coordinates from the current weather data
@@ -578,9 +585,11 @@ class WeatherController extends GetxController {
   // Get weather icon URL
   String getWeatherIconUrl(String iconCode) {
     // Xác định nếu là icon ban đêm (thường có chữ "n" ở cuối)
+    // ignore: unused_local_variable
     bool isNight = iconCode.endsWith('n');
 
     // Ánh xạ mã icon của OpenWeatherMap sang icon từ bộ mới
+    // ignore: unused_local_variable
     String mappedIcon;
 
     switch (iconCode) {
@@ -649,10 +658,11 @@ class WeatherController extends GetxController {
       'Đã cập nhật',
       'Dữ liệu thời tiết $locationName đã được làm mới',
       snackPosition: SnackPosition.TOP,
+      // ignore: deprecated_member_use
       backgroundColor: Colors.green.withOpacity(0.7),
       colorText: Colors.white,
-      duration: Duration(seconds: 2),
-      margin: EdgeInsets.only(top: 10, left: 10, right: 10),
+      duration: const Duration(seconds: 2),
+      margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
       borderRadius: 10,
     );
   }
@@ -689,26 +699,26 @@ class WeatherController extends GetxController {
     summary += _getWeatherConditionDescription(description);
 
     // Thông tin nhiệt độ
-    summary += ' với nhiệt độ khoảng ${temp}°C (cảm giác như ${feels}°C). ';
+    summary += ' với nhiệt độ khoảng $temp°C (cảm giác như $feels°C). ';
 
     // Thêm thông tin về độ ẩm
     if (humidity > 80) {
-      summary += 'Độ ẩm rất cao (${humidity}%), ';
+      summary += 'Độ ẩm rất cao ($humidity%), ';
       if (description.contains('mưa') || description.contains('rào')) {
         summary += 'có thể có mưa kéo dài. ';
       } else {
         summary += 'cảm giác sẽ khá bí bách. ';
       }
     } else if (humidity > 60) {
-      summary += 'Độ ẩm khá cao (${humidity}%). ';
+      summary += 'Độ ẩm khá cao ($humidity%). ';
     } else if (humidity < 30) {
       summary +=
-          'Không khí khá khô (độ ẩm ${humidity}%), nên uống nhiều nước. ';
+          'Không khí khá khô (độ ẩm $humidity%), nên uống nhiều nước. ';
     }
 
     // Thêm thông tin về gió
     if (wind > 20) {
-      summary += 'Gió mạnh, tốc độ ${wind} km/h. ';
+      summary += 'Gió mạnh, tốc độ $wind km/h. ';
     } else if (wind > 10) {
       summary += 'Gió nhẹ đến vừa. ';
     } else {
@@ -789,7 +799,7 @@ class WeatherController extends GetxController {
     summary += _getWeatherConditionDescription(description);
 
     // Thông tin nhiệt độ
-    summary += '. Nhiệt độ ban ngày ${temp}°C, ban đêm ${tempNight}°C. ';
+    summary += '. Nhiệt độ ban ngày $temp°C, ban đêm $tempNight°C. ';
 
     // Lời khuyên tùy theo thời tiết (chỉ dựa trên mô tả và nhiệt độ)
     if (description.contains('mưa')) {

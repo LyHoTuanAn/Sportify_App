@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';import '../../list/views/yard_list_view.dart';
+import 'package:intl/intl.dart';
+import '../../list/views/yard_list_view.dart';
 import '../controllers/home_controller.dart';
-import '../../../widgets/widgets.dart';
 import '../widgets/coupons_bottom_sheet.dart';
 import '../widgets/coupon_detail_bottom_sheet.dart';
 import '../../../data/models/coupon.dart';
-import '../../../data/models/yard_featured.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/repositories/repositories.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -58,6 +56,7 @@ class HomeView extends GetView<HomeController> {
                     borderRadius: BorderRadius.circular(8),
                     boxShadow: [
                       BoxShadow(
+                        // ignore: deprecated_member_use
                         color: const Color(0xFF2B7A78).withOpacity(0.2),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
@@ -147,6 +146,7 @@ class HomeView extends GetView<HomeController> {
               width: 180,
               height: 180,
               decoration: BoxDecoration(
+                // ignore: deprecated_member_use
                 color: Colors.white.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
@@ -159,6 +159,7 @@ class HomeView extends GetView<HomeController> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
+                // ignore: deprecated_member_use
                 color: Colors.white.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
@@ -170,19 +171,23 @@ class HomeView extends GetView<HomeController> {
               Align(
                 alignment: Alignment.topRight,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.calendar_today, color: Colors.white, size: 14),
+                      const Icon(Icons.calendar_today,
+                          color: Colors.white, size: 14),
                       const SizedBox(width: 5),
                       Text(
                         controller.getCurrentDate(),
-                        style: const TextStyle(color: Colors.white, fontSize: 11),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 11),
                       ),
                     ],
                   ),
@@ -201,6 +206,7 @@ class HomeView extends GetView<HomeController> {
               Text(
                 'Đặt sân cầu lông dễ dàng, nhanh chóng',
                 style: TextStyle(
+                  // ignore: deprecated_member_use
                   color: Colors.white.withOpacity(0.9),
                   fontSize: 14,
                 ),
@@ -210,13 +216,15 @@ class HomeView extends GetView<HomeController> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: const Color(0xFF2B7A78),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
                 ),
                 onPressed: () {
-                  Get.to(() => YardListView()); // Điều hướng đến màn hình danh sách sân
+                  Get.to(() =>
+                      const YardListView()); // Điều hướng đến màn hình danh sách sân
                 },
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -336,7 +344,8 @@ class HomeView extends GetView<HomeController> {
                 'Thông báo',
                 'Không tìm thấy liên kết cho danh mục này',
                 snackPosition: SnackPosition.BOTTOM,
-                duration: const Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
+                duration:
+                    const Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
               );
             }
           } catch (e) {
@@ -345,7 +354,8 @@ class HomeView extends GetView<HomeController> {
               'Lỗi',
               'Không thể kết nối đến máy chủ',
               snackPosition: SnackPosition.BOTTOM,
-              duration: const Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
+              duration:
+                  const Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
             );
           }
         }
@@ -361,7 +371,9 @@ class HomeView extends GetView<HomeController> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [],
               border: Border.all(
-                  color: const Color(0xFFDEF2F1).withOpacity(0.7), width: 1),
+                  // ignore: deprecated_member_use
+                  color: const Color(0xFFDEF2F1).withOpacity(0.7),
+                  width: 1),
             ),
             child: Center(
               child: Icon(

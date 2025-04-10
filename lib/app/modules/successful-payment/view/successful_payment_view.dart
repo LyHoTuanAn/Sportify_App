@@ -65,6 +65,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
       width: width,
       height: height,
       decoration: BoxDecoration(
+        // ignore: deprecated_member_use
         color: Colors.white.withOpacity(0.05),
         shape: BoxShape.circle,
       ),
@@ -72,9 +73,9 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: const Text(
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: Text(
         'Thanh toán',
         style: TextStyle(
           color: Colors.white,
@@ -128,6 +129,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
       borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(
+          // ignore: deprecated_member_use
           color: Colors.black.withOpacity(0.15),
           blurRadius: 40,
           offset: const Offset(0, 20),
@@ -157,6 +159,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
+                      // ignore: deprecated_member_use
                       color: Colors.green.withOpacity(0.3),
                       width: 2,
                     ),
@@ -179,6 +182,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
                     ),
                     boxShadow: [
                       BoxShadow(
+                        // ignore: deprecated_member_use
                         color: Colors.green.withOpacity(0.3),
                         blurRadius: 20,
                         spreadRadius: 5,
@@ -337,6 +341,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: const Color(0xFF2B7A78).withOpacity(0.25),
             blurRadius: 12,
             offset: const Offset(0, 4),
@@ -402,6 +407,7 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
       child: Text(
         'Cảm ơn quý khách đã sử dụng dịch vụ của Sportify!',
         style: TextStyle(
+          // ignore: deprecated_member_use
           color: Colors.white.withOpacity(0.8),
           fontSize: 13,
         ),

@@ -124,11 +124,13 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.detached ||
         state == AppLifecycleState.paused) {
+      // ignore: avoid_print
       print('App entering background, clearing cached URLs');
       categoryUrls.clear();
     }
 
     if (state == AppLifecycleState.resumed) {
+      // ignore: avoid_print
       print('App resumed, refreshing URLs');
       // Refresh URLs when app comes back to foreground
       fetchCategoryLink('Thiết bị', 1);
@@ -141,6 +143,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       final result = await Repo.coupon.getCoupons();
       coupons.value = result;
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching coupons: $e');
     } finally {
       isLoadingCoupons.value = false;
@@ -157,13 +160,18 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       if (hasPermission) {
         // Nếu có quyền, lấy vị trí hiện tại
         final position = await Geolocator.getCurrentPosition(
+          // ignore: deprecated_member_use
           desiredAccuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 5),
+          // ignore: deprecated_member_use
+          timeLimit: const Duration(seconds: 5),
         ).catchError((error) {
+          // ignore: avoid_print
           print('Lỗi lấy vị trí: $error');
+          // ignore: invalid_return_type_for_catch_error
           return null;
         });
 
+        // ignore: unnecessary_null_comparison
         if (position != null) {
           // Lưu vị trí hiện tại
           currentPosition.value = position;
@@ -186,6 +194,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         locationInitial.value = 'V';
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Lỗi xử lý vị trí: $e');
       currentLocation.value = 'Lỗi xác định vị trí';
       locationInitial.value = 'L';
@@ -204,13 +213,21 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         Placemark place = placemarks.first;
 
         // In ra tất cả thông tin Placemark để debug
+        // ignore: avoid_print
         print('PLACEMARK DATA:');
+        // ignore: avoid_print
         print('name: ${place.name}');
+        // ignore: avoid_print
         print('thoroughfare: ${place.thoroughfare}');
+        // ignore: avoid_print
         print('subThoroughfare: ${place.subThoroughfare}');
+        // ignore: avoid_print
         print('street: ${place.street}');
+        // ignore: avoid_print
         print('subLocality: ${place.subLocality}');
+        // ignore: avoid_print
         print('locality: ${place.locality}');
+        // ignore: avoid_print
         print('administrativeArea: ${place.administrativeArea}');
 
         // Tạo địa chỉ chi tiết
@@ -290,6 +307,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         }
 
         // In ra địa chỉ được tạo để debug
+        // ignore: avoid_print
         print('Địa chỉ được tạo: $detailedAddress');
 
         if (detailedAddress.isEmpty) {
@@ -328,6 +346,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         }
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Lỗi lấy địa chỉ chi tiết: $e');
       // Nếu có lỗi, sẽ giữ nguyên địa chỉ hiện tại
     }
@@ -380,6 +399,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         locationPrefs.write('last_city', weather.cityName);
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Lỗi tải dữ liệu thời tiết: $e');
       if (currentLocation.value == 'Đang xác định...') {
         currentLocation.value = 'Không thể xác định vị trí';
@@ -391,14 +411,18 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   Future<void> fetchCategoryLink(String categoryName, int categoryId) async {
     try {
       final url = await Repo.affiliate.getCategoryLink(categoryId);
+      // ignore: avoid_print
       print('Fetched URL for $categoryName: $url');
       if (url != null) {
         categoryUrls[categoryName] = url;
+        // ignore: avoid_print
         print('Stored URL in categoryUrls: ${categoryUrls[categoryName]}');
       } else {
+        // ignore: avoid_print
         print('No URL returned for category $categoryName');
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching category link: $e');
     }
   }
@@ -406,6 +430,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   // Function to launch URLs
   Future<void> launchCategoryUrl(String categoryName) async {
     final url = categoryUrls[categoryName];
+    // ignore: avoid_print
     print('Attempting to launch URL for $categoryName: $url');
 
     if (url != null) {
@@ -414,10 +439,12 @@ class HomeController extends GetxController with WidgetsBindingObserver {
 
         // More reliable approach for Android
         if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
+          // ignore: avoid_print
           print('Could not launch $url with inAppWebView, trying external');
 
           // Try external as fallback
           if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+            // ignore: avoid_print
             print('Could not launch $url with any method');
             // Show a snackbar or toast to inform the user
             Get.snackbar(
@@ -428,6 +455,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
           }
         }
       } catch (e) {
+        // ignore: avoid_print
         print('Error launching URL: $e');
         Get.snackbar(
           'Lỗi',
@@ -436,6 +464,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         );
       }
     } else {
+      // ignore: avoid_print
       print('No URL found for category $categoryName');
       Get.snackbar(
         'Thông báo',
@@ -447,6 +476,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
 
   // Phương thức để mở URL trực tiếp (không thông qua cache)
   Future<void> launchUrlDirectly(String url) async {
+    // ignore: avoid_print
     print('Launching direct URL: $url');
 
     try {
@@ -456,6 +486,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
         // Nếu không được, thử mở bằng trình duyệt bên ngoài
         if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+          // ignore: avoid_print
           print('Could not launch $url with any method');
           Get.snackbar(
             'Không thể mở trang web',
@@ -465,6 +496,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         }
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error launching URL: $e');
       Get.snackbar(
         'Lỗi',
@@ -480,6 +512,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       final results = await Repo.yard.getFeaturedYards();
       featuredYards.value = results;
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching featured yards: $e');
     } finally {
       isLoadingFeaturedYards.value = false;
@@ -487,6 +520,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   }
 
   @override
+  // ignore: unnecessary_overrides
   void onReady() {
     super.onReady();
   }

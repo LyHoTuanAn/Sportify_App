@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, prefer_const_constructors, avoid_print, invalid_return_type_for_catch_error, unnecessary_brace_in_string_interps
+
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_storage/get_storage.dart';
@@ -66,6 +68,7 @@ class ListController extends GetxController {
           return null;
         });
 
+        // ignore: unnecessary_null_comparison
         if (position != null) {
           currentPosition.value = position;
 
@@ -239,6 +242,8 @@ class ListController extends GetxController {
       if (response.status == 1) {
         final serverStatus = response.isActive;
         print(
+            // ignore: duplicate_ignore
+            // ignore: unnecessary_brace_in_string_interps
             'Server status (${serverStatus}) from class="${response.toggleClass}"');
 
         // If server response doesn't match our expected status, fix the discrepancy

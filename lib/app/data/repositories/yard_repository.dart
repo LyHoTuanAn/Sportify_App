@@ -197,6 +197,7 @@ class YardRepository {
         email: email,
       );
     } catch (e) {
+      // ignore: avoid_print
       print('Error in YardRepository.doCheckout: $e');
       rethrow;
     }

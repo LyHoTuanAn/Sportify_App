@@ -95,6 +95,7 @@ class Yard {
         try {
           distance = double.parse(json["distance"]["value"].toString());
         } catch (e) {
+          // ignore: avoid_print
           print('Error parsing distance value: $e');
         }
       } else {
@@ -102,6 +103,7 @@ class Yard {
         try {
           distance = double.parse(json["distance"].toString());
         } catch (e) {
+          // ignore: avoid_print
           print('Error parsing distance: $e');
         }
       }
@@ -165,6 +167,7 @@ class Yard {
         final priceDouble = double.parse(price);
         return '${priceDouble.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} vnđ/h';
       } catch (e) {
+        // ignore: unnecessary_brace_in_string_interps
         return '${price} vnđ/h';
       }
     }
@@ -178,6 +181,7 @@ class Yard {
         final salePriceDouble = double.parse(salePricePerHour!);
         return '${salePriceDouble.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} vnđ/h';
       } catch (e) {
+        // ignore: unnecessary_brace_in_string_interps
         return '${salePricePerHour} vnd/h';
       }
     }
@@ -242,6 +246,7 @@ class YardReviewScore {
       try {
         parseScore = double.parse(json["score"].toString());
       } catch (e) {
+        // ignore: avoid_print
         print('Error parsing review score: $e');
       }
     }

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -170,6 +172,7 @@ class InterfaceBookingController extends GetxController {
     // Split the court-time string to get the parts
     final parts = courtTime.split('-');
     final court = parts[0];
+    // ignore: unused_local_variable
     final time = parts[1];
 
     // Check if we're toggling a previously selected slot
@@ -434,6 +437,7 @@ class InterfaceBookingController extends GetxController {
 
       // Get the venue address
       String venueAddress = '';
+      // ignore: unnecessary_null_comparison
       if (yard != null && yard.location != null) {
         // Try to get real address text from the location
         if (yard.location.realAddressText.isNotEmpty) {

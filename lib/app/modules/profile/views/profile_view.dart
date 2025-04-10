@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -10,6 +12,7 @@ import '../widgets/widgets.dart';
 import '../../../widgets/loading.dart';
 
 class ProfileView extends GetView<ProfileController> {
+  // ignore: use_super_parameters
   const ProfileView({Key? key}) : super(key: key);
 
   @override
@@ -70,7 +73,7 @@ class ProfileView extends GetView<ProfileController> {
                 ),
               ),
               const PopupMenuDivider(height: 1),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'logout',
                 height: 48,
                 child: Center(
@@ -85,7 +88,7 @@ class ProfileView extends GetView<ProfileController> {
                 ),
               ),
               const PopupMenuDivider(height: 1),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 enabled: false,
                 height: 48,
                 child: Center(
@@ -242,6 +245,7 @@ class ProfileView extends GetView<ProfileController> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 8, horizontal: 15),
                           decoration: BoxDecoration(
+                            // ignore: deprecated_member_use
                             color: const Color(0xFF3AAFA9).withOpacity(0.4),
                             borderRadius: BorderRadius.circular(50),
                           ),
@@ -289,6 +293,7 @@ class ProfileView extends GetView<ProfileController> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 15),
                       decoration: BoxDecoration(
+                        // ignore: deprecated_member_use
                         color: const Color(0xFF3AAFA9).withOpacity(0.4),
                         borderRadius: BorderRadius.circular(50),
                       ),
@@ -471,12 +476,12 @@ class ProfileView extends GetView<ProfileController> {
                         _buildGenderInfoItem(
                           controller.user.value?.gender ?? 'Chưa cập nhật',
                         ),
-                        if (controller.user.value?.address?.isNotEmpty ?? false)
+                        if (controller.user.value?.address.isNotEmpty ?? false)
                           _buildInfoItem(
                             icon: Icons.location_on_outlined,
                             label: 'Địa chỉ',
                             value: controller
-                                    .user.value?.address?.first.fullAddress ??
+                                    .user.value?.address.first.fullAddress ??
                                 'Chưa cập nhật',
                           ),
                       ],
@@ -548,7 +553,7 @@ class ProfileView extends GetView<ProfileController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.people_outline, size: 20, color: const Color(0xFF2B7A78)),
+          const Icon(Icons.people_outline, size: 20, color: Color(0xFF2B7A78)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -566,9 +571,11 @@ class ProfileView extends GetView<ProfileController> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: genderColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
+                        // ignore: deprecated_member_use
                         color: genderColor.withOpacity(0.5), width: 1),
                   ),
                   child: Row(

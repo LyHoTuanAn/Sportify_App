@@ -36,6 +36,7 @@ class YardFeatured {
         final priceDouble = double.parse(price);
         return '${priceDouble.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}đ';
       } catch (e) {
+        // ignore: unnecessary_brace_in_string_interps
         return '${price}đ';
       }
     }

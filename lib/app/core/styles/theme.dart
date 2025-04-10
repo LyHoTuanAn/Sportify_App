@@ -52,17 +52,20 @@ class AppTheme {
       secondary: secondary,
       secondaryContainer: Color(0xffc75b39),
       surface: Color(0xfff2f2f2),
+      // ignore: deprecated_member_use
       background: background,
       error: Colors.red,
       onPrimary: Colors.white,
       onSecondary: Colors.black,
       onSurface: Colors.black,
+      // ignore: deprecated_member_use
       onBackground: Colors.black,
       onError: Colors.white,
       brightness: Brightness.light,
     );
 
     final bool dark = colorScheme.brightness == Brightness.dark;
+    // ignore: deprecated_member_use
     final appBarColor = dark ? colorScheme.surface : colorScheme.background;
     final indicatorColor = dark ? colorScheme.onSurface : colorScheme.primary;
     return ThemeData(
@@ -83,10 +86,14 @@ class AppTheme {
           fontWeight: FontWeight.w500,
         ),
       ),
+      // ignore: deprecated_member_use
       canvasColor: colorScheme.background,
+      // ignore: deprecated_member_use
       scaffoldBackgroundColor: colorScheme.background,
       cardColor: colorScheme.surface,
+      // ignore: deprecated_member_use
       dividerColor: colorScheme.onSurface.withOpacity(0.12),
+      // ignore: deprecated_member_use
       dialogBackgroundColor: colorScheme.surface,
       indicatorColor: indicatorColor,
       applyElevationOverlayColor: dark,
@@ -104,6 +111,7 @@ class AppTheme {
       fontFamily: 'Inter',
       colorScheme: colorScheme
           .copyWith(error: colorScheme.error)
+          // ignore: deprecated_member_use
           .copyWith(background: colorScheme.background),
       bottomAppBarTheme: BottomAppBarTheme(color: colorScheme.surface),
     );

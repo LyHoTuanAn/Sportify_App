@@ -144,6 +144,7 @@ class CustomTextFieldState extends State<InputCustom> {
                 ? IconButton(
                     icon: Icon(
                         _obscureText ? Icons.visibility_off : Icons.visibility,
+                        // ignore: deprecated_member_use
                         color: AppTheme.appBarTintColor.withOpacity(0.6)),
                     onPressed: _toggle,
                   )

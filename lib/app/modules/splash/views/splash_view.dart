@@ -52,6 +52,7 @@ class SplashView extends GetView<SplashController> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
+                              // ignore: deprecated_member_use
                               color: Colors.white.withOpacity(0.1),
                               blurRadius: 20,
                               spreadRadius: 5,
@@ -88,6 +89,7 @@ class SplashView extends GetView<SplashController> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
+                              // ignore: deprecated_member_use
                               color: Colors.white.withOpacity(0.2),
                               blurRadius: 30,
                               spreadRadius: 5,
@@ -123,6 +125,7 @@ class SplashView extends GetView<SplashController> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
+                              // ignore: deprecated_member_use
                               color: Colors.white.withOpacity(0.15),
                               blurRadius: 25,
                               spreadRadius: 3,
@@ -203,6 +206,7 @@ class SplashView extends GetView<SplashController> {
                       return LinearGradient(
                         colors: [
                           Colors.white,
+                          // ignore: deprecated_member_use
                           Colors.white.withOpacity(0.8),
                           Colors.white,
                         ],
@@ -242,6 +246,7 @@ class SplashView extends GetView<SplashController> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
+                              // ignore: deprecated_member_use
                               color: Colors.white.withOpacity(0.9),
                               letterSpacing: 4 + (controller.letterSpacingAnimation.value * 2),
                             ),
@@ -301,10 +306,12 @@ class SplashView extends GetView<SplashController> {
                     width: 200,
                     height: 4,
                     decoration: BoxDecoration(
+                      // ignore: deprecated_member_use
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(2),
                       boxShadow: [
                         BoxShadow(
+                          // ignore: deprecated_member_use
                           color: Colors.black.withOpacity(0.2),
                           blurRadius: 4,
                           spreadRadius: 0,
@@ -331,6 +338,7 @@ class SplashView extends GetView<SplashController> {
                                   borderRadius: BorderRadius.circular(2),
                                   boxShadow: [
                                     BoxShadow(
+                                      // ignore: deprecated_member_use
                                       color: Colors.white.withOpacity(0.5),
                                       blurRadius: 8,
                                       spreadRadius: 0,
@@ -351,10 +359,12 @@ class SplashView extends GetView<SplashController> {
                                     width: 20,
                                     height: 10,
                                     decoration: BoxDecoration(
+                                      // ignore: deprecated_member_use
                                       color: Colors.white.withOpacity(0.3 + (controller.pulseAnimation.value * 0.2)),
                                       borderRadius: BorderRadius.circular(5),
                                       boxShadow: [
                                         BoxShadow(
+                                          // ignore: deprecated_member_use
                                           color: Colors.white.withOpacity(0.5),
                                           blurRadius: 10,
                                           spreadRadius: 2,

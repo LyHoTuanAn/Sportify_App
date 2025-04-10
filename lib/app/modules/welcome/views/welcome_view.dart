@@ -1,8 +1,13 @@
+// ignore: unused_import
 import 'package:get/get.dart' hide ContextExtensionss;
 
+// ignore: unused_import
 import '../../../core/styles/style.dart';
+// ignore: unused_import
 import '../../../widgets/app_button.dart';
+// ignore: unused_import
 import '../../../widgets/page_indicators.dart';
+// ignore: unused_import
 import '../controllers/welcome_controller.dart';
 
 // Welcome screen is no longer used - navigating directly to login

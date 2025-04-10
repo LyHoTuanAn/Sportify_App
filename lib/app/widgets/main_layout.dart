@@ -8,10 +8,10 @@ class MainLayout extends StatelessWidget {
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   MainLayout({
-    Key? key,
+    super.key,
     required this.child,
     required this.currentIndex,
-  }) : super(key: key);
+  });
 
   void _onItemTapped(int index) {
     if (index != currentIndex) {
@@ -39,6 +39,7 @@ class MainLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         if (_navigatorKey.currentState?.canPop() ?? false) {

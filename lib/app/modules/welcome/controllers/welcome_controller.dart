@@ -1,8 +1,13 @@
+// ignore: unused_import
 import 'dart:async';
+// ignore: unused_import
 import 'package:get/get.dart';
 
+// ignore: unused_import
 import '../../../core/styles/style.dart';
+// ignore: unused_import
 import '../../../core/utilities/utilities.dart';
+// ignore: unused_import
 import '../../../routes/app_pages.dart';
 
 // Welcome screen is no longer used - navigating directly to login

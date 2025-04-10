@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+// ignore: unnecessary_import
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
@@ -90,8 +91,10 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     border: Border.all(color: Colors.white.withOpacity(0.4)),
                     borderRadius: BorderRadius.circular(8),
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.2),
                   ),
                   child: const Row(
@@ -152,6 +155,7 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -216,21 +220,21 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
         color: const Color(0xFFDEF2F1),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
+      child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             Icons.info_outline,
             size: 16,
-            color: const Color(0xFF2B7A78),
+            color: Color(0xFF2B7A78),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Expanded(
             child: Text(
               'Lưu ý: Nếu bạn cần đặt lịch cố định vui lòng liên hệ: 0334043054 để được hỗ trợ',
               style: TextStyle(
                 fontSize: 13,
-                color: const Color(0xFF2B7A78),
+                color: Color(0xFF2B7A78),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -276,6 +280,7 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -290,10 +295,10 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
             },
             child: Container(
               padding: const EdgeInsets.all(6),
-              child: Icon(
+              child: const Icon(
                 Icons.remove,
                 size: 16,
-                color: const Color(0xFF2B7A78),
+                color: Color(0xFF2B7A78),
               ),
             ),
           ),
@@ -308,10 +313,10 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
             },
             child: Container(
               padding: const EdgeInsets.all(6),
-              child: Icon(
+              child: const Icon(
                 Icons.add,
                 size: 16,
-                color: const Color(0xFF2B7A78),
+                color: Color(0xFF2B7A78),
               ),
             ),
           ),
@@ -401,7 +406,8 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => controller.loadAvailabilityData(),
-                child: Text('Tải lại dữ liệu'),
+                // ignore: sort_child_properties_last
+                child: const Text('Tải lại dữ liệu'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2B7A78),
                   foregroundColor: Colors.white,
@@ -420,6 +426,7 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -447,7 +454,7 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
                     width: 70,
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     alignment: Alignment.center,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       border: Border(
                         right: BorderSide(color: Colors.white, width: 1),
                       ),
@@ -465,7 +472,7 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
                         width: controller.cellWidth.value,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           border: Border(
                             left: BorderSide(color: Colors.white, width: 0.5),
                           ),
@@ -495,7 +502,7 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2B7A78),
-                        border: Border(
+                        border: const Border(
                           top: BorderSide(color: Colors.white, width: 1),
                           right: BorderSide(color: Colors.white, width: 1),
                         ),
@@ -556,6 +563,7 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
                               : null,
                         ),
                       );
+                    // ignore: unnecessary_to_list_in_spreads
                     }).toList(),
                   ],
                 );
@@ -663,7 +671,9 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
                   boxShadow: [
                     BoxShadow(
                       color: controller.selectedTimeSlots.isEmpty
+                          // ignore: deprecated_member_use
                           ? Colors.grey.withOpacity(0.2)
+                          // ignore: deprecated_member_use
                           : const Color(0xFF2B7A78).withOpacity(0.2),
                       blurRadius: 8,
                       offset: const Offset(0, 3),

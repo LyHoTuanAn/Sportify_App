@@ -21,12 +21,14 @@ class _PaymentWebViewState extends State<PaymentWebView> {
   @override
   void initState() {
     super.initState();
+    // ignore: avoid_print
     print('PaymentWebView - Initializing with URL: ${widget.paymentUrl}');
     _initializeWebView();
   }
 
   void _initializeWebView() {
     try {
+      // ignore: avoid_print
       print('Initializing WebView controller...');
       webViewController = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -35,6 +37,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         ..setNavigationDelegate(
           NavigationDelegate(
             onPageStarted: (String url) {
+              // ignore: avoid_print
               print('WebView - Loading started: $url');
               setState(() {
                 isLoading = true;
@@ -46,11 +49,13 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               // Check for payment completion
               if (url.contains('/api/booking/confirm-payment') ||
                   url.contains('vnp_ResponseCode=00')) {
+                // ignore: avoid_print
                 print('Payment successful, redirecting to success page');
                 Get.offAllNamed(Routes.successfullPayment);
               }
               // Check for payment cancellation
               else if (url.contains('vnp_ResponseCode=24')) {
+                // ignore: avoid_print
                 print('Payment cancelled by user');
                 Get.back();
                 Get.snackbar(
@@ -64,6 +69,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               // Check for payment failure
               else if (url.contains('vnp_ResponseCode=') &&
                   !url.contains('vnp_ResponseCode=00')) {
+                // ignore: avoid_print
                 print('Payment failed');
                 Get.back();
                 Get.snackbar(
@@ -76,13 +82,16 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               }
             },
             onPageFinished: (String url) {
+              // ignore: avoid_print
               print('WebView - Loading finished: $url');
               setState(() {
                 isLoading = false;
               });
             },
             onWebResourceError: (WebResourceError error) {
+              // ignore: avoid_print
               print('WebView error: ${error.description}');
+              // ignore: avoid_print
               print('Error details: ${error.errorCode} - ${error.errorType}');
               setState(() {
                 hasError = true;
@@ -92,15 +101,18 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               });
             },
             onNavigationRequest: (NavigationRequest request) {
+              // ignore: avoid_print
               print('WebView - Navigation request to: ${request.url}');
               return NavigationDecision.navigate;
             },
           ),
         );
 
+      // ignore: avoid_print
       print('Loading payment URL: ${widget.paymentUrl}');
       webViewController.loadRequest(Uri.parse(widget.paymentUrl));
     } catch (e) {
+      // ignore: avoid_print
       print('Error initializing WebView: $e');
       setState(() {
         hasError = true;
@@ -112,6 +124,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         final shouldPop = await showDialog<bool>(

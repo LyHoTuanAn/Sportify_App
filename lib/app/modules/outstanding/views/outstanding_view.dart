@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/outstanding_controller.dart';
 
 class OutstandingView extends GetView<OutstandingController> {
-  const OutstandingView({Key? key}) : super(key: key);
+  const OutstandingView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,19 +18,20 @@ class OutstandingView extends GetView<OutstandingController> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: Color(0xFF2B7A78),
+                  color: const Color(0xFF2B7A78),
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF2B7A78).withOpacity(0.2),
+                      // ignore: deprecated_member_use
+                      color: const Color(0xFF2B7A78).withOpacity(0.2),
                       blurRadius: 10,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: Image.asset('assets/images/logo.png',
                     width: 20, height: 20, color: Colors.white)),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -257,6 +258,7 @@ class OutstandingView extends GetView<OutstandingController> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
+                      // ignore: deprecated_member_use
                       color: Colors.black.withOpacity(0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),

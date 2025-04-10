@@ -37,6 +37,7 @@ class ListViewPage extends GetView<ListController> {
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
+                          // ignore: deprecated_member_use
                           color: const Color(0xFF2B7A78).withOpacity(0.2),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
@@ -81,6 +82,7 @@ class ListViewPage extends GetView<ListController> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
+                      // ignore: deprecated_member_use
                       color: Colors.black.withOpacity(0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
@@ -233,6 +235,7 @@ class ListViewPage extends GetView<ListController> {
 
   Widget _buildYardItem(Yard yard, int index) {
     // Staggered animation timing
+    // ignore: unused_local_variable
     final animationDelay = Duration(milliseconds: 100 * (index + 1));
 
     return TweenAnimationBuilder<double>(
@@ -255,6 +258,7 @@ class ListViewPage extends GetView<ListController> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
+              // ignore: deprecated_member_use
               color: Colors.black.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),

@@ -26,6 +26,7 @@ class CouponController extends GetxController {
     } catch (e) {
       hasError.value = true;
       errorMessage.value = 'Không thể tải danh sách mã giảm giá: $e';
+      // ignore: avoid_print
       print('Error fetching coupons: $e');
     } finally {
       isLoading.value = false;
@@ -48,6 +49,7 @@ class CouponController extends GetxController {
     } catch (e) {
       hasError.value = true;
       errorMessage.value = 'Không thể tải chi tiết mã giảm giá: $e';
+      // ignore: avoid_print
       print('Error fetching coupon detail: $e');
     } finally {
       isLoading.value = false;

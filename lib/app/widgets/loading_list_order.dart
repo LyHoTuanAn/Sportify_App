@@ -67,6 +67,7 @@ class LoadingListOrder extends StatelessWidget {
             .margin(Vx.mOnly(bottom: 12.0))
             .padding(Vx.mSymmetric(v: 15, h: 15))
             .width(double.infinity)
+            // ignore: deprecated_member_use
             .color(Colors.grey.withOpacity(.2))
             .withRounded(value: 10)
             .make(),

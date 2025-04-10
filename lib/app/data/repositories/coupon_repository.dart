@@ -1,4 +1,4 @@
-part of repositories;
+part of 'repositories.dart';
 
 class CouponRepository {
   Future<List<Coupon>> getCoupons() async {

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/payment_controller.dart';
 
 class PaymentView extends GetView<PaymentController> {
-  const PaymentView({Key? key}) : super(key: key);
+  const PaymentView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +25,7 @@ class PaymentView extends GetView<PaymentController> {
             Text(
               "Thanh toán",
               textAlign: TextAlign.center,
+              // ignore: unnecessary_const
               style: const TextStyle(
                 color: Color(0xFF2B7A78), // Đổi màu thành #2B7A78
                 fontSize: 20,
@@ -122,6 +123,7 @@ class PaymentView extends GetView<PaymentController> {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.05),
             blurRadius: 3,
             offset: const Offset(0, 1),
@@ -278,6 +280,7 @@ class PaymentView extends GetView<PaymentController> {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.05),
             blurRadius: 3,
             offset: const Offset(0, 1),
@@ -328,6 +331,7 @@ class PaymentView extends GetView<PaymentController> {
   }
 
   Widget _buildBankDetailItem(String label, String value,
+      // ignore: unused_element_parameter
       {bool hasImage = false, Widget? icon}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -376,6 +380,7 @@ class PaymentView extends GetView<PaymentController> {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.05),
             blurRadius: 3,
             offset: const Offset(0, 1),
@@ -443,7 +448,7 @@ class PaymentView extends GetView<PaymentController> {
                 const SizedBox(height: 5), // Tạo khoảng cách giữa hai ảnh
 
                 // Icon tải xuống
-                Icon(
+                const Icon(
                   Icons
                       .file_download_rounded, // Sử dụng icon tải xuống có viền tròn đẹp hơn
                   size: 35,
@@ -478,6 +483,7 @@ class PaymentView extends GetView<PaymentController> {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.05),
             blurRadius: 3,
             offset: const Offset(0, 1),

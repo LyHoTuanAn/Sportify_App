@@ -1,5 +1,8 @@
+// ignore_for_file: unnecessary_import
+
 library repositories;
 
+// ignore: library_prefixes
 import 'dart:developer' as AppUtils;
 import 'dart:typed_data';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;

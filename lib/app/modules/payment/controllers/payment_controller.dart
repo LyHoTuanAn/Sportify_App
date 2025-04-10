@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:get/get.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -168,6 +170,7 @@ class PaymentController extends GetxController {
   }
 
   // Add fallback URL launcher method
+  // ignore: unused_element
   Future<void> _launchUrlFallback(String url) async {
     try {
       print('Attempting to launch URL via launcher: $url');

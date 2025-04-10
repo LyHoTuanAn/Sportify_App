@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison, unnecessary_this
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -137,6 +139,7 @@ class LoginController extends GetxController {
           );
 
           // Navigate to home
+          // ignore: unused_local_variable
           var result = Get.offAllNamed(Routes.dashboard);
           // Wait for navigation to complete, then set the tab
           Future.delayed(const Duration(milliseconds: 100), () {
@@ -185,7 +188,7 @@ class LoginController extends GetxController {
         // Show success message
         Get.snackbar(
           'Đăng nhập thành công',
-          'Chào mừng ${user.fullName ?? 'bạn'} đã trở lại với Sportify!',
+          'Chào mừng ${user.fullName} đã trở lại với Sportify!',
           backgroundColor: const Color(0xFF2B7A78),
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP,
@@ -195,6 +198,7 @@ class LoginController extends GetxController {
         );
 
         // Navigate to home
+        // ignore: unused_local_variable
         var result = Get.offAllNamed(Routes.dashboard);
         // Wait for navigation to complete, then set the tab
         Future.delayed(const Duration(milliseconds: 100), () {
@@ -235,7 +239,11 @@ class LoginController extends GetxController {
 extension UserModelExtension on UserModel {
   String? get fullName {
     // Use only firstName and lastName which appear to exist in UserModel
+    // ignore: duplicate_ignore
+    // ignore: unnecessary_this
     if (this.firstName != null && this.lastName != null) {
+      // ignore: duplicate_ignore
+      // ignore: unnecessary_this
       return '${this.firstName} ${this.lastName}';
     } else if (this.firstName != null) {
       return this.firstName;

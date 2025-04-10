@@ -1,13 +1,23 @@
+// ignore_for_file: unused_import
+
 import 'dart:async';
 
+// ignore: duplicate_ignore
+// ignore: unused_import
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/styles/style.dart';
 import '../../../core/utilities/utilities.dart';
+// ignore: duplicate_ignore
+// ignore: unused_import
 import '../../../data/http_client/http_client.dart';
+// ignore: duplicate_ignore
+// ignore: unused_import
 import '../../../data/providers/notification_provider.dart';
+// ignore: duplicate_ignore
+// ignore: unused_import
 import '../../../data/services/firebase_analytics_service.dart';
 import '../../profile/controllers/profile_controller.dart';
 import '../../home/views/home_view.dart';

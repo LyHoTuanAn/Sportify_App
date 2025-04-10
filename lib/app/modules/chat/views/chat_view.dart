@@ -4,7 +4,7 @@ import 'dart:async';
 import '../controllers/chat_controller.dart';
 
 class ChatView extends GetView<ChatController> {
-  const ChatView({Key? key}) : super(key: key);
+  const ChatView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +89,7 @@ class ChatView extends GetView<ChatController> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
@@ -151,6 +152,7 @@ class ChatView extends GetView<ChatController> {
 }
 
 class TypingIndicator extends StatefulWidget {
+  // ignore: use_super_parameters
   const TypingIndicator({Key? key}) : super(key: key);
 
   @override
@@ -200,7 +202,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            const Text(
               "AI đang trả lời ",
               style: TextStyle(
                 color: Colors.black87,
@@ -220,6 +222,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
                       decoration: BoxDecoration(
                         color: index == _currentIndex
                             ? const Color(0xFF2B7A78)
+                            // ignore: deprecated_member_use
                             : const Color(0xFF2B7A78).withOpacity(0.5),
                         shape: BoxShape.circle,
                       ),

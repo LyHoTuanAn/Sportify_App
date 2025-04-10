@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:developer' as dev;
@@ -59,7 +61,7 @@ class BookingPriceController extends GetxController {
     final pattern = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
     priceString =
         priceString.replaceAllMapped(pattern, (Match m) => '${m[1]}.');
-    return '${priceString}đ';
+    return '$priceStringđ';
   }
 
   void selectVoucher(Coupon voucher) {
@@ -267,6 +269,7 @@ class BookingPriceController extends GetxController {
                                   ),
                                 ),
                               ))
+                          // ignore: unnecessary_to_list_in_spreads
                           .toList(),
                     ],
                   ),
@@ -308,6 +311,7 @@ class BookingPriceController extends GetxController {
       print('Checkout response: $result');
 
       // Check if the response contains a URL directly
+      // ignore: unnecessary_null_comparison
       if (result != null &&
           result['url'] != null &&
           result['url'].toString().isNotEmpty) {
