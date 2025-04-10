@@ -1,11 +1,9 @@
-// ignore: unnecessary_import
 import 'dart:typed_data';
 import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-// ignore: unused_import
 import 'package:http_parser/http_parser.dart';
 
 import '../../../core/utilities/utilities.dart';
@@ -13,9 +11,7 @@ import '../../../data/models/models.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../data/services/firebase_analytics_service.dart';
 import '../../../routes/app_pages.dart';
-// ignore: unused_import
 import '../../../data/providers/providers.dart';
-// ignore: unused_import
 import '../../../data/http_client/http_client.dart';
 import '../widgets/widgets.dart';
 
@@ -73,98 +69,87 @@ class ProfileController extends GetxController with ScrollMixin {
 
         // Hiển thị trước ảnh ngay lập tức
         final oldAvatarUrl = user.value?.avatar;
-        // ignore: unused_local_variable
-        final oldImage = user.value;
+        // final oldImage = user.value; // Not used
 
-        // Tạo một URL tạm để hiển thị ảnh đã chọn ngay lập tức
-        final tempUrl = await _createLocalAvatarFromBytes(bytes);
-        if (tempUrl != null) {
-          // Cập nhật UI với ảnh tạm ngay lập tức
-          user.update((val) {
-            if (val != null) {
-              val.avatar = tempUrl;
-            }
-          });
-        }
+        // Tạo một URL tạm để hiển thị ảnh đã chọn ngay lập tức (Optional: can be complex)
+        // final tempUrl = await _createLocalAvatarFromBytes(bytes);
+        // if (tempUrl != null) {
+        //   user.update((val) {
+        //     if (val != null) {
+        //       val.avatar = tempUrl;
+        //     }
+        //   });
+        // }
 
         // Sau đó upload ảnh với độ ưu tiên cao
-        _userRepository.uploadMedia(bytes, 1).then((mediaResponse) {
-          if (mediaResponse != null && mediaResponse['id'] != null) {
-            final avatarId = mediaResponse['id'];
+        final mediaResponse = await _userRepository.uploadMedia(bytes, 1);
 
-            // Lấy URL ảnh từ phản hồi nếu có
-            final newAvatarUrl =
-                mediaResponse['sizes']?['default'] ?? mediaResponse['url'];
+        if (mediaResponse != null && mediaResponse['id'] != null) {
+          final avatarId = mediaResponse['id'];
+          final newAvatarUrl = mediaResponse['sizes']?['default'] ?? mediaResponse['url'];
+          AppUtils.log('New avatar URL from media response: $newAvatarUrl');
 
-            // Log URL để debug
-            AppUtils.log('New avatar URL from media response: $newAvatarUrl');
-
-            // Nếu có URL mới từ upload, cập nhật nó ngay
-            if (newAvatarUrl != null) {
-              user.update((val) {
-                if (val != null) {
-                  val.avatar = newAvatarUrl;
-                }
-              });
-
-              // Force refresh avatar cache
-              refreshAvatar();
-              cachedAvatarUrl.value = newAvatarUrl;
-            }
-
-            // Sau đó cập nhật avatar_id lên server
-            final updateData = {
-              'first_name': user.value?.firstName ?? '',
-              'last_name': user.value?.lastName ?? '',
-              'email': user.value?.email ?? '',
-              'avatar_id': avatarId
-            };
-
-            // Cập nhật thông tin user ở background
-            _userRepository.updateUserMe(updateData).then((updatedUser) {
-              // Cập nhật thông tin user nếu cần
-              if (updatedUser.avatar != null &&
-                  updatedUser.avatar != user.value?.avatar) {
-                AppUtils.log(
-                    'Updated avatar URL from server: ${updatedUser.avatar}');
-                user.update((val) {
-                  if (val != null) {
-                    val.avatar = updatedUser.avatar;
-                  }
-                });
-                // Force refresh UI
-                cachedAvatarUrl.value = updatedUser.avatar ?? '';
-                refreshAvatar();
-              }
-              AppUtils.log('Cập nhật avatar_id thành công');
-
-              // Thông báo thành công
-              AppUtils.toast('Cập nhật ảnh đại diện thành công');
-            }).catchError((e) {
-              AppUtils.log('Lỗi khi cập nhật avatar_id: $e');
-              // Không hiển thị lỗi cho người dùng vì ảnh đã hiển thị
-            });
-          } else {
-            // Upload thất bại, quay lại ảnh cũ
+          // Cập nhật UI với ảnh mới ngay
+          if (newAvatarUrl != null) {
             user.update((val) {
               if (val != null) {
-                val.avatar = oldAvatarUrl;
+                val.avatar = newAvatarUrl;
               }
             });
-            AppUtils.toast('Không thể tải lên ảnh đại diện');
+            refreshAvatar(); // Force refresh with timestamp
+            cachedAvatarUrl.value = newAvatarUrl; // Update cache variable if used elsewhere
           }
-        }).onError((error, stackTrace) {
-          // Nếu upload lỗi, quay lại ảnh cũ
-          AppUtils.log('Avatar upload error: $error');
+
+          // Cập nhật avatar_id lên server ở background
+          final updateData = {
+            // Use existing user data for other fields during avatar update
+            'first_name': user.value?.firstName ?? '',
+            'last_name': user.value?.lastName ?? '',
+            'email': user.value?.email ?? '',
+            // Convert phone *here as well* if it's part of the update
+            // 'phone': _convertToE164(user.value?.phone ?? ''), // Example if phone is needed
+            'avatar_id': avatarId
+          };
+
+          _userRepository.updateUserMe(updateData).then((updatedUser) {
+            // Update user model if server returns more up-to-date info
+            if (updatedUser.avatar != null && updatedUser.avatar != user.value?.avatar) {
+              AppUtils.log('Updated avatar URL from server: ${updatedUser.avatar}');
+              user.update((val) {
+                if (val != null) {
+                  val.avatar = updatedUser.avatar;
+                }
+              });
+              cachedAvatarUrl.value = updatedUser.avatar ?? '';
+              refreshAvatar();
+            }
+            // Update other fields from updatedUser if necessary
+            // user.value = updatedUser; // Potentially replace the whole user object
+            // _updateFormControllers(); // Refresh form fields if user object was replaced
+
+            AppUtils.log('Cập nhật avatar_id thành công');
+            AppUtils.toast('Cập nhật ảnh đại diện thành công'); // Move toast here?
+          }).catchError((e) {
+            AppUtils.log('Lỗi khi cập nhật avatar_id: $e');
+            // Optionally revert avatar on screen if backend update fails?
+            // user.update((val) => val?.avatar = oldAvatarUrl);
+            AppUtils.toast('Lỗi khi cập nhật thông tin ảnh đại diện.');
+          });
+        } else {
+          // Upload failed, revert UI change
           user.update((val) {
             if (val != null) {
               val.avatar = oldAvatarUrl;
             }
           });
           AppUtils.toast('Không thể tải lên ảnh đại diện');
-        });
+        }
       } catch (e) {
+        AppUtils.log('Avatar change error: $e');
         AppUtils.toast('Lỗi khi cập nhật ảnh đại diện: ${e.toString()}');
+        // Revert UI change on error
+        // final oldAvatarUrl = ... // Need to capture it before try block
+        // user.update((val) => val?.avatar = oldAvatarUrl);
       } finally {
         avatarLoading.value = false;
         isChangingAvatar = false;
@@ -172,70 +157,112 @@ class ProfileController extends GetxController with ScrollMixin {
     });
   }
 
-  // Phương thức tạo URL tạm thời từ bytes ảnh
-  Future<String?> _createLocalAvatarFromBytes(Uint8List bytes) async {
-    try {
-      // Nếu đã cài đặt thư viện path_provider, có thể lưu ảnh tạm vào storage
-      // Ở đây chúng ta return null vì chưa thực sự cần thiết
-      return null;
-    } catch (e) {
-      AppUtils.log('Lỗi khi tạo URL tạm: $e');
-      return null;
-    }
-  }
+  // Phương thức tạo URL tạm thời từ bytes ảnh (Optional - keep as is if not implemented)
+  // Future<String?> _createLocalAvatarFromBytes(Uint8List bytes) async { ... }
 
-  // Phương thức được cập nhật để sử dụng repository
+
   Future<ProfileController> getUserDetail({bool isLogin = false}) async {
     try {
       isLoading.value = true;
-
-      // Sử dụng repository thay vì trực tiếp ApiProvider
       user.value = await _userRepository.getUserMe();
-      hasBookings.value = false;
-
-      // Cập nhật các controller với dữ liệu hiện tại
-      _updateFormControllers();
+      // hasBookings.value = false; // This seems static, maybe needs logic?
+      _updateFormControllers(); // Update form fields with fetched data
 
       if (isLogin) {
         FirebaseAnalyticService.logEvent('Login');
       }
     } catch (e) {
-      Preferences.clear();
-      AppUtils.toast(e.toString());
+      AppUtils.log('Error getting user detail: $e');
+      // Decide error handling: show toast, clear prefs, navigate to login?
+      // Preferences.clear(); // Be careful clearing prefs here on simple fetch error
+      AppUtils.toast('Không thể tải thông tin người dùng: ${e.toString()}');
+      // If critical failure (e.g., unauthorized), then clear prefs and logout
+      // if (e is UnauthorizedException) { logout(); }
     } finally {
       isLoading.value = false;
     }
     return this;
   }
 
-  // Cập nhật các controller form với dữ liệu người dùng
+  // Helper function to convert local phone format (0...) to E.164 (+84...)
+  String _convertToE164(String? phoneNumber) {
+    if (phoneNumber == null || phoneNumber.isEmpty) {
+      return '';
+    }
+    // Remove spaces just in case
+    phoneNumber = phoneNumber.replaceAll(' ', '');
+
+    if (phoneNumber.startsWith('0') && phoneNumber.length >= 9) { // Basic check for VN format
+      // Remove leading '0' and prepend '+84'
+      return '+84${phoneNumber.substring(1)}';
+    } else if (phoneNumber.startsWith('+84') && phoneNumber.length >= 11) { // Already E.164
+      return phoneNumber;
+    }
+    // Return original or empty if format is unexpected or invalid
+    // You might want stricter validation here
+    AppUtils.log('Phone number format not recognized for E.164 conversion: $phoneNumber');
+    return phoneNumber; // Or return '' or throw an error if strict validation needed
+  }
+
+  // (Optional) Helper function to convert E.164 back to local format for display
+
+
   void _updateFormControllers() {
     if (user.value != null) {
       firstNameController.text = user.value!.firstName;
       lastNameController.text = user.value!.lastName;
-      phoneController.text = user.value!.phone ?? '';
+      // Convert phone from E.164 (stored/fetched) to local format for display (Optional)
+      // phoneController.text = _convertFromE164ForDisplay(user.value!.phone); // Use this line if you want '0...' in the TextField
+      phoneController.text = user.value!.phone ?? ''; // Use this line if you want '+84...' in the TextField
       emailController.text = user.value!.email ?? '';
       selectedDate.value = user.value!.dateOfBirth;
       genderValue.value = user.value!.gender ?? 'Nam';
+    } else {
+      // Clear fields if user data is null
+      firstNameController.clear();
+      lastNameController.clear();
+      phoneController.clear();
+      emailController.clear();
+      selectedDate.value = null;
+      genderValue.value = 'Nam'; // Or a default value
     }
   }
 
-  // Phương thức cập nhật profile
+
   Future<void> updateProfile(Map<String, dynamic> data) async {
     try {
       isLoading.value = true;
 
-      // Sử dụng repository thay vì trực tiếp ApiProvider
+      // --- *** FIX: Convert phone number before sending *** ---
+      if (data.containsKey('phone')) {
+        final originalPhone = data['phone'] as String?;
+        if (originalPhone != null) {
+          data['phone'] = _convertToE164(originalPhone);
+          AppUtils.log('Converted phone for update: ${data['phone']}');
+        } else {
+          data['phone'] = ''; // Ensure it's an empty string if null
+        }
+      }
+      // --- *** End Fix *** ---
+
       final updatedUser = await _userRepository.updateUserMe(data);
-      user.value = updatedUser;
-      _updateFormControllers();
+      user.value = updatedUser; // Update local user model with response
+      _updateFormControllers(); // Update UI form fields to reflect successful update
 
       AppUtils.toast('Cập nhật thông tin thành công');
+
     } catch (e) {
-      if (e.toString().contains("Update successfully")) {
-        getUserDetail();
-        AppUtils.toast('Cập nhật thông tin thành công');
+      AppUtils.log('Error updating profile: ${e.toString()}');
+      // Provide more specific feedback if possible
+      if (e.toString().contains('Định dạng số điện thoại không hợp lệ')) {
+        // This suggests the conversion might have failed or the input was bad
+        AppUtils.toast('Lỗi: Định dạng số điện thoại không đúng. Vui lòng kiểm tra lại.');
+      } else if (e.toString().contains("Update successfully")) {
+        // This case seems odd (success message in error). Refetching might be safer.
+        await getUserDetail(); // Refetch data from server
+        AppUtils.toast('Cập nhật thông tin thành công.');
       } else {
+        // Generic error
         AppUtils.toast('Lỗi khi cập nhật thông tin: ${e.toString()}');
       }
     } finally {
@@ -243,56 +270,71 @@ class ProfileController extends GetxController with ScrollMixin {
     }
   }
 
-  // Phương thức cho avatar url với timestamp để tránh cache
+
   String getAvatarUrl() {
     if (user.value?.avatar == null || user.value!.avatar!.isEmpty) {
-      return '';
+      return ''; // Return empty string for default avatar placeholder
     }
 
-    // Always add a timestamp to force refresh
     String url = user.value!.avatar!;
-
-    // Detailed log for debugging
     AppUtils.log('Original avatar URL: $url');
 
-    // Check if URL is valid
     if (!isValidAvatarUrl(url)) {
-      AppUtils.log('Invalid avatar URL detected: $url');
-      return '';
+      AppUtils.log('Invalid avatar URL detected: $url. Returning empty.');
+      return ''; // Return empty if URL format is wrong
     }
 
-    // Check if URL already has query parameters
+    // Always add a timestamp to try and bypass cache issues
     String finalUrl;
-    if (url.contains('?')) {
-      finalUrl = '$url&t=$_avatarTimestamp';
-    } else {
-      finalUrl = '$url?t=$_avatarTimestamp';
+    try {
+      Uri uri = Uri.parse(url);
+      Map<String, String> queryParameters = Map.from(uri.queryParameters);
+      queryParameters['t'] = _avatarTimestamp.toString(); // Add/update timestamp
+      finalUrl = uri.replace(queryParameters: queryParameters).toString();
+    } catch (e) {
+      // If URL parsing fails, fallback to simple concatenation (less robust)
+      AppUtils.log('URL parsing failed for $url: $e. Using simple concatenation.');
+      if (url.contains('?')) {
+        finalUrl = '$url&t=$_avatarTimestamp';
+      } else {
+        finalUrl = '$url?t=$_avatarTimestamp';
+      }
     }
 
     AppUtils.log('Final avatar URL with timestamp: $finalUrl');
     return finalUrl;
   }
 
+
   void toggleNotify(bool newVal) async {
+    bool originalValue = user.value?.isEnableNotification ?? !newVal;
     user.update((val) => val?.isEnableNotification = newVal);
     try {
-      // Giả lập API call
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Simulate API call - Replace with actual repository call
+      // await _userRepository.updateNotificationSetting(newVal);
+      await Future.delayed(const Duration(milliseconds: 500)); // Placeholder
       AppUtils.toast('Cập nhật thông báo thành công');
     } catch (e) {
-      user.update((val) => val?.isEnableNotification = !newVal);
-      AppUtils.toast(e.toString());
+      // Revert UI on failure
+      user.update((val) => val?.isEnableNotification = originalValue);
+      AppUtils.toast('Lỗi cập nhật thông báo: ${e.toString()}');
     }
   }
 
   void checkUpdateUser() async {
-    await 2.delay();
+    // This method seems empty, what should it do?
+    await 2.delay(); // Placeholder delay
   }
 
   updateAddress(int index, bool load) {
-    user.update((val) {
-      val?.address[index].loading = load;
-    });
+    // Ensure address list exists and index is valid
+    if (user.value != null && user.value!.address.length > index) {
+      user.update((val) {
+        val?.address[index].loading = load;
+      });
+    } else {
+      AppUtils.log('Attempted to update address loading state for invalid index: $index');
+    }
   }
 
   void changeTab(int index) {
@@ -300,33 +342,32 @@ class ProfileController extends GetxController with ScrollMixin {
   }
 
   void logout() {
-    // Xóa các preferences trước
     Preferences.clear();
-
-    // Log sự kiện đăng xuất
     FirebaseAnalyticService.logEvent('User_Logout');
-
-    // Điều hướng đến trang login, xóa tất cả các routes trước đó
     Get.offAllNamed(Routes.login);
   }
 
   void navigateToChangePassword() {
     FirebaseAnalyticService.logEvent('Profile_Change_Password');
-    // Sử dụng widget bottom sheet thay vì điều hướng
     ChangePasswordWidget.showBottom();
   }
 
-  // Phương thức mới để chọn ngày sinh
   void selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate.value ?? DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
+      // locale: const Locale('vi', 'VN'), // Optional: Set locale if needed
     );
 
     if (picked != null && picked != selectedDate.value) {
       selectedDate.value = picked;
+      // Note: This only updates the local state.
+      // You need to call updateProfile later to save the DoB.
+      // Example: In your save button's onPressed:
+      // final data = { 'date_of_birth': selectedDate.value?.toIso8601String() };
+      // controller.updateProfile(data);
     }
   }
 
@@ -336,69 +377,73 @@ class ProfileController extends GetxController with ScrollMixin {
   @override
   Future<void> onTopScroll() async {}
 
-  // Thêm phương thức kiểm tra URL avatar
+
   bool isValidAvatarUrl(String? url) {
     if (url == null || url.isEmpty) return false;
-
-    // Kiểm tra URL có đúng định dạng không
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      AppUtils.log('Invalid avatar URL: $url');
-      return false;
-    }
-
-    return true;
+    // Basic check for http/https scheme. More robust validation possible.
+    return url.startsWith('http://') || url.startsWith('https://');
   }
 
-  // Thêm phương thức để preload ảnh
+
   void precacheNetworkImage(String url) {
+    if (!isValidAvatarUrl(url) || Get.context == null) return;
     try {
       final imageProvider = NetworkImage(url);
-      if (Get.context != null) {
-        precacheImage(imageProvider, Get.context!);
-        AppUtils.log('Precached avatar image: $url');
-      }
+      precacheImage(imageProvider, Get.context!)
+          .then((_) => AppUtils.log('Precached avatar image: $url'))
+          .catchError((e, s) => AppUtils.log('Error precaching image $url: $e \n$s'));
     } catch (e) {
-      AppUtils.log('Error precaching image: $e');
+      AppUtils.log('Exception while trying to precache image $url: $e');
     }
   }
 
-  // Add this method to force refresh the avatar
+
   void refreshAvatar() {
     _avatarTimestamp = DateTime.now().millisecondsSinceEpoch;
-    update(); // Force UI update
+    update(); // Trigger a GetX update for widgets listening to the controller
   }
 
-  // Phương thức để tải ảnh trực tiếp như một phương thức thay thế
+  // Load avatar directly method - keep as is, seems like a fallback/debug method
   Future<Image?> loadAvatarDirectly() async {
+    // ... (Keep implementation)
     if (user.value?.avatar == null || user.value!.avatar!.isEmpty) {
       return null;
     }
 
-    final avatarUrl = getAvatarUrl();
+    final avatarUrl = getAvatarUrl(); // Use the method that adds timestamp
+    if (avatarUrl.isEmpty) return null; // Don't try if URL is invalid
+
     AppUtils.log('Directly loading avatar from: $avatarUrl');
 
     try {
-      // Tạo một HttpClient mới
-      final httpClient = HttpClient();
-      final request = await httpClient.getUrl(Uri.parse(avatarUrl));
+      // Using Flutter's http client for simplicity here
+      final client = HttpClient(); // Create a new client
+      final request = await client.getUrl(Uri.parse(avatarUrl));
+      // Optional: Add headers if needed (e.g., cache control)
+      // request.headers.add('Cache-Control', 'no-cache');
       final response = await request.close();
 
+      AppUtils.log('Direct load response status code: ${response.statusCode}');
+
       if (response.statusCode == 200) {
-        AppUtils.log('Avatar HTTP request successful');
         final bytes = await consolidateHttpClientResponseBytes(response);
+        client.close(); // Close the client
         return Image.memory(
           bytes,
-          width: 80,
+          width: 80, // Or desired dimensions
           height: 80,
           fit: BoxFit.cover,
+          // Optional: Add a key to force rebuild if bytes change
+          // key: ValueKey(_avatarTimestamp),
         );
       } else {
-        AppUtils.log('Avatar HTTP request failed: ${response.statusCode}');
-        return null;
+        client.close(); // Close the client on error too
+        AppUtils.log('Avatar HTTP request failed: ${response.statusCode} ${response.reasonPhrase}');
+        return null; // Return null or a placeholder image
       }
     } catch (e) {
       AppUtils.log('Error directly loading avatar: $e');
-      return null;
+      return null; // Return null or a placeholder image
     }
   }
 }

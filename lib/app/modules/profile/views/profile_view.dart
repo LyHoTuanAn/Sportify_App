@@ -240,7 +240,7 @@ class ProfileView extends GetView<ProfileController> {
                       controller.user.value?.phone?.isEmpty == true)
                     Column(
                       children: [
-                        Container(
+                          Container(
                           margin: const EdgeInsets.symmetric(horizontal: 65),
                           padding: const EdgeInsets.symmetric(
                               vertical: 8, horizontal: 15),
@@ -289,7 +289,7 @@ class ProfileView extends GetView<ProfileController> {
                     )
                   else
                     Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 125),
+                      margin: const EdgeInsets.symmetric(horizontal: 120),
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 15),
                       decoration: BoxDecoration(
@@ -306,8 +306,10 @@ class ProfileView extends GetView<ProfileController> {
                             child: Text(
                               controller.user.value!.phone!,
                               style: const TextStyle(
-                                  color: Colors.white, fontSize: 12),
+                                  color: Colors.white, fontSize: 11),
                               textAlign: TextAlign.center,
+                              maxLines: 1, //giới hạn chỉ hiển thị một dòng
+                              softWrap: false, //không tự xuống dòng
                             ),
                           ),
                         ],
