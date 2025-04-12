@@ -46,6 +46,9 @@ import '../modules/coupon/views/coupon_view.dart';
 import '../modules/coupon/views/coupon_detail_view.dart';
 import '../modules/weather/bindings/weather_binding.dart';
 import '../modules/weather/views/weather_view.dart';
+import '../modules/wishlist/controllers/wishlist_controller.dart';
+import '../modules/wishlist/views/wishlist_view.dart';
+import '../modules/wishlist/bindings/wishlist_bindings.dart';
 
 part 'app_routes.dart';
 
@@ -160,6 +163,11 @@ class AppPages {
       name: _Paths.interfaceBooking,
       page: () => const InterfaceBookingView(),
       binding: InterfaceBookingBinding(),
+    ),
+    GetPage(
+      name: _Paths.wishlist,
+      page: () => const WishlistView(),
+      binding: WishlistBinding(),
     ),
   ];
 }

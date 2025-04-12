@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'dart:async' show unawaited;
 import '../../../data/repositories/repositories.dart';
 import '../../../data/models/models.dart';
+import '../../../services/favorite_service.dart';
 
 class ListController extends GetxController {
   final yards = <Yard>[].obs;
@@ -37,18 +38,13 @@ class ListController extends GetxController {
   final Rx<Position?> currentPosition = Rx<Position?>(null);
   final locationPrefs = GetStorage();
 
-  // Wishlist
-  final wishlistItems = <WishlistItem>[].obs;
-  final isLoadingWishlist = false.obs;
-
-  // Add this map to track favorite status directly to avoid delays
-  final favoriteStatus = <int, RxBool>{}.obs;
+  // Lấy reference đến favorite service để sử dụng
+  FavoriteService get favoriteService => FavoriteService.to;
 
   @override
   void onInit() {
     super.onInit();
     getUserLocation().then((_) => loadYards());
-    loadWishlist();
   }
 
   // Get user's location
@@ -149,11 +145,9 @@ class ListController extends GetxController {
         orderBy: orderBy,
       );
 
-      // If we have wishlist data, mark favorites
-      if (wishlistItems.isNotEmpty) {
-        for (var yard in results) {
-          yard.isFavorite = isYardInWishlist(yard.id);
-        }
+      // Cập nhật trạng thái yêu thích dựa trên FavoriteService
+      for (var yard in results) {
+        yard.isFavorite = favoriteService.isFavorite(yard.id);
       }
 
       yards.value = results;
@@ -165,169 +159,24 @@ class ListController extends GetxController {
     }
   }
 
-  // Load user's wishlist
-  Future<void> loadWishlist() async {
-    isLoadingWishlist.value = true;
-
-    try {
-      final items = await Repo.yard.getUserWishlist();
-      wishlistItems.value = items;
-
-      // Update favorite status for any loaded yards
-      if (yards.isNotEmpty) {
-        for (var yard in yards) {
-          yard.isFavorite = isYardInWishlist(yard.id);
-        }
-
-        // Refresh the filtered yards to update UI
-        _applySearchFilter();
-        update(); // Required for GetBuilder to update
-      }
-    } catch (e) {
-      print('Error loading wishlist: $e');
-    } finally {
-      isLoadingWishlist.value = false;
-    }
-  }
-
-  // Check if a yard is in the wishlist - optimized version
+  // Check if a yard is in the wishlist
   bool isYardInWishlist(int yardId) {
-    // First check our reactive map for immediate feedback
-    if (favoriteStatus.containsKey(yardId)) {
-      return favoriteStatus[yardId]!.value;
-    }
-    // Fall back to checking the wishlist items
-    return wishlistItems
-        .any((item) => item.objectId == yardId && item.objectModel == "boat");
+    return favoriteService.isFavorite(yardId);
   }
 
-  // Toggle yard in wishlist - optimized for responsiveness
+  // Toggle yard in wishlist - sử dụng FavoriteService
   Future<void> toggleFavorite(int yardId) async {
-    try {
-      // If we don't have a reactive boolean for this yard yet, create one
-      if (!favoriteStatus.containsKey(yardId)) {
-        favoriteStatus[yardId] = isYardInWishlist(yardId).obs;
-      }
+    await favoriteService.toggleFavorite(yardId);
 
-      // Toggle status immediately for instant UI feedback
-      final newStatus = !favoriteStatus[yardId]!.value;
-      favoriteStatus[yardId]!.value = newStatus;
-
-      // Also update the yard's isFavorite property immediately for consistent state
-      final yardInList = yards.firstWhereOrNull((y) => y.id == yardId) ??
-          filteredYards.firstWhereOrNull((y) => y.id == yardId);
-      if (yardInList != null) {
-        yardInList.isFavorite = newStatus;
-      }
-
-      // Refresh lists to ensure UI updates
-      yards.refresh();
-      filteredYards.refresh();
-
-      // Call API in the background
-      unawaited(_updateFavoriteOnServer(yardId, newStatus));
-    } catch (e) {
-      print('Error toggling favorite: $e');
-    }
-  }
-
-  // Make the API call in a separate method to not block the UI
-  Future<void> _updateFavoriteOnServer(int yardId, bool expectedStatus) async {
-    try {
-      final response = await Repo.yard.toggleWishlistItem(yardId);
-      print(
-          'Toggle wishlist response: status=${response.status}, class="${response.toggleClass}", message="${response.message}"');
-      print('Is active based on response: ${response.isActive}');
-
-      if (response.status == 1) {
-        final serverStatus = response.isActive;
-        print(
-            // ignore: duplicate_ignore
-            // ignore: unnecessary_brace_in_string_interps
-            'Server status (${serverStatus}) from class="${response.toggleClass}"');
-
-        // If server response doesn't match our expected status, fix the discrepancy
-        if (serverStatus != expectedStatus &&
-            favoriteStatus.containsKey(yardId)) {
-          print(
-              'Server status ($serverStatus) doesn\'t match expected status ($expectedStatus), correcting...');
-
-          // Update our reactive status map with the server response
-          favoriteStatus[yardId]?.value = serverStatus;
-
-          // Also update the yard in our lists
-          final yardInList = yards.firstWhereOrNull((y) => y.id == yardId) ??
-              filteredYards.firstWhereOrNull((y) => y.id == yardId);
-          if (yardInList != null) {
-            yardInList.isFavorite = serverStatus;
-            print('Updated yard.isFavorite to ${yardInList.isFavorite}');
-          }
-
-          // Refresh UI
-          yards.refresh();
-          filteredYards.refresh();
-        } else {
-          print(
-              'Status already matches expected: $serverStatus, no correction needed');
-        }
-
-        // Update wishlist data to match server state
-        if (serverStatus) {
-          // If favorited, make sure it's in the wishlist
-          if (!wishlistItems.any((item) => item.objectId == yardId)) {
-            wishlistItems.add(WishlistItem(
-              id: 0,
-              objectId: yardId,
-              objectModel: "boat",
-            ));
-            wishlistItems.refresh();
-            print('Added item to wishlist');
-          }
-        } else {
-          // If unfavorited, remove from wishlist
-          final initialCount = wishlistItems.length;
-          wishlistItems.removeWhere(
-              (item) => item.objectId == yardId && item.objectModel == "boat");
-          final newCount = wishlistItems.length;
-          if (initialCount != newCount) {
-            print(
-                'Removed item from wishlist (${initialCount} -> ${newCount})');
-            wishlistItems.refresh();
-          }
-        }
-
-        // Force update UI elements using GetBuilder
-        update();
-      } else {
-        // If server request failed, revert to previous state
-        print(
-            'Server request failed (status != 1), reverting to previous state');
-        _revertFavoriteStatus(yardId, !expectedStatus);
-      }
-    } catch (e) {
-      print('Error updating favorite on server: $e');
-      // Revert the local status if server call failed
-      _revertFavoriteStatus(yardId, !expectedStatus);
-    }
-  }
-
-  // Helper method to revert favorite status in case of errors
-  void _revertFavoriteStatus(int yardId, bool status) {
-    // Update reactive status
-    if (favoriteStatus.containsKey(yardId)) {
-      favoriteStatus[yardId]!.value = status;
-    }
-
-    // Update yard object
+    // Cập nhật trạng thái yêu thích trong danh sách yards
     final yardInList = yards.firstWhereOrNull((y) => y.id == yardId) ??
         filteredYards.firstWhereOrNull((y) => y.id == yardId);
     if (yardInList != null) {
-      yardInList.isFavorite = status;
+      yardInList.isFavorite = favoriteService.isFavorite(yardId);
+      // Refresh lists
+      yards.refresh();
+      filteredYards.refresh();
     }
-
-    // Refresh UI
-    yards.refresh();
-    filteredYards.refresh();
   }
 
   // Set filter

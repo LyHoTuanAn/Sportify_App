@@ -21,14 +21,14 @@ class _PaymentWebViewState extends State<PaymentWebView> {
   @override
   void initState() {
     super.initState();
-    // ignore: avoid_print
+    // ignore
     print('PaymentWebView - Initializing with URL: ${widget.paymentUrl}');
     _initializeWebView();
   }
 
   void _initializeWebView() {
     try {
-      // ignore: avoid_print
+      // ignore
       print('Initializing WebView controller...');
       webViewController = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -39,7 +39,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         ..setNavigationDelegate(
           NavigationDelegate(
             onPageStarted: (String url) {
-              // ignore: avoid_print
+              // ignore
               print('WebView - Loading started: $url');
               setState(() {
                 isLoading = true;
@@ -57,12 +57,12 @@ class _PaymentWebViewState extends State<PaymentWebView> {
                   Uri uri = Uri.parse(url);
                   extractedBookingCode = uri.queryParameters['c'];
                 } catch (e) {
-                  // ignore: avoid_print
+                  // ignore
                   print('Error parsing URL parameters: $e');
                 }
 
                 // If there's a connection refused error for localhost callbacks, this will ensure we still complete payment
-                // ignore: avoid_print
+                // ignore
                 print('Payment successful based on VNPay response parameters');
                 Get.offAllNamed(Routes.successfullPayment,
                     arguments: extractedBookingCode != null
@@ -73,13 +73,13 @@ class _PaymentWebViewState extends State<PaymentWebView> {
 
               // Check for payment completion
               if (url.contains('/api/booking/confirm-payment')) {
-                // ignore: avoid_print
+                // ignore
                 print('Payment successful, redirecting to success page');
                 Get.offAllNamed(Routes.successfullPayment);
               }
               // Check for payment cancellation
               else if (url.contains('vnp_ResponseCode=24')) {
-                // ignore: avoid_print
+                // ignore
                 print('Payment cancelled by user');
                 Get.back();
                 Get.snackbar(
@@ -93,7 +93,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               // Check for payment failure
               else if (url.contains('vnp_ResponseCode=') &&
                   !url.contains('vnp_ResponseCode=00')) {
-                // ignore: avoid_print
+                // ignore
                 print('Payment failed');
                 Get.back();
                 Get.snackbar(
@@ -106,7 +106,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               }
             },
             onPageFinished: (String url) {
-              // ignore: avoid_print
+              // ignore
               print('WebView - Loading finished: $url');
               setState(() {
                 isLoading = false;
@@ -115,16 +115,16 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               // Check again for VNPay success in case it wasn't caught in onPageStarted
               if (url.contains('vnp_ResponseCode=00') ||
                   url.contains('vnp_TransactionStatus=00')) {
-                // ignore: avoid_print
+                // ignore
                 print(
                     'Payment successful based on VNPay response parameters (detected in onPageFinished)');
                 Get.offAllNamed(Routes.successfullPayment);
               }
             },
             onWebResourceError: (WebResourceError error) {
-              // ignore: avoid_print
+              // ignore
               print('WebView error: ${error.description}');
-              // ignore: avoid_print
+              // ignore
               print('Error details: ${error.errorCode} - ${error.errorType}');
 
               // If the error is connection refused but we have a VNPay success URL,
@@ -132,7 +132,7 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               if (error.errorType == WebResourceErrorType.connect &&
                   currentUrl != null &&
                   currentUrl.contains('vnp_ResponseCode=00')) {
-                // ignore: avoid_print
+                // ignore
                 print(
                     'Detected connection error after successful VNPay response, completing payment');
                 Get.offAllNamed(Routes.successfullPayment);
@@ -147,18 +147,18 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               });
             },
             onNavigationRequest: (NavigationRequest request) {
-              // ignore: avoid_print
+              // ignore
               print('WebView - Navigation request to: ${request.url}');
               return NavigationDecision.navigate;
             },
           ),
         );
 
-      // ignore: avoid_print
+      // ignore
       print('Loading payment URL: ${widget.paymentUrl}');
       webViewController.loadRequest(Uri.parse(widget.paymentUrl));
     } catch (e) {
-      // ignore: avoid_print
+      // ignore
       print('Error initializing WebView: $e');
       setState(() {
         hasError = true;

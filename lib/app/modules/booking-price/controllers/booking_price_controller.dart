@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -78,7 +78,7 @@ class BookingPriceController extends GetxController {
     final pattern = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
     priceString =
         priceString.replaceAllMapped(pattern, (Match m) => '${m[1]}.');
-    return '$priceStringđ';
+    return '${priceString}vnđ';
   }
 
   void selectVoucher(Coupon voucher) {

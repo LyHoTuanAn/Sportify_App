@@ -5,9 +5,12 @@ import '../../list/views/yard_list_view.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/coupons_bottom_sheet.dart';
 import '../widgets/coupon_detail_bottom_sheet.dart';
+import '../widgets/featured_courts_bottom_sheet.dart';
 import '../../../data/models/coupon.dart';
+import '../../../data/models/wishlist.dart';
 import '../../../routes/app_pages.dart';
 import '../../../data/repositories/repositories.dart';
+import '../../../widgets/favorite_button.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -358,6 +361,8 @@ class HomeView extends GetView<HomeController> {
                   const Duration(seconds: 2), // Thông báo hiển thị ngắn hơn
             );
           }
+        } else if (label == 'Yêu thích') {
+          Get.toNamed(Routes.wishlist);
         }
       },
       child: Column(
@@ -408,7 +413,23 @@ class HomeView extends GetView<HomeController> {
             children: [
               _buildSectionTitle('Sân nổi bật'),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  print("Xem tất cả button clicked");
+
+                  // Use Get.bottomSheet instead of showModalBottomSheet for consistency
+                  Get.bottomSheet(
+                    FeaturedCourtsBottomSheet(
+                      featuredYards: controller.featuredYards,
+                    ),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                  );
+                },
+                style: TextButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
                 child: const Row(
                   children: [
                     Text(
@@ -431,7 +452,7 @@ class HomeView extends GetView<HomeController> {
           ),
           const SizedBox(height: 18),
           SizedBox(
-            height: 220, // Increased height from 205 to 220 to fix overflow
+            height: 310, // Reduced height by 10
             child: Obx(() {
               if (controller.isLoadingFeaturedYards.value) {
                 return const Center(
@@ -458,119 +479,193 @@ class HomeView extends GetView<HomeController> {
                 itemCount: controller.featuredYards.length,
                 itemBuilder: (context, index) {
                   final yard = controller.featuredYards[index];
-                  return Container(
-                    width: 220,
-                    margin: const EdgeInsets.only(right: 15),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade200, width: 1),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(12),
+                  return GestureDetector(
+                    onTap: () {
+                      Get.toNamed('/interface-booking',
+                          arguments: {'yard_id': yard.id});
+                    },
+                    child: Container(
+                      width: 290, // Reduced width by 10
+                      margin: const EdgeInsets.only(right: 15),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
-                          child: SizedBox(
-                            height: 130,
-                            width: double.infinity,
-                            child: Image.network(
-                              yard.image,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.grey[200],
-                                  child: const Center(
-                                    child: Icon(Icons.broken_image,
-                                        color: Colors.grey),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Image with favorite icon
+                          Stack(
                             children: [
-                              Text(
-                                yard.title,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF17252A),
-                                  height: 1.2,
+                              ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(16),
+                                  topRight: Radius.circular(16),
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                yard.formattedPrice,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF2B7A78),
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.location_on,
-                                          size: 14,
-                                          color: Colors.grey,
+                                child: SizedBox(
+                                  height: 170,
+                                  width: double.infinity,
+                                  child: Image.network(
+                                    yard.image,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                          color: const Color(0xFF2B7A78),
                                         ),
-                                        const SizedBox(width: 4),
-                                        Expanded(
-                                          child: Text(
-                                            yard.location.name,
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.grey,
-                                              height: 1.2,
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Colors.grey[200],
+                                        child: const Center(
+                                          child: Icon(Icons.broken_image,
+                                              color: Colors.grey, size: 40),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                              // Heart icon
+                              Positioned(
+                                top: 10,
+                                right: 10,
+                                child: FavoriteButton(
+                                  yardId: yard.id,
+                                  size: 36,
+                                  iconSize: 24,
+                                  backgroundColor: Colors.black,
+                                  opacity: 0.3,
+                                  activeColor: Colors.red,
+                                  inactiveColor: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Title
+                                Text(
+                                  yard.title,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF333333),
+                                    fontFamily: 'Poppins',
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                // Price Row with Original Price and Discount
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // Current price
+                                    Text(
+                                      yard.formattedPrice,
+                                      style: const TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF2B7A78),
+                                        fontFamily: 'Poppins',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                // Location
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // Location info on the left
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.location_on,
+                                            size: 18,
+                                            color: Color(0xFF2B7A78),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              yard.realAddress.address,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                color: Color(0xFF555555),
+                                                fontFamily: 'Poppins',
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Star Ratings aligned to the right
+                                    Row(
+                                      children: [
+                                        if (yard.reviewScore.reviewText !=
+                                            "Not rated")
+                                          Row(
+                                            children: List.generate(5, (i) {
+                                              return Icon(
+                                                  i < 4
+                                                      ? Icons.star
+                                                      : Icons.star_border,
+                                                  size: 20,
+                                                  color:
+                                                      const Color(0xFFFFD700));
+                                            }),
+                                          ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          yard.reviewScore.reviewText,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Color(0xFF777777),
+                                            fontFamily: 'Poppins',
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      if (yard.reviewScore.reviewText !=
-                                          "Not rated")
-                                        const Icon(
-                                          Icons.star,
-                                          size: 14,
-                                          color: Colors.amber,
-                                        ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        yard.reviewScore.reviewText,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xFF333333),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+
+                                const SizedBox(height: 12),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },

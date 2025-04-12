@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../../data/models/models.dart';
 import '../controllers/list_controller.dart';
 import '../../../routes/app_pages.dart';
+import '../../../widgets/favorite_button.dart';
 
 class YardListView extends GetView<ListController> {
   const YardListView({super.key});
@@ -329,45 +330,25 @@ class YardListView extends GetView<ListController> {
                           ),
                         ),
                       ),
+                      // Favorite button
                       Material(
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () => controller.toggleFavorite(yard.id),
-                          borderRadius: BorderRadius.circular(20),
-                          // ignore: deprecated_member_use
-                          splashColor: Colors.grey.withOpacity(0.3),
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(10),
+                            topRight: Radius.circular(16),
+                          ),
                           child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Obx(() {
-                              // Track both the direct reactive map and the yard.isFavorite property
-                              // for maximum responsiveness and consistency
-                              final isInWishlist =
-                                  controller.isYardInWishlist(yard.id);
-                              final directIsFavorite = yard.isFavorite;
-
-                              // Use the most "favorable" state to avoid flickering
-                              final showAsFavorite =
-                                  isInWishlist || directIsFavorite;
-
-                              // Log mismatch for debugging
-                              if (isInWishlist != directIsFavorite) {
-                                print(
-                                    '⚠️ Inconsistent favorite state for yard ${yard.id}: '
-                                    'isInWishlist=$isInWishlist, yard.isFavorite=$directIsFavorite');
-                              }
-
-                              return AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 200),
-                                child: Icon(
-                                  Icons.favorite,
-                                  key: ValueKey<bool>(showAsFavorite),
-                                  size: 28,
-                                  color: showAsFavorite
-                                      ? const Color(0xFFE53935)
-                                      : const Color(0xFFBDBDBD),
-                                ),
-                              );
-                            }),
+                            padding: const EdgeInsets.all(8),
+                            child: FavoriteButton(
+                              yardId: yard.id,
+                              size: 28,
+                              iconSize: 22,
+                              showBackground: false,
+                              activeColor: Colors.red,
+                              inactiveColor: Colors.grey,
+                            ),
                           ),
                         ),
                       ),

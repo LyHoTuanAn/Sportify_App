@@ -95,7 +95,7 @@ class Yard {
         try {
           distance = double.parse(json["distance"]["value"].toString());
         } catch (e) {
-          // ignore: avoid_print
+          // ignore
           print('Error parsing distance value: $e');
         }
       } else {
@@ -103,7 +103,7 @@ class Yard {
         try {
           distance = double.parse(json["distance"].toString());
         } catch (e) {
-          // ignore: avoid_print
+          // ignore
           print('Error parsing distance: $e');
         }
       }
@@ -246,7 +246,7 @@ class YardReviewScore {
       try {
         parseScore = double.parse(json["score"].toString());
       } catch (e) {
-        // ignore: avoid_print
+        // ignore
         print('Error parsing review score: $e');
       }
     }

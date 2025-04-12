@@ -10,6 +10,8 @@ import 'app/core/utilities/utilities.dart';
 import 'app/data/http_client/http_client.dart';
 import 'app/data/providers/notification_provider.dart';
 import 'app/modules/profile/controllers/profile_controller.dart';
+import 'app/services/favorite_service.dart';
+import 'app/services/service_initializer.dart';
 import 'root.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -21,17 +23,17 @@ Future<void> initServices() async {
   await NotificationProvider.initialize();
 
   EncryptData.init();
+
+  // Khởi tạo các service cần thiết cho ứng dụng
+  await ServiceInitializer.init();
+
   if (Preferences.isAuth()) {
     await Get.putAsync(
       () => ProfileController().getUserDetail(),
       permanent: true,
     );
   }
-  // ShopifyConfig.setConfig(
-  //   StringUtils().storefrontAccessToken,
-  //   StringUtils().storeUrl,
-  //   StringUtils().storefrontApiVersion,
-  // );
+
   Get.log('All services started...');
 }
 
@@ -50,11 +52,14 @@ void main() async {
   final flavor = await getFlavorSettings();
   switch (flavor) {
     case 'dev':
-      ApiClient.setBaseUrl('https://857f-171-252-153-170.ngrok-free.app');
+      ApiClient.setBaseUrl('https://e0ce-171-252-153-170.ngrok-free.app');
       break;
     default:
-      ApiClient.setBaseUrl('https://857f-171-252-153-170.ngrok-free.app');
+      ApiClient.setBaseUrl('https://e0ce-171-252-153-170.ngrok-free.app');
   }
+
+  // Khởi tạo các service với ServiceInitializer
+  await ServiceInitializer.init();
 
   // Run the app after setting up Preferences
   runApp(const RootApp());

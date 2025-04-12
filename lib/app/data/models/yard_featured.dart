@@ -3,30 +3,36 @@ class YardFeatured {
   final String title;
   final String price;
   final String image;
-  final LocationModel location;
+  final RealAddressModel realAddress;
   final int isFeatured;
   final ReviewScore reviewScore;
+  bool isFavorite;
 
   YardFeatured({
     required this.id,
     required this.title,
     required this.price,
     required this.image,
-    required this.location,
+    required this.realAddress,
     required this.isFeatured,
     required this.reviewScore,
+    this.isFavorite = false,
   });
 
   factory YardFeatured.fromMap(Map<String, dynamic> json) => YardFeatured(
-        id: json["id"] is String ? int.tryParse(json["id"]) ?? 0 : json["id"] ?? 0,
+        id: json["id"] is String
+            ? int.tryParse(json["id"]) ?? 0
+            : json["id"] ?? 0,
         title: json["title"] ?? '',
         price: json["price"] ?? '0',
         image: json["image"] ?? '',
-        location: LocationModel.fromMap(json["location"] ?? {}),
-        isFeatured: json["is_featured"] is String 
-            ? int.tryParse(json["is_featured"]) ?? 0 
+        realAddress: RealAddressModel.fromMap(json["real_address"] ?? {}),
+        isFeatured: json["is_featured"] is String
+            ? int.tryParse(json["is_featured"]) ?? 0
             : json["is_featured"] ?? 0,
         reviewScore: ReviewScore.fromMap(json["review_score"] ?? {}),
+        isFavorite:
+            json["is_in_wishlist"] == 1 || json["is_in_wishlist"] == true,
       );
 
   String get formattedPrice {
@@ -34,16 +40,30 @@ class YardFeatured {
       // Format price as currency with comma separators and add đ symbol
       try {
         final priceDouble = double.parse(price);
-        return '${priceDouble.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}đ';
+        return '${priceDouble.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} vnđ';
       } catch (e) {
         // ignore: unnecessary_brace_in_string_interps
-        return '${price}đ';
+        return '${price} vnđ';
       }
     }
     return '';
   }
 }
 
+class RealAddressModel {
+  final String address;
+
+  RealAddressModel({
+    required this.address,
+  });
+
+  factory RealAddressModel.fromMap(Map<String, dynamic> json) =>
+      RealAddressModel(
+        address: json["address"] ?? '',
+      );
+}
+
+// Keeping the LocationModel for backward compatibility but it won't be used
 class LocationModel {
   final String name;
 

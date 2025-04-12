@@ -5,7 +5,6 @@ import 'package:org_sportify/app/data/models/calendar_availability.dart';
 import 'package:org_sportify/app/data/repositories/repositories.dart';
 import 'package:org_sportify/app/routes/app_pages.dart';
 
-
 class BookingInfo {
   final String venueName;
   final String venueAddress;
@@ -451,7 +450,7 @@ class InterfaceBookingController extends GetxController {
         startTime: selectedTimeSlots.first.split('-')[1],
       );
 
-      // ignore: avoid_print
+      // ignore
       print('Cart Response: $response'); // Debug log
 
       // Check if response is successful (either status is 'success' or 1)
@@ -474,12 +473,12 @@ class InterfaceBookingController extends GetxController {
         // Handle error with more detailed message
         final errorMessage =
             response['message']?.toString() ?? 'Không thể thêm vào giỏ hàng';
-        // ignore: avoid_print
+        // ignore
         print('Cart Error: $errorMessage'); // Debug log
         throw Exception(errorMessage);
       }
     } catch (e) {
-      // ignore: avoid_print
+      // ignore
       print('Cart Exception: $e'); // Debug log
       bookingError.value = e.toString();
       Get.snackbar(
