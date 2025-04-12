@@ -34,6 +34,8 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setBackgroundColor(Colors.white)
         ..enableZoom(true)
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setUserAgent('Mozilla/5.0 (Flutter; Mobile) WebView')
         ..setNavigationDelegate(
           NavigationDelegate(
             onPageStarted: (String url) {
@@ -44,6 +46,11 @@ class _PaymentWebViewState extends State<PaymentWebView> {
                 currentUrl = url;
                 hasError = false;
                 errorMessage = '';
+              });
+
+              // Optimize performance by reducing UI updates during page load
+              Future.delayed(const Duration(milliseconds: 100), () {
+                if (mounted) setState(() => isLoading = true);
               });
 
               // Check for payment completion
@@ -86,6 +93,23 @@ class _PaymentWebViewState extends State<PaymentWebView> {
               print('WebView - Loading finished: $url');
               setState(() {
                 isLoading = false;
+              });
+
+              // Execute JavaScript to optimize VNPay page for mobile viewing
+              webViewController.runJavaScript('''
+                // Remove unnecessary elements
+                document.querySelectorAll('.vnpay-desktop-only').forEach(el => {
+                  el.style.display = 'none';
+                });
+                
+                // Make sure payment info is clearly visible
+                document.querySelectorAll('.payment-amount').forEach(el => {
+                  el.style.fontSize = '1.2em';
+                  el.style.fontWeight = 'bold';
+                });
+              ''').catchError((e) {
+                // Silently ignore JS errors
+                print('JS optimization error: $e');
               });
             },
             onWebResourceError: (WebResourceError error) {

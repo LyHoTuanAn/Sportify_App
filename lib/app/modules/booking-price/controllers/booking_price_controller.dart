@@ -8,6 +8,7 @@ import '../../../data/models/coupon.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../routes/app_pages.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:intl/intl.dart';
 
 class BookingInfo {
   final String venueName;
@@ -34,6 +35,9 @@ class BookingPriceController extends GetxController {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+
+  // Add persistent booking data storage
+  final Rx<Map<String, dynamic>> bookingRawData = Rx<Map<String, dynamic>>({});
 
   // Reactive variables
   final Rx<BookingInfo> bookingInfo = BookingInfo(
@@ -299,10 +303,216 @@ class BookingPriceController extends GetxController {
       return;
     }
 
+    // Show loading indicator
+    Get.dialog(
+      const Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFF2B7A78),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
     try {
-      // Call checkout API
+      // Use the stored booking data instead of trying to get it from arguments again
+      final bookingData = bookingRawData.value;
+
+      // Log booking data for debugging
+      print('Processing booking data: $bookingData');
+
+      if (bookingData.isEmpty) {
+        if (Get.isDialogOpen == true) {
+          Get.back();
+        }
+        throw Exception('Không tìm thấy dữ liệu đặt sân. Vui lòng thử lại.');
+      }
+
+      // Kiểm tra và log tất cả các trường của bookingData
+      bookingData.forEach((key, value) {
+        print('BookingData field: $key = $value');
+      });
+
+      // Lấy yardId từ arguments hoặc thông tin phòng
+      int yardId = 0;
+      if (bookingData.containsKey('yard_id')) {
+        try {
+          if (bookingData['yard_id'] is int) {
+            yardId = bookingData['yard_id'];
+          } else {
+            yardId = int.parse(bookingData['yard_id'].toString());
+          }
+          print('Extracted yard_id: $yardId');
+        } catch (e) {
+          print('Error parsing yard_id: ${bookingData['yard_id']} - $e');
+        }
+      }
+
+      // Nếu không tìm thấy yard_id, thử kiểm tra các trường khác
+      if (yardId <= 0 && bookingData.containsKey('yardId')) {
+        try {
+          if (bookingData['yardId'] is int) {
+            yardId = bookingData['yardId'];
+          } else {
+            yardId = int.parse(bookingData['yardId'].toString());
+          }
+          print('Found alternate yard_id field (yardId): $yardId');
+        } catch (e) {
+          print(
+              'Error parsing alternate yardId: ${bookingData['yardId']} - $e');
+        }
+      }
+
+      // Try one more approach - look for potential service_id field
+      if (yardId <= 0 && bookingData.containsKey('service_id')) {
+        try {
+          if (bookingData['service_id'] is int) {
+            yardId = bookingData['service_id'];
+          } else {
+            yardId = int.parse(bookingData['service_id'].toString());
+          }
+          print('Found yard_id from service_id field: $yardId');
+        } catch (e) {
+          print('Error parsing service_id: ${bookingData['service_id']} - $e');
+        }
+      }
+
+      if (yardId <= 0) {
+        // Close dialog before throwing exception
+        if (Get.isDialogOpen == true) {
+          Get.back();
+        }
+        throw Exception('Không tìm thấy thông tin sân đặt. Vui lòng thử lại.');
+      }
+
+      // Lấy startTime từ time_slots array nếu có
+      String startTime = "05:00"; // Giá trị mặc định nếu không thể xác định
+      if (bookingData.containsKey('startTime')) {
+        // Ưu tiên sử dụng startTime từ bookingData nếu có
+        startTime = bookingData['startTime'].toString();
+        print('Using startTime from bookingData: $startTime');
+      } else if (bookingData.containsKey('time_slots') &&
+          bookingData['time_slots'] is List &&
+          (bookingData['time_slots'] as List).isNotEmpty) {
+        // Nếu không có startTime, lấy từ time_slots
+        List timeSlots = bookingData['time_slots'] as List;
+        if (timeSlots.isNotEmpty) {
+          // Lấy startTime từ slot đầu tiên (format: "Sân X-HH:MM")
+          String firstSlot = timeSlots.first.toString();
+          if (firstSlot.contains('-')) {
+            startTime = firstSlot.split('-')[1];
+            print('Extracted startTime from time_slots: $startTime');
+          }
+        }
+      }
+
+      // Lấy số giờ từ time_slots nếu có, nếu không thì từ totalHours
+      int hours = 1; // Giá trị mặc định
+      if (bookingData.containsKey('time_slots') &&
+          bookingData['time_slots'] is List) {
+        // Số giờ là số lượng slot đã chọn
+        hours = (bookingData['time_slots'] as List).length;
+        print('Using hours from time_slots count: $hours');
+      } else if (bookingData.containsKey('totalHours')) {
+        try {
+          // Nếu không có time_slots, sử dụng totalHours
+          String totalHoursStr = bookingData['totalHours'].toString();
+          hours = int.parse(totalHoursStr.replaceAll(RegExp(r'[^0-9]'), ''));
+          print('Using hours from totalHours: $hours');
+        } catch (e) {
+          print(
+              'Không thể phân tích số giờ: ${bookingData['totalHours']}, sử dụng giá trị mặc định: $hours');
+        }
+      } else if (bookingInfo.value.totalHours.isNotEmpty) {
+        try {
+          hours = int.parse(
+              bookingInfo.value.totalHours.replaceAll(RegExp(r'[^0-9]'), ''));
+          print('Using hours from bookingInfo.totalHours: $hours');
+        } catch (e) {
+          print(
+              'Không thể phân tích số giờ từ bookingInfo: ${bookingInfo.value.totalHours}, sử dụng giá trị mặc định: $hours');
+        }
+      }
+
+      // Lấy ngày đặt từ date string
+      String bookingDateStr = "";
+      // First try to get date from bookingData
+      if (bookingData.containsKey('date') && bookingData['date'] != null) {
+        bookingDateStr = bookingData['date'].toString();
+      }
+      // Fallback to bookingInfo if not found in bookingData
+      else if (bookingInfo.value.date.isNotEmpty) {
+        bookingDateStr = bookingInfo.value.date;
+      }
+      // If still not available, use current date
+      else {
+        bookingDateStr = DateFormat('dd/MM/yyyy').format(DateTime.now());
+        print(
+            'No date found in booking data, using current date: $bookingDateStr');
+      }
+
+      if (bookingDateStr.contains(" ")) {
+        bookingDateStr = bookingDateStr.split(" ")[0];
+      }
+
+      DateTime bookingDate;
+      try {
+        // Chuyển đổi định dạng dd/MM/yyyy sang yyyy-MM-dd
+        List<String> parts = bookingDateStr.split('/');
+        if (parts.length == 3) {
+          bookingDate = DateTime.parse('${parts[2]}-${parts[1]}-${parts[0]}');
+          print('Parsed booking date: $bookingDate from $bookingDateStr');
+        } else {
+          bookingDate = DateTime.now();
+          print(
+              'Định dạng ngày không đúng: $bookingDateStr, sử dụng ngày hiện tại: $bookingDate');
+        }
+      } catch (e) {
+        // Nếu không parse được, sử dụng ngày hôm nay
+        bookingDate = DateTime.now();
+        print(
+            'Không thể phân tích ngày đặt: $bookingDateStr, sử dụng ngày hiện tại: $bookingDate');
+      }
+
+      print(
+          'Tạo booking với: yardId=$yardId, ngày=$bookingDate, giờ=$hours, bắt đầu=$startTime');
+
+      // 1. Gọi API addToCart để tạo booking - thực hiện không đồng bộ để không block UI
+      final addToCartResult = await Repo.yard.addBookingToCart(
+        yardId: yardId,
+        bookingDate: bookingDate,
+        durationHours: hours,
+        startTime: startTime,
+      );
+
+      print('Kết quả AddToCart: $addToCartResult');
+
+      if (addToCartResult['status'] != 1) {
+        // Đóng dialog loading trước khi throw exception
+        if (Get.isDialogOpen == true) {
+          Get.back();
+        }
+        throw Exception(
+            addToCartResult['message'] ?? 'Không thể tạo đơn đặt sân');
+      }
+
+      // 2. Lấy booking_code từ kết quả addToCart
+      final bookingCode = addToCartResult['booking_code'];
+      if (bookingCode == null || bookingCode.toString().isEmpty) {
+        // Đóng dialog loading trước khi throw exception
+        if (Get.isDialogOpen == true) {
+          Get.back();
+        }
+        throw Exception('Không nhận được mã đặt sân');
+      }
+
+      print('Created booking with code: $bookingCode');
+
+      // 3. Gọi API doCheckout với booking_code mới
+      print(
+          'Checkout request data: {code: $bookingCode, full_name: ${nameController.text}, phone: ${phoneController.text}, email: ${emailController.text}}');
+
       final result = await Repo.yard.doCheckout(
-        code: 'a5fa2a00e038d001480864b6436a2980',
+        code: bookingCode.toString(),
         fullName: nameController.text,
         phone: phoneController.text,
         email: emailController.text,
@@ -310,15 +520,26 @@ class BookingPriceController extends GetxController {
 
       print('Checkout response: $result');
 
-      // Check if the response contains a URL directly
-      // ignore: unnecessary_null_comparison
+      // Đóng dialog loading
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      // Xử lý response
       if (result != null &&
           result['url'] != null &&
           result['url'].toString().isNotEmpty) {
         final paymentUrl = result['url'].toString();
         print('URL in response: $paymentUrl');
 
-        // Navigate to WebView screen
+        // Kiểm tra URL có phải VNPay không
+        if (!paymentUrl.contains('vnpayment.vn')) {
+          throw Exception('Nhận được URL không hợp lệ: $paymentUrl');
+        }
+
+        // Mở WebView thanh toán sau một khoảng thời gian ngắn
+        // để cho phép UI cập nhật trước
+        await Future.delayed(const Duration(milliseconds: 300));
         Get.to(
           () => Scaffold(
             appBar: AppBar(
@@ -366,7 +587,7 @@ class BookingPriceController extends GetxController {
                             'Payment successful, redirecting to success page');
                         Get.offAllNamed(Routes.successfullPayment, arguments: {
                           'bookingInfo': {
-                            'booking_code': 'a5fa2a00e038d001480864b6436a2980',
+                            'booking_code': bookingCode,
                             'venueName': bookingInfo.value.venueName,
                             'date': bookingInfo.value.date,
                             'totalPrice': finalTotal,
@@ -388,7 +609,7 @@ class BookingPriceController extends GetxController {
                       // Check for payment failure
                       else if (url.contains('vnp_ResponseCode=') &&
                           !url.contains('vnp_ResponseCode=00')) {
-                        print('Payment failed');
+                        print('Payment failed with code in URL: $url');
                         Get.back();
                         Get.snackbar(
                           'Lỗi',
@@ -423,16 +644,23 @@ class BookingPriceController extends GetxController {
           preventDuplicates: true,
         );
       } else {
-        throw Exception('Không nhận được URL thanh toán');
+        throw Exception('Không nhận được URL thanh toán hợp lệ');
       }
     } catch (e) {
       print('Checkout error: $e');
+
+      // Ensure dialog is closed
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
       Get.snackbar(
         'Lỗi',
         'Không thể tạo đơn thanh toán: ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[100],
         colorText: Colors.red[900],
+        duration: const Duration(seconds: 5),
       );
     }
   }
@@ -442,6 +670,9 @@ class BookingPriceController extends GetxController {
     nameController.dispose();
     phoneController.dispose();
     emailController.dispose();
+
+    // Clear stored data
+    bookingRawData.value = {};
     super.onClose();
   }
 
@@ -449,10 +680,16 @@ class BookingPriceController extends GetxController {
   void onInit() {
     super.onInit();
 
+    // Add debug log for all arguments
+    print('BookingPriceController.onInit - Arguments: ${Get.arguments}');
+
     // Check if booking info was passed
     if (Get.arguments != null && Get.arguments['bookingInfo'] != null) {
       final bookingData = Get.arguments['bookingInfo'];
       dev.log('Received booking data: $bookingData');
+
+      // Store the raw booking data
+      bookingRawData.value = Map<String, dynamic>.from(bookingData);
 
       bookingInfo.value = BookingInfo(
         venueName: bookingData['title'] ?? bookingData['venueName'] ?? '',
