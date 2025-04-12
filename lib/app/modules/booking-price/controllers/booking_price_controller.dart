@@ -14,16 +14,20 @@ class BookingInfo {
   final String venueName;
   final String venueAddress;
   final String date;
-  final String customerType;
   final String totalHours;
+  final double totalBeforeFees;
+  final double commission;
+  final String? commissionType;
   final double totalPrice;
 
   BookingInfo({
     required this.venueName,
     required this.venueAddress,
     required this.date,
-    required this.customerType,
     required this.totalHours,
+    required this.totalBeforeFees,
+    required this.commission,
+    this.commissionType,
     required this.totalPrice,
   });
 }
@@ -39,13 +43,21 @@ class BookingPriceController extends GetxController {
   // Add persistent booking data storage
   final Rx<Map<String, dynamic>> bookingRawData = Rx<Map<String, dynamic>>({});
 
+  // Add variable to store current WebView URL
+  String? currentUrl;
+
+  // Add property to store the current booking code
+  String? bookingCode;
+
   // Reactive variables
   final Rx<BookingInfo> bookingInfo = BookingInfo(
     venueName: '',
     venueAddress: '',
     date: '',
-    customerType: '',
     totalHours: '',
+    totalBeforeFees: 0,
+    commission: 0,
+    commissionType: '',
     totalPrice: 0,
   ).obs;
 
@@ -55,9 +67,10 @@ class BookingPriceController extends GetxController {
   final RxBool isLoadingVouchers = false.obs;
 
   // Computed values
-  double get courtFee => bookingInfo.value.totalPrice;
+  double get courtFee => bookingInfo.value.totalBeforeFees;
+  double get serviceFee => bookingInfo.value.commission;
   double get voucherDiscount => selectedVoucher.value?.amount.toDouble() ?? 0;
-  double get finalTotal => courtFee - voucherDiscount;
+  double get finalTotal => (courtFee + serviceFee) - voucherDiscount;
 
   String formatCurrency(double amount) {
     // Convert to thousands format with dot separator
@@ -496,8 +509,8 @@ class BookingPriceController extends GetxController {
       }
 
       // 2. Lấy booking_code từ kết quả addToCart
-      final bookingCode = addToCartResult['booking_code'];
-      if (bookingCode == null || bookingCode.toString().isEmpty) {
+      bookingCode = addToCartResult['booking_code']?.toString();
+      if (bookingCode == null || bookingCode!.isEmpty) {
         // Đóng dialog loading trước khi throw exception
         if (Get.isDialogOpen == true) {
           Get.back();
@@ -580,20 +593,62 @@ class BookingPriceController extends GetxController {
                   NavigationDelegate(
                     onPageStarted: (String url) {
                       print('WebView - Loading started: $url');
-                      // Check for payment completion
-                      if (url.contains('/api/booking/confirm-payment') ||
-                          url.contains('vnp_ResponseCode=00')) {
+                      currentUrl = url; // Update the current URL
+
+                      // Check for VNPay response codes in the URL parameters
+                      if (url.contains('vnp_ResponseCode=00') ||
+                          url.contains('vnp_TransactionStatus=00')) {
                         print(
-                            'Payment successful, redirecting to success page');
+                            'VNPay payment successful, extracting data from URL');
+
+                        // Parse payment details from URL parameters
+                        Uri uri = Uri.parse(url);
+                        Map<String, String> params = uri.queryParameters;
+
+                        // Extract relevant information
+                        String vnpBookingCode = params['c'] ?? '';
+                        String amount = params['vnp_Amount'] ?? '';
+                        String transactionNo =
+                            params['vnp_TransactionNo'] ?? '';
+
+                        print(
+                            'Payment completed: Booking code: $vnpBookingCode, Amount: $amount, Transaction: $transactionNo');
+
+                        // Immediately navigate to success page without loading the return URL
                         Get.offAllNamed(Routes.successfullPayment, arguments: {
                           'bookingInfo': {
-                            'booking_code': bookingCode,
+                            'booking_code': vnpBookingCode.isNotEmpty
+                                ? vnpBookingCode
+                                : (bookingCode?.toString() ?? ''),
                             'venueName': bookingInfo.value.venueName,
                             'date': bookingInfo.value.date,
                             'totalPrice': finalTotal,
+                            'totalBeforeFees':
+                                bookingInfo.value.totalBeforeFees,
+                            'commission': bookingInfo.value.commission,
                           }
                         });
+                        return; // Stop further processing of this URL
                       }
+
+                      // Check for other payment completion indicators
+                      if (url.contains('/api/booking/confirm-payment')) {
+                        print(
+                            'Payment successful via confirm-payment endpoint');
+                        Get.offAllNamed(Routes.successfullPayment, arguments: {
+                          'bookingInfo': {
+                            'booking_code': bookingCode.toString(),
+                            'venueName': bookingInfo.value.venueName,
+                            'date': bookingInfo.value.date,
+                            'totalPrice': finalTotal,
+                            'totalBeforeFees':
+                                bookingInfo.value.totalBeforeFees,
+                            'commission': bookingInfo.value.commission,
+                          }
+                        });
+                        return;
+                      }
+
                       // Check for payment cancellation
                       else if (url.contains('vnp_ResponseCode=24')) {
                         print('Payment cancelled by user');
@@ -622,11 +677,49 @@ class BookingPriceController extends GetxController {
                     },
                     onPageFinished: (String url) {
                       print('WebView - Loading finished: $url');
+                      currentUrl = url; // Update current URL
                     },
                     onWebResourceError: (WebResourceError error) {
+                      // If we get a connection refused error when trying to load the return URL
+                      // but the payment was actually successful, redirect to success page
                       print('WebView error: ${error.description}');
                       print(
                           'Error details: ${error.errorCode} - ${error.errorType}');
+
+                      // Check if this is the localhost error after successful payment
+                      if (currentUrl != null &&
+                          currentUrl!.contains('vnp_ResponseCode=00') &&
+                          error.errorType == WebResourceErrorType.connect) {
+                        print(
+                            'Detected successful payment but failed to load return URL');
+
+                        // Try to extract booking code from currentUrl
+                        String extractedBookingCode = '';
+                        try {
+                          Uri uri = Uri.parse(currentUrl!);
+                          extractedBookingCode = uri.queryParameters['c'] ?? '';
+                        } catch (e) {
+                          print('Error parsing URL: $e');
+                        }
+
+                        // Navigate to success page
+                        Get.offAllNamed(Routes.successfullPayment, arguments: {
+                          'bookingInfo': {
+                            'booking_code': extractedBookingCode.isNotEmpty
+                                ? extractedBookingCode
+                                : (bookingCode?.toString() ?? ''),
+                            'venueName': bookingInfo.value.venueName,
+                            'date': bookingInfo.value.date,
+                            'totalPrice': finalTotal,
+                            'totalBeforeFees':
+                                bookingInfo.value.totalBeforeFees,
+                            'commission': bookingInfo.value.commission,
+                          }
+                        });
+                        return;
+                      }
+
+                      // For other errors, show error message
                       Get.snackbar(
                         'Lỗi',
                         'Không thể tải trang thanh toán: ${error.description}',
@@ -691,15 +784,55 @@ class BookingPriceController extends GetxController {
       // Store the raw booking data
       bookingRawData.value = Map<String, dynamic>.from(bookingData);
 
+      // Extract the booking code if available
+      if (bookingData['booking_code'] != null) {
+        bookingCode = bookingData['booking_code'].toString();
+      }
+
+      // Parse commission data
+      double commission = 0;
+      if (bookingData['commission'] != null) {
+        commission = _parsePrice(bookingData['commission']);
+      }
+
+      // Parse total_before_fees
+      double totalBeforeFees = 0;
+      if (bookingData['total_before_fees'] != null) {
+        totalBeforeFees = _parsePrice(bookingData['total_before_fees']);
+      } else if (bookingData['totalBeforeFees'] != null) {
+        totalBeforeFees = _parsePrice(bookingData['totalBeforeFees']);
+      } else {
+        // If not found, try to use the price field
+        totalBeforeFees = _parsePrice(bookingData['price'] ?? 0);
+      }
+
+      // Parse total price
+      double totalPrice = 0;
+      if (bookingData['total'] != null) {
+        totalPrice = _parsePrice(bookingData['total']);
+      } else {
+        totalPrice =
+            _parsePrice(bookingData['totalPrice'] ?? bookingData['price'] ?? 0);
+      }
+
+      // If total_before_fees was not present but we have total and commission, calculate it
+      if (totalBeforeFees == 0 && totalPrice > 0 && commission > 0) {
+        totalBeforeFees = totalPrice - commission;
+      }
+
+      // Create booking info object
       bookingInfo.value = BookingInfo(
         venueName: bookingData['title'] ?? bookingData['venueName'] ?? '',
         venueAddress:
             bookingData['address'] ?? bookingData['venueAddress'] ?? '',
         date: bookingData['date'] ?? '',
-        customerType: bookingData['customerType'] ?? '',
         totalHours: bookingData['totalHours'] ?? '',
-        totalPrice:
-            _parsePrice(bookingData['price'] ?? bookingData['totalPrice']),
+        totalBeforeFees: totalBeforeFees,
+        commission: commission,
+        commissionType: bookingData['commission_type'] != null
+            ? bookingData['commission_type']['type'] ?? ''
+            : null,
+        totalPrice: totalPrice,
       );
     }
 

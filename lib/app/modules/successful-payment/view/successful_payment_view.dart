@@ -253,15 +253,19 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
               _buildOrderInfoItem('Sân đã đặt:', controller.venueName.value)),
           Obx(() =>
               _buildOrderInfoItem('Thời gian:', controller.bookingTime.value)),
+          Obx(() => _buildOrderInfoItem('Phí sân:', controller.courtFee.value)),
           Obx(() =>
-              _buildOrderInfoItem('Tổng tiền:', controller.totalAmount.value)),
+              _buildOrderInfoItem('Phí dịch vụ:', controller.serviceFee.value)),
+          Obx(() => _buildOrderInfoItem(
+              'Tổng tiền:', controller.totalAmount.value,
+              isHighlighted: true)),
         ],
       ),
     );
   }
 
   Widget _buildOrderInfoItem(String label, String value,
-      {bool isOrderId = false}) {
+      {bool isOrderId = false, bool isHighlighted = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
@@ -300,10 +304,13 @@ class SuccessfulPaymentView extends GetView<SuccessfulPaymentController> {
                 : Text(
                     value,
                     style: TextStyle(
-                      color:
-                          isOrderId ? const Color(0xFF2B7A78) : Colors.black87,
+                      color: isHighlighted
+                          ? const Color(0xFF2B7A78)
+                          : Colors.black87,
                       fontSize: 14,
-                      fontWeight: isOrderId ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight: isHighlighted || isOrderId
+                          ? FontWeight.w600
+                          : FontWeight.w500,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),

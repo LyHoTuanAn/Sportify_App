@@ -233,27 +233,8 @@ class BookingPriceView extends GetView<BookingPriceController> {
                 ),
                 Expanded(
                   child: _buildInfoItem(
-                    'Đối tượng',
-                    controller.bookingInfo.value.customerType,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildInfoItem(
-                    'Tổng giờ',
+                    'Giờ đặt',
                     controller.bookingInfo.value.totalHours,
-                  ),
-                ),
-                Expanded(
-                  child: _buildInfoItem(
-                    'Tổng tiền',
-                    controller.formatCurrency(
-                        controller.bookingInfo.value.totalPrice),
-                    isHighlighted: true,
                   ),
                 ),
               ],
@@ -365,6 +346,19 @@ class BookingPriceView extends GetView<BookingPriceController> {
                 height: 1,
                 color: const Color(0xFFE0E0E0),
               ),
+              const SizedBox(height: 8),
+              // Court fee
+              _buildPriceRow(
+                'Phí sân',
+                controller.formatCurrency(controller.courtFee),
+              ),
+              const SizedBox(height: 8),
+              // Sportify service fee
+              _buildPriceRow(
+                'Phí dịch vụ Sportify',
+                controller.formatCurrency(controller.serviceFee),
+                isHighlighted: true,
+              ),
               if (controller.hasSelectedVoucher.value) ...[
                 const SizedBox(height: 8),
                 _buildPriceRow(
@@ -372,12 +366,12 @@ class BookingPriceView extends GetView<BookingPriceController> {
                   '-${controller.formatCurrency(controller.voucherDiscount)}',
                   isDiscount: true,
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  height: 1,
-                  color: const Color(0xFFE0E0E0),
-                ),
               ],
+              const SizedBox(height: 8),
+              Container(
+                height: 1,
+                color: const Color(0xFFE0E0E0),
+              ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -408,7 +402,8 @@ class BookingPriceView extends GetView<BookingPriceController> {
         ));
   }
 
-  Widget _buildPriceRow(String label, String value, {bool isDiscount = false}) {
+  Widget _buildPriceRow(String label, String value,
+      {bool isDiscount = false, bool isHighlighted = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -426,8 +421,11 @@ class BookingPriceView extends GetView<BookingPriceController> {
             fontSize: 13,
             fontWeight: FontWeight.w500,
             fontFamily: 'Poppins',
-            color:
-                isDiscount ? const Color(0xFFE74C3C) : const Color(0xFF333333),
+            color: isDiscount
+                ? const Color(0xFFE74C3C)
+                : (isHighlighted
+                    ? const Color(0xFF2B7A78)
+                    : const Color(0xFF333333)),
           ),
         ),
       ],

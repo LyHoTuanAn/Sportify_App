@@ -77,6 +77,8 @@ class SuccessfulPaymentController extends GetxController
   final RxString venueName = ''.obs;
   final RxString bookingTime = ''.obs;
   final RxString totalAmount = ''.obs;
+  final RxString courtFee = ''.obs;
+  final RxString serviceFee = ''.obs;
 
   // Animation controllers
   late AnimationController pulseController;
@@ -113,9 +115,21 @@ class SuccessfulPaymentController extends GetxController
       bookingCode.value = bookingInfo['booking_code'] ?? '';
       venueName.value = bookingInfo['venueName'] ?? '';
       bookingTime.value = bookingInfo['date'] ?? '';
-      totalAmount.value = bookingInfo['totalPrice'] != null
-          ? '${bookingInfo['totalPrice'].toString()} đ'
-          : '';
+
+      // Format amounts
+      if (bookingInfo['totalPrice'] != null) {
+        totalAmount.value = _formatCurrency(bookingInfo['totalPrice']);
+      }
+
+      // Format court fee
+      if (bookingInfo['totalBeforeFees'] != null) {
+        courtFee.value = _formatCurrency(bookingInfo['totalBeforeFees']);
+      }
+
+      // Format service fee
+      if (bookingInfo['commission'] != null) {
+        serviceFee.value = _formatCurrency(bookingInfo['commission']);
+      }
     }
 
     // Initialize the pulse animation controller
@@ -218,5 +232,25 @@ class SuccessfulPaymentController extends GetxController
   void onClose() {
     pulseController.dispose();
     super.onClose();
+  }
+
+  // Helper method to format currency values
+  String _formatCurrency(dynamic amount) {
+    if (amount == null) return "0đ";
+
+    double price = 0;
+    if (amount is double) {
+      price = amount;
+    } else if (amount is int) {
+      price = amount.toDouble();
+    } else if (amount is String) {
+      price = double.tryParse(amount) ?? 0;
+    }
+
+    String priceString = price.toInt().toString();
+    final pattern = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
+    priceString =
+        priceString.replaceAllMapped(pattern, (Match m) => '${m[1]}.');
+    return '${priceString}vnđ';
   }
 }

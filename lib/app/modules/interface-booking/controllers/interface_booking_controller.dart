@@ -142,7 +142,32 @@ class InterfaceBookingController extends GetxController {
     }
   }
 
+  // Check if a time slot has already passed
+  bool isSlotExpired(String timeSlot) {
+    // Get current date and time
+    final now = DateTime.now();
+
+    // Extract time hour (e.g., "09:00" -> 9)
+    final hourToCheck = int.tryParse(timeSlot.split(':')[0]) ?? 0;
+
+    // Create a DateTime for the selected date with the time slot hour
+    final slotDateTime = DateTime(
+      selectedDate.value.year,
+      selectedDate.value.month,
+      selectedDate.value.day,
+      hourToCheck,
+    );
+
+    // Return true if the slot time is in the past
+    return slotDateTime.isBefore(now);
+  }
+
   bool isSlotAvailable(String courtName, String timeSlot) {
+    // First check if slot has already passed
+    if (isSlotExpired(timeSlot)) {
+      return false; // Treat expired slots as unavailable
+    }
+
     // Extract time hour (e.g., "09:00" -> 9)
     final hourToCheck = int.tryParse(timeSlot.split(':')[0]) ?? 0;
 
@@ -168,12 +193,44 @@ class InterfaceBookingController extends GetxController {
     }
   }
 
+  // Check if slot is available but expired
+  bool isSlotExpiredButAvailable(String courtName, String timeSlot) {
+    // Check if the slot has passed
+    if (!isSlotExpired(timeSlot)) {
+      return false; // Not expired, so not an expired-available slot
+    }
+
+    // Extract time hour (e.g., "09:00" -> 9)
+    final hourToCheck = int.tryParse(timeSlot.split(':')[0]) ?? 0;
+
+    // Find the yard availability for this court
+    final yardAvailability = yardAvailabilities.firstWhereOrNull(
+      (yard) => yard.boatTitle == courtName,
+    );
+
+    if (yardAvailability == null) {
+      return false;
+    }
+
+    // Find the specific slot
+    final matchingSlot = yardAvailability.availableSlots.firstWhereOrNull(
+        (slot) => int.tryParse(slot.start.split(':')[0]) == hourToCheck);
+
+    // Return true only if the slot was available but has expired
+    return matchingSlot != null && matchingSlot.isAvailable;
+  }
+
   void selectTimeSlot(String courtTime) {
     // Split the court-time string to get the parts
     final parts = courtTime.split('-');
     final court = parts[0];
-    // ignore: unused_local_variable
     final time = parts[1];
+
+    // Check if the time slot has already passed
+    if (isSlotExpired(time)) {
+      bookingError.value = 'Không thể chọn khung giờ đã qua.';
+      return;
+    }
 
     // Check if we're toggling a previously selected slot
     if (selectedTimeSlots.contains(courtTime)) {
@@ -466,6 +523,12 @@ class InterfaceBookingController extends GetxController {
         final formattedDate =
             DateFormat('dd/MM/yyyy').format(selectedDate.value);
 
+        // Extract commission and fees data
+        final commission = response['commission'] ?? 0;
+        final totalBeforeFees = response['total_before_fees'] ?? '';
+        final total = response['total'] ?? '';
+        final commissionType = response['commission_type'];
+
         // Create booking info object
         final bookingInfo = {
           'venueName': courtName,
@@ -478,6 +541,11 @@ class InterfaceBookingController extends GetxController {
           'booking_code': response['booking_code'],
           'yard_id': yardAvailability.boatId,
           'time_slots': selectedTimeSlots,
+          // Add new fields
+          'commission': commission,
+          'total_before_fees': totalBeforeFees,
+          'total': total,
+          'commission_type': commissionType,
         };
 
         // Navigate to booking price screen with booking info

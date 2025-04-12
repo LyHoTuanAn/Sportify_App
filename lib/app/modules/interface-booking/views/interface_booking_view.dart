@@ -163,17 +163,22 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
         ],
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildLegendItem(
             color: Colors.white,
             border: true,
             label: 'Còn trống',
           ),
-          const SizedBox(width: 16),
           _buildLegendItem(
             color: const Color(0xFFEF9A9A),
             border: true,
             label: 'Đã đặt',
+          ),
+          _buildLegendItem(
+            color: const Color(0xFFFFF9C4), // Light yellow color
+            border: true,
+            label: 'Đã qua',
           ),
         ],
       ),
@@ -524,24 +529,29 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
                     ...timeSlots.map((time) {
                       final isAvailable =
                           controller.isSlotAvailable(court, time);
+                      final isExpiredButAvailable =
+                          controller.isSlotExpiredButAvailable(court, time);
                       final isSelected =
                           controller.selectedTimeSlots.contains('$court-$time');
 
                       return InkWell(
-                        onTap: isAvailable
+                        onTap: (isAvailable && !isExpiredButAvailable)
                             ? () => controller.selectTimeSlot('$court-$time')
                             : null,
                         child: Container(
                           width: controller.cellWidth.value,
                           height: controller.cellHeight.value,
                           decoration: BoxDecoration(
-                            color: !isAvailable
+                            color: !isAvailable && !isExpiredButAvailable
                                 ? const Color(
                                     0xFFFFCDD2) // Light red for unavailable
-                                : isSelected
+                                : isExpiredButAvailable
                                     ? const Color(
-                                        0xFFE8F5E9) // Light green for selected
-                                    : Colors.white, // White for available
+                                        0xFFFFF9C4) // Light yellow for expired but available
+                                    : isSelected
+                                        ? const Color(
+                                            0xFFE8F5E9) // Light green for selected
+                                        : Colors.white, // White for available
                             border: Border.all(
                               color: Colors.grey[300]!,
                               width: 0.5,
@@ -560,10 +570,18 @@ class InterfaceBookingView extends GetView<InterfaceBookingController> {
                                     color: Colors.green[700],
                                   ),
                                 )
-                              : null,
+                              : isExpiredButAvailable
+                                  ? Center(
+                                      child: Icon(
+                                        Icons.access_time,
+                                        size: 14,
+                                        color: Colors.amber[800],
+                                      ),
+                                    )
+                                  : null,
                         ),
                       );
-                    // ignore: unnecessary_to_list_in_spreads
+                      // ignore: unnecessary_to_list_in_spreads
                     }).toList(),
                   ],
                 );
