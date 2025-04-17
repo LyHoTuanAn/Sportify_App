@@ -59,6 +59,7 @@ dependencies:
   geocoding: ^3.0.0
   webview_flutter: ^4.10.0
   mobile_scanner: ^6.0.7
+  easy_localization: ^3.0.7+1
 
 flutter_launcher_icons:
   android: "launcher_icon"
@@ -79,6 +80,7 @@ flutter:
     - assets/images/
     - assets/drawer/
     - assets/navigator/
+    - assets/translations/
 
 
 #flutter 3.27.1

@@ -2,14 +2,16 @@
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:io';
 
 import '../../../core/styles/style.dart';
+import '../../../core/utilities/theme_manager.dart';
 
 import '../../../widgets/widgets.dart';
+import '../../../widgets/theme_switcher.dart';
 import '../controllers/profile_controller.dart';
 import '../widgets/widgets.dart';
-import '../../../widgets/loading.dart';
 
 class ProfileView extends GetView<ProfileController> {
   // ignore: use_super_parameters
@@ -27,6 +29,19 @@ class ProfileView extends GetView<ProfileController> {
           icon: const Icon(Icons.notifications_none, color: Colors.white),
           onPressed: () {},
         ),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Keep the flag display in the center
+            LanguageSwitcher(
+              showTitle: false,
+              iconSize: 24,
+              iconColor: Colors.white,
+              usePopupMenu: true, // Use the popup menu version
+            ),
+          ],
+        ),
+        centerTitle: true,
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.white),
@@ -260,8 +275,8 @@ class ProfileView extends GetView<ProfileController> {
                               style: const TextStyle(
                                   color: Colors.white, fontSize: 11),
                               textAlign: TextAlign.center,
-                              maxLines: 1, //giới hạn chỉ hiển thị một dòng
-                              softWrap: false, //không tự xuống dòng
+                              maxLines: 1, // limit to one line only
+                              softWrap: false, // don't wrap text
                             ),
                           ),
                         ],
@@ -288,7 +303,7 @@ class ProfileView extends GetView<ProfileController> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             child: Text(
-                              'Lịch đã đặt',
+                              context.tr('profile.bookings'),
                               style: TextStyle(
                                 color: controller.selectedTab.value == 0
                                     ? const Color(0xFF2B7A78)
@@ -317,7 +332,7 @@ class ProfileView extends GetView<ProfileController> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             child: Text(
-                              'Thông tin thành viên',
+                              context.tr('profile.member_info'),
                               style: TextStyle(
                                 color: controller.selectedTab.value == 1
                                     ? const Color(0xFF2B7A78)
@@ -347,7 +362,7 @@ class ProfileView extends GetView<ProfileController> {
               child: IndexedStack(
                 index: controller.selectedTab.value,
                 children: [
-                  // Tab 1 - Lịch đã đặt
+                  // Tab 1 - Bookings
                   Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -358,9 +373,9 @@ class ProfileView extends GetView<ProfileController> {
                           color: Color(0xFF3AAFA9),
                         ),
                         const SizedBox(height: 10),
-                        const Text(
-                          'Bạn chưa có lịch đặt nào',
-                          style: TextStyle(
+                        Text(
+                          context.tr('profile.no_bookings'),
+                          style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 14,
                           ),
@@ -368,9 +383,9 @@ class ProfileView extends GetView<ProfileController> {
                         const SizedBox(height: 15),
                         ElevatedButton.icon(
                           onPressed: controller.navigateToBookingPage,
-                          icon: const Text(
-                            'Đặt lịch ngay',
-                            style: TextStyle(color: Colors.white),
+                          icon: Text(
+                            context.tr('profile.book_now'),
+                            style: const TextStyle(color: Colors.white),
                           ),
                           label: const Icon(Icons.arrow_forward,
                               color: Colors.white, size: 16),
@@ -387,15 +402,15 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                   ),
 
-                  // Tab 2 - Thông tin thành viên
+                  // Tab 2 - Member Information
                   SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Thông tin cá nhân',
-                          style: TextStyle(
+                        Text(
+                          context.tr('profile.personal_info'),
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF2B7A78),
@@ -404,39 +419,40 @@ class ProfileView extends GetView<ProfileController> {
                         const SizedBox(height: 16),
                         _buildInfoItem(
                           icon: Icons.person_outline,
-                          label: 'Họ và tên',
+                          label: context.tr('profile.full_name'),
                           value:
                               '${controller.user.value?.firstName ?? ''} ${controller.user.value?.lastName ?? ''}',
                         ),
                         _buildInfoItem(
                           icon: Icons.email_outlined,
-                          label: 'Email',
+                          label: context.tr('profile.email'),
                           value: controller.user.value?.email ?? '',
                         ),
                         _buildInfoItem(
                           icon: Icons.phone_outlined,
-                          label: 'Số điện thoại',
+                          label: context.tr('profile.phone_number'),
                           value: controller.user.value?.phone?.isEmpty ?? true
-                              ? 'Chưa cập nhật'
+                              ? context.tr('profile.not_updated')
                               : controller.user.value?.phone ?? '',
                         ),
                         _buildInfoItem(
                           icon: Icons.calendar_today_outlined,
-                          label: 'Ngày sinh',
+                          label: context.tr('profile.date_of_birth'),
                           value: controller.user.value?.dateOfBirth != null
                               ? '${controller.user.value?.dateOfBirth?.day}/${controller.user.value?.dateOfBirth?.month}/${controller.user.value?.dateOfBirth?.year}'
-                              : 'Chưa cập nhật',
+                              : context.tr('profile.not_updated'),
                         ),
                         _buildGenderInfoItem(
-                          controller.user.value?.gender ?? 'Chưa cập nhật',
+                          controller.user.value?.gender ??
+                              context.tr('profile.not_updated'),
                         ),
                         if (controller.user.value?.address.isNotEmpty ?? false)
                           _buildInfoItem(
                             icon: Icons.location_on_outlined,
-                            label: 'Địa chỉ',
+                            label: context.tr('profile.address'),
                             value: controller
                                     .user.value?.address.first.fullAddress ??
-                                'Chưa cập nhật',
+                                context.tr('profile.not_updated'),
                           ),
                       ],
                     ),
@@ -489,7 +505,7 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  // Widget mới để hiển thị giới tính theo cách hấp dẫn hơn
+  // New widget to display gender in a more attractive way
   Widget _buildGenderInfoItem(String gender) {
     IconData genderIcon = Icons.person;
     Color genderColor = const Color(0xFF2B7A78);
@@ -577,12 +593,21 @@ class ProfileView extends GetView<ProfileController> {
     });
   }
 
+  IconData _getThemeIcon() {
+    try {
+      return ThemeManager.isDarkMode() ? Icons.dark_mode : Icons.light_mode;
+    } catch (e) {
+      debugPrint('Error getting theme icon: $e');
+      return Icons.settings_brightness; // Fallback icon
+    }
+  }
+
   Widget _buildModernMenuContent(BuildContext context) {
     return ModernMenu(
       title: '',
       items: [
         ModernMenuItem(
-          title: 'Chỉnh sửa thông tin',
+          title: context.tr('menu.edit_profile'),
           icon: Icons.edit_outlined,
           iconBackgroundColor: const Color(0xFF2B7A78),
           onTap: () {
@@ -591,7 +616,7 @@ class ProfileView extends GetView<ProfileController> {
           },
         ),
         ModernMenuItem(
-          title: 'Thay đổi mật khẩu',
+          title: context.tr('menu.change_password'),
           icon: Icons.lock_outline,
           iconBackgroundColor: const Color(0xFF3AAFA9),
           onTap: () {
@@ -600,7 +625,25 @@ class ProfileView extends GetView<ProfileController> {
           },
         ),
         ModernMenuItem(
-          title: 'Đăng xuất',
+          title: context.tr('menu.language'),
+          icon: Icons.language,
+          iconBackgroundColor: const Color(0xFF2B7A78),
+          onTap: () {
+            Navigator.of(context).pop();
+            LanguageSwitcher.showLanguageDialogStatic(context);
+          },
+        ),
+        ModernMenuItem(
+          title: context.tr('menu.theme'),
+          icon: _getThemeIcon(),
+          iconBackgroundColor: const Color(0xFF2B7A78),
+          onTap: () {
+            Navigator.of(context).pop();
+            ThemeSwitcher.showThemeDialogStatic(context);
+          },
+        ),
+        ModernMenuItem(
+          title: context.tr('menu.logout'),
           icon: Icons.logout_outlined,
           iconBackgroundColor: Colors.redAccent,
           onTap: () {
@@ -608,8 +651,8 @@ class ProfileView extends GetView<ProfileController> {
             controller.logout();
           },
         ),
-        const ModernMenuItem(
-          title: 'Version: 2.6.6',
+        ModernMenuItem(
+          title: context.tr('menu.version', namedArgs: {'version': '2.6.6'}),
           icon: Icons.info_outline,
           iconBackgroundColor: Colors.grey,
           isVersionInfo: true,

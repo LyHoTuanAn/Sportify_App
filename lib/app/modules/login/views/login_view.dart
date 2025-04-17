@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/styles/style.dart';
 import '../../../core/utilities/screen.dart';
@@ -14,7 +15,7 @@ class LoginView extends GetView<LoginController> {
   Widget build(BuildContext context) {
     // Create a local form key to avoid duplicate GlobalKey issues
     final localFormKey = GlobalKey<FormState>();
-    
+
     return Theme(
       data: Theme.of(context).copyWith(
         textSelectionTheme: const TextSelectionThemeData(
@@ -28,7 +29,7 @@ class LoginView extends GetView<LoginController> {
             children: [
               // Top spacing
               const SizedBox(height: 10),
-              
+
               // Main content card
               Expanded(
                 child: Container(
@@ -54,7 +55,7 @@ class LoginView extends GetView<LoginController> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Image.asset(
-                                    'assets/images/logo.png', 
+                                    'assets/images/logo.png',
                                     height: 40,
                                   ),
                                   const SizedBox(width: 8),
@@ -69,138 +70,156 @@ class LoginView extends GetView<LoginController> {
                                 ],
                               ),
                             ),
-                            
+
                             const SizedBox(height: 30),
-                            
+
                             // Title
-                            const Center(
+                            Center(
                               child: Text(
-                                'Đăng nhập',
-                                style: TextStyle(
+                                context.tr('auth.login'),
+                                style: const TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF2B7A78),
                                 ),
                               ),
                             ),
-                            
+
                             const SizedBox(height: 10),
-                            
+
                             // Subtitle
-                            const Center(
+                            Center(
                               child: Text(
-                                'Đặt lịch sân thể thao dễ dàng',
-                                style: TextStyle(
+                                context.tr('auth.easy_booking'),
+                                style: const TextStyle(
                                   fontSize: 16,
                                   color: Colors.grey,
                                 ),
                               ),
                             ),
-                            
+
                             const SizedBox(height: 30),
-                            
+
                             // Phone field
-                            const Text(
-                              'Số điện thoại',
-                              style: TextStyle(
+                            Text(
+                              context.tr('auth.phone_number'),
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                             const SizedBox(height: 8),
                             Obx(() => TextFormField(
-                              controller: controller.phoneController,
-                              keyboardType: TextInputType.phone,
-                              decoration: InputDecoration(
-                                hintText: 'Nhập số điện thoại',
-                                prefixIcon: const Icon(Icons.phone, color: Color(0xFF2B7A78)),
-                                suffixIcon: controller.isPhoneValid.value 
-                                    ? null 
-                                    : const Icon(Icons.error, color: Colors.red),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Color(0xFF2B7A78)),
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey[100],
-                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              onChanged: (_) => controller.validatePhone(),
-                            )),
-                            
-                            const SizedBox(height: 20),
-                            
-                            // Password field
-                            const Text(
-                              'Mật khẩu',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Obx(() => TextFormField(
-                              controller: controller.passwordController,
-                              obscureText: !controller.isPasswordVisible.value,
-                              decoration: InputDecoration(
-                                hintText: 'Nhập mật khẩu',
-                                prefixIcon: const Icon(Icons.lock, color: Color(0xFF2B7A78)),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    controller.isPasswordVisible.value 
-                                        ? Icons.visibility_off 
-                                        : Icons.visibility,
-                                    color: Colors.grey,
+                                  controller: controller.phoneController,
+                                  keyboardType: TextInputType.phone,
+                                  decoration: InputDecoration(
+                                    hintText: context.tr('auth.enter_phone'),
+                                    prefixIcon: const Icon(Icons.phone,
+                                        color: Color(0xFF2B7A78)),
+                                    suffixIcon: controller.isPhoneValid.value
+                                        ? null
+                                        : const Icon(Icons.error,
+                                            color: Colors.red),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey[300]!),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey[300]!),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                          color: Color(0xFF2B7A78)),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[100],
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 16),
                                   ),
-                                  onPressed: controller.togglePasswordVisibility,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(color: Colors.grey[300]!),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: Color(0xFF2B7A78)),
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey[100],
-                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                                  onChanged: (_) => controller.validatePhone(),
+                                )),
+
+                            const SizedBox(height: 20),
+
+                            // Password field
+                            Text(
+                              context.tr('auth.password'),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
                               ),
-                              onChanged: (_) => controller.validatePassword(),
-                            )),
-                            
+                            ),
+                            const SizedBox(height: 8),
+                            Obx(() => TextFormField(
+                                  controller: controller.passwordController,
+                                  obscureText:
+                                      !controller.isPasswordVisible.value,
+                                  decoration: InputDecoration(
+                                    hintText: context.tr('auth.enter_password'),
+                                    prefixIcon: const Icon(Icons.lock,
+                                        color: Color(0xFF2B7A78)),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        controller.isPasswordVisible.value
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                        color: Colors.grey,
+                                      ),
+                                      onPressed:
+                                          controller.togglePasswordVisibility,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey[300]!),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey[300]!),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                          color: Color(0xFF2B7A78)),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[100],
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 16),
+                                  ),
+                                  onChanged: (_) =>
+                                      controller.validatePassword(),
+                                )),
+
                             // Forgot password link
                             Align(
                               alignment: Alignment.centerRight,
                               child: TextButton(
-                                onPressed: () => controller.goToForgotPassword(),
-                                child: const Text(
-                                  'Quên mật khẩu?',
-                                  style: TextStyle(
+                                onPressed: () =>
+                                    controller.goToForgotPassword(),
+                                child: Text(
+                                  context.tr('auth.forgot_password'),
+                                  style: const TextStyle(
                                     color: Color(0xFF2B7A78),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
                             ),
-                            
+
                             // Login button
                             Container(
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [Color(0xFF2B7A78), Color(0xFF17252A)],
+                                  colors: [
+                                    Color(0xFF2B7A78),
+                                    Color(0xFF17252A)
+                                  ],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                 ),
@@ -216,48 +235,52 @@ class LoginView extends GetView<LoginController> {
                               width: double.infinity,
                               height: 50,
                               child: Obx(() => ElevatedButton(
-                                onPressed: controller.isFormValid.value 
-                                    ? () => controller.login(formKey: localFormKey)
-                                    : null,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: controller.isLoading.value
-                                    ? const CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2,
-                                      )
-                                    : const Text(
-                                        'ĐĂNG NHẬP',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
+                                    onPressed: controller.isFormValid.value
+                                        ? () => controller.login(
+                                            formKey: localFormKey)
+                                        : null,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
-                              )),
+                                    ),
+                                    child: controller.isLoading.value
+                                        ? const CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          )
+                                        : Text(
+                                            context.tr('auth.login_button'),
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                  )),
                             ),
-                            
+
                             const SizedBox(height: 20),
-                            
+
                             // Or sign in with text
-                            const Row(
+                            Row(
                               children: [
-                                Expanded(child: Divider()),
+                                const Expanded(child: Divider()),
                                 Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 16),
-                                  child: Text('Hoặc đăng nhập với', style: TextStyle(color: Colors.grey)),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  child: Text(context.tr('auth.or_login_with'),
+                                      style:
+                                          const TextStyle(color: Colors.grey)),
                                 ),
-                                Expanded(child: Divider()),
+                                const Expanded(child: Divider()),
                               ],
                             ),
-                            
+
                             const SizedBox(height: 20),
-                            
+
                             // Google sign in button
                             Container(
                               width: double.infinity,
@@ -282,22 +305,22 @@ class LoginView extends GetView<LoginController> {
                                 ),
                               ),
                             ),
-                            
+
                             const SizedBox(height: 20),
-                            
+
                             // Register link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text(
-                                  'Chưa có tài khoản?',
-                                  style: TextStyle(color: Colors.grey),
+                                Text(
+                                  context.tr('auth.dont_have_account'),
+                                  style: const TextStyle(color: Colors.grey),
                                 ),
                                 TextButton(
                                   onPressed: () => controller.goToRegister(),
-                                  child: const Text(
-                                    'Đăng ký',
-                                    style: TextStyle(
+                                  child: Text(
+                                    context.tr('auth.sign_up'),
+                                    style: const TextStyle(
                                       color: Color(0xFF2B7A78),
                                       fontWeight: FontWeight.bold,
                                     ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import 'app/data/providers/notification_provider.dart';
 import 'app/modules/profile/controllers/profile_controller.dart';
 import 'app/services/favorite_service.dart';
 import 'app/services/service_initializer.dart';
+import 'app/widgets/restart_widget.dart';
 import 'root.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -40,6 +42,9 @@ Future<void> initServices() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize EasyLocalization
+  await EasyLocalization.ensureInitialized();
+
   // Thêm dòng này để khởi tạo dữ liệu ngôn ngữ tiếng Việt
   await initializeDateFormatting('vi_VN', null);
 
@@ -62,7 +67,20 @@ void main() async {
   await ServiceInitializer.init();
 
   // Run the app after setting up Preferences
-  runApp(const RootApp());
+  runApp(
+    RestartWidget(
+      child: EasyLocalization(
+        supportedLocales: const [Locale('en'), Locale('vi')],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('vi'),
+        useOnlyLangCode: true,
+        saveLocale: true,
+        useFallbackTranslations: true,
+        child: const RootApp(),
+      ),
+    ),
+  );
 
   // Complete initialization of other services
   EncryptData.init();
