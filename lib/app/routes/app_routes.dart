@@ -28,6 +28,7 @@ abstract class Routes {
   static const weather = _Paths.weather;
   static const interfaceBooking = _Paths.interfaceBooking;
   static const wishlist = _Paths.wishlist;
+  static const qrScanner = _Paths.qrScanner;
 }
 
 abstract class _Paths {
@@ -53,4 +54,5 @@ abstract class _Paths {
   static const weather = '/weather';
   static const interfaceBooking = '/interface-booking';
   static const wishlist = '/wishlist';
+  static const qrScanner = '/qr-scanner';
 }

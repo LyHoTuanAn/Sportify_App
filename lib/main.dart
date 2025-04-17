@@ -52,10 +52,10 @@ void main() async {
   final flavor = await getFlavorSettings();
   switch (flavor) {
     case 'dev':
-      ApiClient.setBaseUrl('https://e0ce-171-252-153-170.ngrok-free.app');
+      ApiClient.setBaseUrl('https://vnsportify.space');
       break;
     default:
-      ApiClient.setBaseUrl('https://e0ce-171-252-153-170.ngrok-free.app');
+      ApiClient.setBaseUrl('https://vnsportify.space');
   }
 
   // Khởi tạo các service với ServiceInitializer

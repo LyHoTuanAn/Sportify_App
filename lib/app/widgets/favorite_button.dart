@@ -13,7 +13,7 @@ class FavoriteButton extends StatelessWidget {
   final bool showBackground;
 
   const FavoriteButton({
-    Key? key,
+    super.key,
     required this.yardId,
     this.size = 36,
     this.iconSize = 20,
@@ -22,7 +22,7 @@ class FavoriteButton extends StatelessWidget {
     this.backgroundColor = Colors.black,
     this.opacity = 0.3,
     this.showBackground = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +36,7 @@ class FavoriteButton extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             color: showBackground
+                // ignore: deprecated_member_use
                 ? backgroundColor.withOpacity(opacity)
                 : Colors.transparent,
             shape: BoxShape.circle,

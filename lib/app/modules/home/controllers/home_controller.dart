@@ -68,6 +68,8 @@ class HomeController extends GetxController with WidgetsBindingObserver {
         return Icons.favorite;
       case 'cloud':
         return Icons.cloud;
+      case 'qr_code_scanner':
+        return Icons.qr_code_scanner;
       default:
         return Icons.sports_tennis;
     }
@@ -83,8 +85,8 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       'name': 'Thời tiết',
     },
     {
-      'icon': 'person',
-      'name': 'Huấn luyện',
+      'icon': 'qr_code_scanner',
+      'name': 'Quét QR',
     },
     {
       'icon': 'heart',

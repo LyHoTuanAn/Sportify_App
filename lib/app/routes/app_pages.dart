@@ -49,6 +49,8 @@ import '../modules/weather/views/weather_view.dart';
 import '../modules/wishlist/controllers/wishlist_controller.dart';
 import '../modules/wishlist/views/wishlist_view.dart';
 import '../modules/wishlist/bindings/wishlist_bindings.dart';
+import '../modules/qr-scanner/bindings/qr_scanner_binding.dart';
+import '../modules/qr-scanner/views/qr_scanner_view.dart';
 
 part 'app_routes.dart';
 
@@ -168,6 +170,11 @@ class AppPages {
       name: _Paths.wishlist,
       page: () => const WishlistView(),
       binding: WishlistBinding(),
+    ),
+    GetPage(
+      name: _Paths.qrScanner,
+      page: () => const QrScannerView(),
+      binding: QrScannerBinding(),
     ),
   ];
 }

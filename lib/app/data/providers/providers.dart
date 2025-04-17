@@ -102,13 +102,20 @@ class ApiProvider {
 
   static Future<String?> refreshToken() async {
     try {
+      // Check if refresh token exists before making the API call
+      final refreshToken = Preferences.getString(StringUtils.refreshToken);
+      if (refreshToken == null || refreshToken.isEmpty) {
+        AppUtils.log('token null');
+        return null;
+      }
+
       final deviceToken = await FirebaseMessaging.instance.getToken();
       final res = await ApiClient.connect(
         ApiUrl.refreshToken,
         method: ApiMethod.post,
         data: {
           "recipient": {
-            "refresh_token": Preferences.getString(StringUtils.refreshToken),
+            "refresh_token": refreshToken,
             "device_token": deviceToken,
             "device_type": Platform.operatingSystem
           }
@@ -122,6 +129,7 @@ class ApiProvider {
       }
       return null;
     } catch (e) {
+      AppUtils.log('Refresh token error: $e');
       return null;
     }
   }

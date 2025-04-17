@@ -275,8 +275,8 @@ class HomeView extends GetView<HomeController> {
             padding: EdgeInsets.zero,
             children: controller.categories.map((category) {
               return _buildCategoryItem(
-                icon: category['icon'],
                 label: category['name'],
+                icon: category['icon'],
               );
             }).toList(),
           ),
@@ -309,7 +309,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildCategoryItem({required String icon, required String label}) {
+  Widget _buildCategoryItem({required String label, required String icon}) {
     return GestureDetector(
       onTap: () async {
         // Different actions based on category
@@ -363,6 +363,8 @@ class HomeView extends GetView<HomeController> {
           }
         } else if (label == 'Yêu thích') {
           Get.toNamed(Routes.wishlist);
+        } else if (label == 'Quét QR') {
+          Get.toNamed(Routes.qrScanner);
         }
       },
       child: Column(

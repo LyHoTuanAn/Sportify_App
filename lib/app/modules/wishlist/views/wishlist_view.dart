@@ -60,6 +60,7 @@ class WishlistView extends GetView<WishlistController> {
           Icon(
             Icons.favorite_border,
             size: 60,
+            // ignore: deprecated_member_use
             color: Colors.grey.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
@@ -128,6 +129,7 @@ class WishlistView extends GetView<WishlistController> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
+              // ignore: deprecated_member_use
               color: Colors.black.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
@@ -283,6 +285,7 @@ class WishlistView extends GetView<WishlistController> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.3),
             shape: BoxShape.circle,
           ),
