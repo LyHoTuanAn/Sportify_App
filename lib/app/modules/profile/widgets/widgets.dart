@@ -19,6 +19,8 @@ import '../../../data/providers/providers.dart';
 import '../../../widgets/widgets.dart';
 import '../controllers/profile_controller.dart';
 
+export 'modern_menu.dart';
+
 part 'address_item.dart';
 part 'box_container.dart';
 part 'edit_profile.dart';

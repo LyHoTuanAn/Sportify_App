@@ -20,87 +20,26 @@ class ProfileView extends GetView<ProfileController> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF2B7A78),
         elevation: 0,
+        toolbarHeight: 45,
         leading: IconButton(
-          icon: const Icon(Icons.notifications_none, color: Colors.black),
+          icon: const Icon(Icons.notifications_none, color: Colors.white),
           onPressed: () {},
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.grey),
+            icon: const Icon(Icons.more_vert, color: Colors.white),
             offset: const Offset(0, 50),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
             ),
-            onSelected: (value) {
-              if (value == 'edit') {
-                EditProfileBottom.showBottom();
-              } else if (value == 'password') {
-                controller.navigateToChangePassword();
-              } else if (value == 'logout') {
-                controller.logout();
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'edit',
-                height: 48,
-                child: Center(
-                  child: Text(
-                    'Chỉnh sửa thông tin',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-              const PopupMenuDivider(height: 1),
-              const PopupMenuItem<String>(
-                value: 'password',
-                height: 48,
-                child: Center(
-                  child: Text(
-                    'Thay đổi mật khẩu',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-              const PopupMenuDivider(height: 1),
-              const PopupMenuItem<String>(
-                value: 'logout',
-                height: 48,
-                child: Center(
-                  child: Text(
-                    'Đăng xuất',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-              const PopupMenuDivider(height: 1),
-              const PopupMenuItem<String>(
-                enabled: false,
-                height: 48,
-                child: Center(
-                  child: Text(
-                    'Version: 2.6.6',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
+            color: Colors.grey[200],
+            itemBuilder: (context) => [
+              PopupMenuItem<String>(
+                padding: EdgeInsets.zero,
+                height: 0,
+                child: _buildModernMenuContent(context),
               ),
             ],
           ),
@@ -118,18 +57,19 @@ class ProfileView extends GetView<ProfileController> {
             // Profile section
             Container(
               color: const Color(0xFF2B7A78),
-              padding: const EdgeInsets.symmetric(vertical: 20),
+              padding: const EdgeInsets.symmetric(vertical: 30),
               child: Column(
                 children: [
                   // Avatar
                   Stack(
                     alignment: Alignment.bottomRight,
+                    clipBehavior: Clip.none,
                     children: [
                       Obx(() {
                         if (controller.avatarLoading.value) {
                           return Container(
-                            width: 80,
-                            height: 80,
+                            width: 120,
+                            height: 120,
                             decoration: BoxDecoration(
                               color: Colors.grey[300],
                               shape: BoxShape.circle,
@@ -147,18 +87,19 @@ class ProfileView extends GetView<ProfileController> {
                             debugPrint('Attempting to load avatar: $avatarUrl');
                             // Force the image to refresh using key based on timestamp
                             return CircleAvatar(
-                              radius: 40,
+                              radius: 60,
                               backgroundColor: Colors.white,
                               child: ClipOval(
                                 child: Image.network(
                                   avatarUrl,
                                   key: ValueKey(
                                       'avatar_${DateTime.now().millisecondsSinceEpoch}'),
-                                  width: 80,
-                                  height: 80,
+                                  width: 120,
+                                  height: 120,
                                   fit: BoxFit.cover,
-                                  cacheWidth: 200, // Limit cache size
-                                  cacheHeight: 200,
+                                  cacheWidth:
+                                      300, // Increased cache size for better quality
+                                  cacheHeight: 300,
                                   loadingBuilder:
                                       (context, child, loadingProgress) {
                                     if (loadingProgress == null) {
@@ -188,7 +129,7 @@ class ProfileView extends GetView<ProfileController> {
                                     _checkImageUrl(avatarUrl);
                                     return const Icon(
                                       Icons.person,
-                                      size: 40,
+                                      size: 60,
                                       color: Color(0xFF3AAFA9),
                                     );
                                   },
@@ -197,40 +138,51 @@ class ProfileView extends GetView<ProfileController> {
                             );
                           } else {
                             return const CircleAvatar(
-                              radius: 40,
+                              radius: 60,
                               backgroundColor: Colors.white,
                               child: Icon(
                                 Icons.person,
-                                size: 40,
+                                size: 60,
                                 color: Color(0xFF3AAFA9),
                               ),
                             );
                           }
                         }
                       }),
-                      Obx(() => GestureDetector(
-                            onTap: controller.avatarLoading.value
-                                ? null
-                                : controller.changeAvatar,
-                            child: const CircleAvatar(
-                              radius: 10,
-                              backgroundColor: Colors.black,
-                              child: Icon(
-                                Icons.camera_alt,
-                                size: 12,
-                                color: Colors.white,
+                      Positioned(
+                        right: 0,
+                        bottom: 5,
+                        child: Obx(() => GestureDetector(
+                              onTap: controller.avatarLoading.value
+                                  ? null
+                                  : controller.changeAvatar,
+                              child: Container(
+                                padding: const EdgeInsets.all(1),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const CircleAvatar(
+                                  radius: 13,
+                                  backgroundColor: Color(0xFF2B7A78),
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    size: 18,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
-                            ),
-                          )),
+                            )),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   // Name
                   Text(
                     '${controller.user.value?.firstName ?? ''} ${controller.user.value?.lastName ?? ''}',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -240,13 +192,13 @@ class ProfileView extends GetView<ProfileController> {
                       controller.user.value?.phone?.isEmpty == true)
                     Column(
                       children: [
-                          Container(
+                        Container(
                           margin: const EdgeInsets.symmetric(horizontal: 65),
                           padding: const EdgeInsets.symmetric(
                               vertical: 8, horizontal: 15),
                           decoration: BoxDecoration(
                             // ignore: deprecated_member_use
-                            color: const Color(0xFF3AAFA9).withOpacity(0.4),
+                            color: const Color(0xFF3AAFA9).withAlpha(102),
                             borderRadius: BorderRadius.circular(50),
                           ),
                           child: const Row(
@@ -294,7 +246,7 @@ class ProfileView extends GetView<ProfileController> {
                           vertical: 8, horizontal: 15),
                       decoration: BoxDecoration(
                         // ignore: deprecated_member_use
-                        color: const Color(0xFF3AAFA9).withOpacity(0.4),
+                        color: const Color(0xFF3AAFA9).withAlpha(102),
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Row(
@@ -574,11 +526,12 @@ class ProfileView extends GetView<ProfileController> {
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     // ignore: deprecated_member_use
-                    color: genderColor.withOpacity(0.1),
+                    color: genderColor.withAlpha(25),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                         // ignore: deprecated_member_use
-                        color: genderColor.withOpacity(0.5), width: 1),
+                        color: genderColor.withAlpha(128),
+                        width: 1),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -622,5 +575,46 @@ class ProfileView extends GetView<ProfileController> {
     }).catchError((error) {
       debugPrint('Error checking URL: $error');
     });
+  }
+
+  Widget _buildModernMenuContent(BuildContext context) {
+    return ModernMenu(
+      title: '',
+      items: [
+        ModernMenuItem(
+          title: 'Chỉnh sửa thông tin',
+          icon: Icons.edit_outlined,
+          iconBackgroundColor: const Color(0xFF2B7A78),
+          onTap: () {
+            Navigator.of(context).pop();
+            EditProfileBottom.showBottom();
+          },
+        ),
+        ModernMenuItem(
+          title: 'Thay đổi mật khẩu',
+          icon: Icons.lock_outline,
+          iconBackgroundColor: const Color(0xFF3AAFA9),
+          onTap: () {
+            Navigator.of(context).pop();
+            controller.navigateToChangePassword();
+          },
+        ),
+        ModernMenuItem(
+          title: 'Đăng xuất',
+          icon: Icons.logout_outlined,
+          iconBackgroundColor: Colors.redAccent,
+          onTap: () {
+            Navigator.of(context).pop();
+            controller.logout();
+          },
+        ),
+        const ModernMenuItem(
+          title: 'Version: 2.6.6',
+          icon: Icons.info_outline,
+          iconBackgroundColor: Colors.grey,
+          isVersionInfo: true,
+        ),
+      ],
+    );
   }
 }
