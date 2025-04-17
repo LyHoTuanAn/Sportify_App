@@ -81,41 +81,18 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       'name': 'Thiết bị',
     },
     {
-      'icon': 'cloud',
-      'name': 'Thời tiết',
-    },
-    {
       'icon': 'qr_code_scanner',
       'name': 'Quét QR',
+    },
+    {
+      'icon': 'cloud',
+      'name': 'Thời tiết',
     },
     {
       'icon': 'heart',
       'name': 'Yêu thích',
     },
-  ];
 
-  final List<Map<String, dynamic>> vouchers = [
-    {
-      'discount': '30',
-      'title': 'Ưu đãi đầu tháng',
-      'expiry': 'Hết hạn: 10/03/2025',
-      'detail': 'Áp dụng cho tất cả sân',
-      'color': 'red',
-    },
-    {
-      'discount': '20',
-      'title': 'Khung giờ trưa',
-      'expiry': 'Hết hạn: 15/03/2025',
-      'detail': '12:00 - 15:00 hàng ngày',
-      'color': 'orange',
-    },
-    {
-      'discount': '50',
-      'title': 'Ưu đãi thành viên mới',
-      'expiry': 'Hết hạn: 31/03/2025',
-      'detail': 'Lần đặt sân đầu tiên',
-      'color': 'purple',
-    },
   ];
 
   @override

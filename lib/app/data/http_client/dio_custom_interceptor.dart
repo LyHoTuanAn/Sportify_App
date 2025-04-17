@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import '../../core/utilities/app_utils.dart';
 import '../../core/utilities/utilities.dart';
 import '../providers/providers.dart';
 import 'http_client.dart';

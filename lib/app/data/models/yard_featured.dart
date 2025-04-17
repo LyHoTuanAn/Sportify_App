@@ -48,6 +48,11 @@ class YardFeatured {
     }
     return '';
   }
+
+  // Add a location getter to provide compatibility with Yard class
+  LocationModel get location {
+    return LocationModel(name: realAddress.address);
+  }
 }
 
 class RealAddressModel {

@@ -9,6 +9,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' as scanner;
 import '../../../routes/app_pages.dart';
 import '../../dashboard/controllers/dashboard_controller.dart';
+import '../utils/bank_mapping.dart';
+import '../utils/viet_qr_parser.dart';
 
 class QrScannerController extends GetxController {
   final MobileScannerController scannerController = MobileScannerController();
@@ -44,76 +46,23 @@ class QrScannerController extends GetxController {
       return;
     }
 
-    // Xử lý các loại mã QR khác nhau
-    if (scannedCode.value.startsWith('http://') ||
-        scannedCode.value.startsWith('https://')) {
-      // Kiểm tra nếu là URL của ứng dụng
-      final String url = scannedCode.value;
+    // Lưu vào lịch sử quét
+    saveScanToHistory(scannedCode.value, _getQRCodeType(scannedCode.value));
 
-      // Kiểm tra nếu là URL booking
-      final String? bookingId = _extractBookingId(url);
-      if (bookingId != null) {
-        Get.back();
-        // Use the booking-price route instead since BOOKING_DETAIL doesn't exist
-        Get.toNamed(Routes.bookingPrice, arguments: {'bookingId': bookingId});
-        return;
-      }
-
-      // Kiểm tra nếu là URL yard
-      final String? yardId = _extractYardId(url);
-      if (yardId != null) {
-        Get.back();
-        // Use the interfaceBooking route instead since YARD_DETAIL doesn't exist
-        Get.toNamed(Routes.interfaceBooking,
-            arguments: {'yard_id': int.tryParse(yardId) ?? 0});
-        return;
-      }
-
-      // Xử lý URL thông thường
-      Get.dialog(
-        AlertDialog(
-          title: const Text('Mở liên kết'),
-          content: Text('Bạn có muốn mở liên kết này không?\n\n$url'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Get.back();
-                resetScan();
-              },
-              child: const Text('Hủy'),
-            ),
-            TextButton(
-              onPressed: () {
-                Get.back();
-                launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-              },
-              child: const Text('Mở'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      // Xử lý nội dung thông thường (không phải URL)
-      Clipboard.setData(ClipboardData(text: scannedCode.value));
-      Get.snackbar(
-        'Đã quét thành công',
-        'Đã sao chép: ${scannedCode.value}',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-
-      Future.delayed(const Duration(seconds: 2), () {
-        Get.back();
-      });
-    }
+    // Xử lý mã QR
+    _processQRCode(scannedCode.value);
   }
 
   void _processQRCode(String code) {
     // Phân tích và xử lý mã QR để quyết định hướng chuyển tiếp
 
-    // 1. Kiểm tra nếu là link booking
+    // 1. Kiểm tra nếu là mã QR thanh toán (VietQR, VNPay, MoMo, ZaloPay, v.v.)
+    if (_isPaymentQR(code)) {
+      _handlePaymentQR(code);
+      return;
+    }
+
+    // 2. Kiểm tra nếu là link booking
     if (code.contains('sportify.com/booking/') ||
         code.contains('sportify.app/booking/')) {
       // Trích xuất ID đặt sân từ URL
@@ -123,7 +72,7 @@ class QrScannerController extends GetxController {
       Get.snackbar(
         'Mã đặt sân',
         'Đang mở thông tin đặt sân...',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: const Color(0xFF2B7A78),
         colorText: Colors.white,
         duration: const Duration(seconds: 2),
@@ -131,17 +80,20 @@ class QrScannerController extends GetxController {
 
       // Delay một chút trước khi chuyển hướng để người dùng thấy snackbar
       Future.delayed(const Duration(seconds: 1), () {
-        Get.back(); // Đóng màn hình quét QR
-
         // Nếu có booking ID, chuyển đến màn hình chi tiết đặt sân
         if (bookingId != null) {
+          Get.back(); // Đóng màn hình quét QR
           Get.toNamed(Routes.bookingPrice, arguments: {'id': bookingId});
+        } else {
+          // Reset để quét tiếp
+          resetScan();
         }
       });
+      return;
     }
 
-    // 2. Kiểm tra nếu là liên kết đến sân cụ thể
-    else if (code.contains('sportify.com/yard/') ||
+    // 3. Kiểm tra nếu là liên kết đến sân cụ thể
+    if (code.contains('sportify.com/yard/') ||
         code.contains('sportify.app/yard/')) {
       // Trích xuất yard ID
       final yardId = _extractYardId(code);
@@ -149,134 +101,345 @@ class QrScannerController extends GetxController {
       Get.snackbar(
         'Mã sân',
         'Đang mở thông tin sân...',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: const Color(0xFF2B7A78),
         colorText: Colors.white,
         duration: const Duration(seconds: 2),
       );
 
       Future.delayed(const Duration(seconds: 1), () {
-        Get.back(); // Đóng màn hình quét QR
-
         // Nếu có yard ID, chuyển đến màn hình chi tiết sân
         if (yardId != null) {
+          Get.back(); // Đóng màn hình quét QR
           Get.toNamed(Routes.interfaceBooking,
               arguments: {'yard_id': int.parse(yardId)});
+        } else {
+          // Reset để quét tiếp
+          resetScan();
         }
       });
+      return;
     }
 
-    // 3. Kiểm tra nếu là URL thông thường
-    else if (code.startsWith('http://') || code.startsWith('https://')) {
-      Get.snackbar(
-        'Đường dẫn web',
-        'Đã tìm thấy: $code',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF2B7A78),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
+    // 4. Kiểm tra nếu là URL thông thường
+    if (code.startsWith('http://') || code.startsWith('https://')) {
+      Get.dialog(
+        Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.link_rounded,
+                    color: Colors.blue,
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  'Mở liên kết',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF17252A),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    code,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[800],
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.back();
+                          resetScan();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[200],
+                          foregroundColor: Colors.black87,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text('Hủy'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.back();
+                          _openURL(code);
+                          resetScan();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2B7A78),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: const Text('Mở'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                TextButton.icon(
+                  onPressed: () {
+                    Get.back();
+                    Clipboard.setData(ClipboardData(text: code));
+                    Get.snackbar(
+                      'Đã sao chép',
+                      'Đã sao chép liên kết vào bộ nhớ tạm',
+                      snackPosition: SnackPosition.TOP,
+                      backgroundColor: Colors.green,
+                      colorText: Colors.white,
+                    );
+                    resetScan();
+                  },
+                  icon: const Icon(Icons.copy, size: 18),
+                  label: const Text('Sao chép liên kết'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.grey[700],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
+      return;
+    }
 
-      // Hiển thị hộp thoại xác nhận mở liên kết
-      Future.delayed(const Duration(seconds: 1), () {
-        Get.dialog(
-          AlertDialog(
-            title: const Text('Mở liên kết'),
-            content: Text('Bạn có muốn mở liên kết này?\n$code'),
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(),
-                child: const Text('Hủy'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Get.back(); // Đóng dialog
-                  Get.back(); // Đóng màn hình QR
-
-                  // Mở URL bằng launcher hoặc trong app
-                  _openURL(code);
-                },
-                child: const Text('Mở'),
+    // 5. Trường hợp khác - có thể là văn bản hoặc thông tin khác
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                spreadRadius: 1,
               ),
             ],
           ),
-        );
-      });
-    }
-
-    // 4. Trường hợp khác - có thể là văn bản hoặc thông tin khác
-    else {
-      Get.snackbar(
-        'Kết quả quét',
-        code,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF2B7A78),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 4),
-      );
-
-      // Hiển thị dialog với nội dung quét được
-      Future.delayed(const Duration(seconds: 1), () {
-        Get.dialog(
-          AlertDialog(
-            title: const Text('Nội dung QR'),
-            content: Text(code),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Get.back(); // Đóng dialog
-                  Get.back(); // Đóng màn hình QR
-
-                  // Sao chép vào clipboard
-                  Clipboard.setData(ClipboardData(text: code));
-                  Get.snackbar(
-                    'Đã sao chép',
-                    'Nội dung đã được sao chép vào bộ nhớ tạm',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.green,
-                    colorText: Colors.white,
-                    duration: const Duration(seconds: 2),
-                  );
-                },
-                child: const Text('Sao chép & Đóng'),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: Colors.purple.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.text_fields_rounded,
+                  color: Colors.purple,
+                  size: 40,
+                ),
               ),
-              TextButton(
-                onPressed: () {
-                  Get.back(); // Đóng dialog
-                  resumeScanning(); // Tiếp tục quét mã QR khác
-                },
-                child: const Text('Quét tiếp'),
+              const SizedBox(height: 15),
+              const Text(
+                'Nội dung QR',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF17252A),
+                ),
+              ),
+              const SizedBox(height: 15),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                ),
+                child: Text(
+                  code,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[800],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        resetScan();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200],
+                        foregroundColor: Colors.black87,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text('Đóng'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Get.back();
+                        Clipboard.setData(ClipboardData(text: code));
+                        Get.snackbar(
+                          'Đã sao chép',
+                          'Nội dung đã được sao chép vào bộ nhớ tạm',
+                          snackPosition: SnackPosition.TOP,
+                          backgroundColor: Colors.green,
+                          colorText: Colors.white,
+                        );
+                        resetScan();
+                      },
+                      icon: const Icon(Icons.copy, size: 18),
+                      label: const Text('Sao chép'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2B7A78),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 2,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        );
-      });
-    }
-
-    // Reset trạng thái sau khi đã xử lý
-    Future.delayed(const Duration(seconds: 2), () {
-      isProcessing.value = false;
-      if (!isScanComplete.value) {
-        resumeScanning();
-      }
-    });
+        ),
+      ),
+    );
   }
 
   // Hiển thị dialog thông báo mã QR không hợp lệ
   void _showInvalidQRDialog(String message) {
     Get.dialog(
-      AlertDialog(
-        title: const Text('Mã QR không hợp lệ'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Get.back();
-              resetScan();
-            },
-            child: const Text('Quét lại'),
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                spreadRadius: 1,
+              ),
+            ],
           ),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text(
+                'Mã QR không hợp lệ',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF17252A),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                  resetScan();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2B7A78),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  minimumSize: const Size(double.infinity, 45),
+                  elevation: 2,
+                ),
+                child: const Text(
+                  'Quét lại',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -305,6 +468,8 @@ class QrScannerController extends GetxController {
   void resetScan() {
     isScanComplete.value = false;
     scannedCode.value = '';
+    // Đảm bảo scanner đang chạy
+    scannerController.start();
   }
 
   // Phương thức mở URL
@@ -325,7 +490,7 @@ class QrScannerController extends GetxController {
       Get.snackbar(
         'Lỗi',
         'Không thể mở liên kết: $url',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red,
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
@@ -521,75 +686,207 @@ class QrScannerController extends GetxController {
       Get.snackbar(
         'Lịch sử trống',
         'Bạn chưa quét mã QR nào',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.grey[800],
         colorText: Colors.white,
+        borderRadius: 10,
+        margin: const EdgeInsets.all(10),
+        duration: const Duration(seconds: 2),
+        animationDuration: const Duration(milliseconds: 500),
+        icon: const Icon(Icons.history, color: Colors.white),
       );
       return;
     }
 
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: const BoxDecoration(
+        padding: const EdgeInsets.only(top: 20),
+        decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(25),
+            topRight: Radius.circular(25),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(20),
+              blurRadius: 10,
+              offset: const Offset(0, -3),
+            ),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 5,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 15),
+            // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Lịch sử quét',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2B7A78).withAlpha(30),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.history_rounded,
+                          color: Color(0xFF2B7A78),
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Lịch sử quét',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF17252A),
+                        ),
+                      ),
+                    ],
                   ),
                   IconButton(
                     onPressed: () {
                       Get.dialog(
-                        AlertDialog(
-                          title: const Text('Xóa lịch sử'),
-                          content: const Text(
-                              'Bạn có chắc muốn xóa toàn bộ lịch sử quét?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Get.back(),
-                              child: const Text('Hủy'),
+                        Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(20),
+                                  blurRadius: 10,
+                                  spreadRadius: 1,
+                                ),
+                              ],
                             ),
-                            TextButton(
-                              onPressed: () {
-                                scanHistory.clear();
-                                storage.remove('scan_history');
-                                Get.back(); // Đóng dialog
-                                Get.back(); // Đóng bottom sheet
-                                Get.snackbar(
-                                  'Đã xóa',
-                                  'Lịch sử quét đã được xóa',
-                                  snackPosition: SnackPosition.BOTTOM,
-                                  backgroundColor: Colors.green,
-                                  colorText: Colors.white,
-                                );
-                              },
-                              child: const Text('Xóa'),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(15),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.withAlpha(30),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete_outline_rounded,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                const Text(
+                                  'Xóa lịch sử',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF17252A),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Bạn có chắc muốn xóa toàn bộ lịch sử quét?',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () => Get.back(),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.grey[200],
+                                          foregroundColor: Colors.black87,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                          ),
+                                          elevation: 0,
+                                        ),
+                                        child: const Text('Hủy'),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          scanHistory.clear();
+                                          storage.remove('scan_history');
+                                          Get.back(); // Đóng dialog
+                                          Get.back(); // Đóng bottom sheet
+                                          Get.snackbar(
+                                            'Đã xóa',
+                                            'Lịch sử quét đã được xóa',
+                                            snackPosition: SnackPosition.TOP,
+                                            backgroundColor: Colors.green,
+                                            colorText: Colors.white,
+                                            borderRadius: 10,
+                                            margin: const EdgeInsets.all(10),
+                                            duration:
+                                                const Duration(seconds: 2),
+                                            icon: const Icon(Icons.check_circle,
+                                                color: Colors.white),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                          ),
+                                          elevation: 0,
+                                        ),
+                                        child: const Text('Xóa'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       );
                     },
-                    icon: const Icon(Icons.delete_outline),
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.red,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.red.withAlpha(20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 10),
             const Divider(),
             ConstrainedBox(
               constraints: BoxConstraints(
@@ -597,33 +894,125 @@ class QrScannerController extends GetxController {
               ),
               child: Obx(() => ListView.builder(
                     shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 10),
                     itemCount: scanHistory.length,
                     itemBuilder: (context, index) {
                       final item = scanHistory[index];
                       final DateTime date = DateTime.fromMillisecondsSinceEpoch(
                           item['timestamp']);
                       final String formattedDate =
-                          '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute}';
+                          '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute < 10 ? '0${date.minute}' : date.minute}';
 
-                      return ListTile(
-                        leading: _getIconForQRType(item['type']),
-                        title: Text(
-                          item['code'],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(10),
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        subtitle: Text(formattedDate),
-                        onTap: () {
-                          Get.back(); // Đóng bottom sheet
-                          _processQRCode(item['code']);
-                        },
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(15),
+                            onTap: () {
+                              Get.back(); // Đóng bottom sheet
+                              _processQRCode(item['code']);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                children: [
+                                  _getIconForQRType(item['type']),
+                                  const SizedBox(width: 15),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item['code'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xFF17252A),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.access_time,
+                                              size: 12,
+                                              color: Colors.grey[600],
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              formattedDate,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      Clipboard.setData(
+                                          ClipboardData(text: item['code']));
+                                      Get.snackbar(
+                                        'Đã sao chép',
+                                        'Nội dung đã được sao chép vào bộ nhớ tạm',
+                                        snackPosition: SnackPosition.TOP,
+                                        backgroundColor: Colors.green,
+                                        colorText: Colors.white,
+                                        borderRadius: 10,
+                                        margin: const EdgeInsets.all(10),
+                                        duration: const Duration(seconds: 2),
+                                        icon: const Icon(Icons.copy,
+                                            color: Colors.white),
+                                      );
+                                    },
+                                    icon: Icon(
+                                      Icons.copy_rounded,
+                                      size: 18,
+                                      color: Colors.grey[600],
+                                    ),
+                                    style: IconButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: const Size(30, 30),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       );
                     },
                   )),
             ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
     );
   }
 
@@ -633,36 +1022,47 @@ class QrScannerController extends GetxController {
     Color iconColor;
 
     switch (type) {
+      case 'payment':
+        iconData = Icons.payment_rounded;
+        iconColor = Colors.purple;
+        break;
       case 'url':
-        iconData = Icons.link;
+        iconData = Icons.link_rounded;
         iconColor = Colors.blue;
         break;
       case 'booking':
-        iconData = Icons.calendar_today;
+        iconData = Icons.calendar_today_rounded;
         iconColor = const Color(0xFF2B7A78);
         break;
       case 'yard':
-        iconData = Icons.sports_soccer;
+        iconData = Icons.sports_soccer_rounded;
         iconColor = Colors.green;
         break;
       case 'text':
-        iconData = Icons.text_fields;
+        iconData = Icons.text_fields_rounded;
         iconColor = Colors.orange;
         break;
       default:
-        iconData = Icons.qr_code;
+        iconData = Icons.qr_code_rounded;
         iconColor = Colors.grey;
     }
 
-    return CircleAvatar(
-      backgroundColor: iconColor.withAlpha(50),
-      child: Icon(iconData, color: iconColor, size: 20),
+    return Container(
+      width: 45,
+      height: 45,
+      decoration: BoxDecoration(
+        color: iconColor.withAlpha(30),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(iconData, color: iconColor, size: 22),
     );
   }
 
   // Xác định loại mã QR
   String _getQRCodeType(String code) {
-    if (code.startsWith('http://') || code.startsWith('https://')) {
+    if (_isPaymentQR(code)) {
+      return 'payment';
+    } else if (code.startsWith('http://') || code.startsWith('https://')) {
       if (code.contains('/booking/')) {
         return 'booking';
       } else if (code.contains('/yard/')) {
@@ -675,25 +1075,397 @@ class QrScannerController extends GetxController {
     }
   }
 
+  // Kiểm tra xem có phải là mã QR thanh toán không
+  bool _isPaymentQR(String code) {
+    // Kiểm tra nếu là VietQR (EMV QR Code format)
+    if (code.startsWith('00020101')) {
+      // Sử dụng VietQRParser để kiểm tra
+      final vietQRParser = VietQRParser(code);
+      return vietQRParser.isVietQR();
+    }
+
+    // VietQR format URL
+    if (code.startsWith('https://vietqr.io/') ||
+        code.contains('bankplus.vn/') ||
+        code.contains('vietqr.vn/')) {
+      return true;
+    }
+
+    // VNPAY format
+    if (code.startsWith('vnpay://') ||
+        code.contains('vnpayqr.vn/') ||
+        code.contains('pay.vnpay.vn/')) {
+      return true;
+    }
+
+    // MoMo format
+    if (code.startsWith('momo://') ||
+        code.contains('nhantien.momo.vn/') ||
+        code.contains('payment.momo.vn/') ||
+        (code.contains('MM') && code.contains('MOMO'))) {
+      return true;
+    }
+
+    // ZaloPay format
+    if (code.startsWith('zalopay://') ||
+        code.contains('qr.zalopay.vn/') ||
+        code.contains('sbpay.zalopay.vn/')) {
+      return true;
+    }
+
+    // ViettelPay format
+    if (code.startsWith('viettelmoney://') ||
+        code.contains('viettelmoney.vn/') ||
+        code.contains('viettel.vn/')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Xử lý mã QR thanh toán
+  void _handlePaymentQR(String code) {
+    // Luôn sử dụng MoMo cho mọi mã QR thanh toán
+    String appName = 'MoMo';
+    String appPackage = 'com.mservice.momotransfer';
+    String appScheme = 'momo://';
+    String appIntent =
+        'intent://scan/#Intent;scheme=momo;package=com.mservice.momotransfer;end';
+    Map<String, dynamic> paymentInfo = {};
+
+    // Xử lý mã VietQR (EMV QR - 00020101...)
+    if (code.startsWith('00020101')) {
+      // Sử dụng VietQRParser để phân tích mã QR
+      final vietQRParser = VietQRParser(code);
+      vietQRParser.parse();
+      paymentInfo = Map<String, dynamic>.from(vietQRParser.extractedInfo);
+    }
+
+    // Tạo nội dung hiển thị thông tin thanh toán
+    String paymentDetails = '';
+
+    if (paymentInfo.isNotEmpty) {
+      // Hiển thị thông tin người nhận
+      if (paymentInfo.containsKey('beneficiaryName')) {
+        paymentDetails += 'Người nhận: ${paymentInfo['beneficiaryName']}\n';
+      }
+
+      // Hiển thị số tài khoản
+      if (paymentInfo.containsKey('accountNumber')) {
+        paymentDetails += 'Số tài khoản: ${paymentInfo['accountNumber']}\n';
+      }
+
+      // Hiển thị ngân hàng
+      if (paymentInfo.containsKey('bankName')) {
+        paymentDetails += 'Ngân hàng: ${paymentInfo['bankName']}\n';
+      }
+
+      // Hiển thị số tiền
+      if (paymentInfo.containsKey('amount')) {
+        final amount = paymentInfo['amount'];
+        // Format số tiền nếu có thể
+        try {
+          final amountValue = double.parse(amount);
+          final formattedAmount = '${amountValue
+                  .toStringAsFixed(0)
+                  .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                      (Match m) => '${m[1]},')} VND';
+          paymentDetails += 'Số tiền: $formattedAmount\n';
+        } catch (e) {
+          paymentDetails += 'Số tiền: $amount\n';
+        }
+      }
+
+      // Hiển thị nội dung chuyển khoản
+      if (paymentInfo.containsKey('description')) {
+        paymentDetails += 'Nội dung: ${paymentInfo['description']}\n';
+      }
+    }
+
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                // ignore: deprecated_member_use
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
+                  color: Colors.green.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.payment_rounded,
+                  color: Colors.green,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 15),
+              Text(
+                'Mã thanh toán $appName',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF17252A),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              if (paymentDetails.isNotEmpty) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                  ),
+                  child: Text(
+                    paymentDetails,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[800],
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+              ],
+              Text(
+                'Bạn có muốn mở $appName để thực hiện thanh toán không?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        resetScan();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200],
+                        foregroundColor: Colors.black87,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text('Hủy'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        _openPaymentApp(code, appScheme, appPackage, appIntent);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2B7A78),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: const Text('Mở'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Mở ứng dụng thanh toán
+  Future<void> _openPaymentApp(String code, String appScheme, String appPackage,
+      String appIntent) async {
+    try {
+      // Phân tích mã QR nếu là VietQR
+      if (code.startsWith('00020101')) {
+        // Sử dụng VietQRParser để phân tích mã QR
+        final vietQRParser = VietQRParser(code);
+        vietQRParser.parse();
+
+        // Lấy thông tin từ mã QR
+        String accountNumber =
+            vietQRParser.extractedInfo['accountNumber'] ?? '';
+        String bankName = vietQRParser.extractedInfo['bankName'] ?? '';
+        String bankId = vietQRParser.extractedInfo['bankId'] ?? '';
+        String amount = vietQRParser.extractedInfo['amount'] ?? '';
+
+        // Xử lý thông tin ngân hàng
+        if (bankName.isEmpty && bankId.isNotEmpty) {
+          // Sử dụng BankMapping để chuyển đổi mã ngân hàng sang tên ngân hàng
+          bankName = BankMapping.getMomoBankCodeFromBankId(bankId);
+        }
+
+        // Tạo deeplink theo cú pháp mới
+        // momo://app?action=transferToBank&bankCode=VietCapitalBank&accountNumber=99MM2335M50641697&amount=70000
+        String directDeeplink = 'momo://app?action=transferToBank';
+
+        // Thêm thông tin ngân hàng
+        if (bankName.isNotEmpty) {
+          directDeeplink += '&bankCode=${Uri.encodeComponent(bankName)}';
+        }
+
+        // Thêm số tài khoản
+        if (accountNumber.isNotEmpty) {
+          directDeeplink +=
+              '&accountNumber=${Uri.encodeComponent(accountNumber)}';
+        }
+
+        // Thêm số tiền nếu có
+        if (amount.isNotEmpty) {
+          directDeeplink += '&amount=${Uri.encodeComponent(amount)}';
+        }
+
+        try {
+          final Uri uri = Uri.parse(directDeeplink);
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          resetScan();
+          return;
+        } catch (e) {
+          // Thử mở MoMo trực tiếp nếu không mở được với deeplink
+          try {
+            final Uri uri = Uri.parse('momo://');
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            resetScan();
+            return;
+          } catch (e2) {
+            _showErrorDialog(
+                'Không thể mở ứng dụng MoMo. Vui lòng kiểm tra xem ứng dụng đã được cài đặt chưa.');
+          }
+        }
+      } else {
+        // Nếu không phải mã VietQR, thử mở MoMo trực tiếp
+        try {
+          final Uri uri = Uri.parse('momo://');
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          resetScan();
+          return;
+        } catch (e) {
+          _showErrorDialog(
+              'Không thể mở ứng dụng MoMo. Vui lòng kiểm tra xem ứng dụng đã được cài đặt chưa.');
+        }
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Lỗi',
+        'Không thể mở ứng dụng thanh toán. Vui lòng mở thủ công.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+        borderRadius: 10,
+        margin: const EdgeInsets.all(10),
+      );
+      resetScan();
+    }
+  }
+
   // Hiển thị dialog lỗi
   void _showErrorDialog(String message) {
     Get.dialog(
-      AlertDialog(
-        title: const Text('Lỗi'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Đóng'),
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(25),
+                blurRadius: 10,
+                spreadRadius: 1,
+              ),
+            ],
           ),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withAlpha(25),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text(
+                'Lỗi',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF17252A),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Get.back(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2B7A78),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  minimumSize: const Size(double.infinity, 45),
+                  elevation: 2,
+                ),
+                child: const Text(
+                  'Đóng',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   @override
   void onClose() {
-    scannerController.dispose();
+    // Đảm bảo giải phóng tài nguyên
     super.onClose();
   }
 }

@@ -10,9 +10,9 @@ class FeaturedCourtsBottomSheet extends StatelessWidget {
   final List<dynamic> featuredYards;
 
   const FeaturedCourtsBottomSheet({
-    Key? key,
+    super.key,
     required this.featuredYards,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
